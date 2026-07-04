@@ -102,13 +102,17 @@ class_name StatModifier
 extends RefCounted
 
 # One flat or percent modifier applied to a StatSystem stat.
-# duration <= 0 means permanent (e.g. gear); > 0 counts down via tick_modifiers.
+# A modifier created with duration <= 0 is permanent (e.g. gear); one created
+# with duration > 0 counts down via tick_modifiers and is removed when it
+# expires. Permanence is captured at creation so a temporary whose duration
+# decrements past 0 is never mistaken for permanent.
 
 var stat: int          # CombatEnums.StatKey
 var type: int          # CombatEnums.ModifierType
 var value: float
 var source: String
 var duration: float
+var permanent: bool
 
 
 func _init(p_stat: int, p_type: int, p_value: float, p_source: String = "", p_duration: float = 0.0) -> void:
@@ -117,10 +121,11 @@ func _init(p_stat: int, p_type: int, p_value: float, p_source: String = "", p_du
 	value = p_value
 	source = p_source
 	duration = p_duration
+	permanent = p_duration <= 0.0
 
 
 func is_permanent() -> bool:
-	return duration <= 0.0
+	return permanent
 ```
 
 - [ ] **Step 3: Write `scripts/combat/stat_system.gd`**
@@ -236,7 +241,8 @@ func _check_stat_system() -> void:
 
 	# duration expiry
 	s.add_modifier(StatModifier.new(S.ATK, CombatEnums.ModifierType.FLAT, 100.0, "temp", 1.0))
-	_expect(_approx(s.get_stat(S.ATK), 130.0), "temp buff active should give 130, got %f" % s.get_stat(S.ATK))
+	# (20 + 100) * (1 + 0.5) = 180 — the percent multiplier still applies to the flat add
+	_expect(_approx(s.get_stat(S.ATK), 180.0), "temp buff active should give 180, got %f" % s.get_stat(S.ATK))
 	s.tick_modifiers(1.5)
 	_expect(_approx(s.get_stat(S.ATK), 30.0), "temp buff should expire back to 30, got %f" % s.get_stat(S.ATK))
 
