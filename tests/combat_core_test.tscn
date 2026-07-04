@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://c0tbcombatcore01"]
+
+[ext_resource type="Script" path="res://tests/combat_core_test.gd" id="1_ccore"]
+
+[node name="CombatCoreTest" type="Node"]
+script = ExtResource("1_ccore")
