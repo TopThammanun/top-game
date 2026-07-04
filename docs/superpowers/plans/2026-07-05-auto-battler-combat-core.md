@@ -18,6 +18,7 @@
 - **Class names are global** (`class_name X`) — new names must not collide with existing ones (`UnitState`, `WaveState`, `BattleEngine`, `AssetRegistry`, `GameState` are taken; the names below are free).
 - **Test invocation:** `<godot> --headless res://tests/<name>.tscn`, where `<godot>` is resolved as in `run_game.ps1` (arg → `$env:GODOT_EXE` → `Godot*.exe` in project root → PATH). Pass = exit 0.
 - **Determinism in tests:** damage crit uses RNG; every damage test passes an explicit `crit_roll` so results are deterministic.
+- **Cross-references use preload consts, not bare global `class_name`** (added during execution). A new `class_name` script is not registered in the `.godot` class cache without a slow/fragile import, so `scripts/combat/*` and the tests reference siblings via `const XxxClass = preload("res://scripts/combat/xxx.gd")` (project convention — see `game_state.gd`, and `agents/sage/godot-runtime/decisions/headless-global-class-cache.md`). Scripts keep their `class_name`, but where a param's type is another combat class it is left untyped, and a `:=` local derived from an untyped value is given an explicit type. **The code blocks below that reference classes by bare global name (`CombatEnums`, `StatSystem`, …) are superseded by this constraint; the committed code and the Task 4/5 briefs use the `preload`-const form.**
 
 ---
 
