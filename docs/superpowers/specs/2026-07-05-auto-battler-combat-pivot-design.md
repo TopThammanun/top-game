@@ -41,8 +41,21 @@ core; the core never depends on the scene.** The existing meta/idle layer is pre
   idle/currency/save loop survives the pivot.
 - `scripts/runtime/wave_state.gd` — defines which enemies spawn per wave (lightly adapted).
 
-### Retire
-- `scripts/runtime/battle_engine.gd` — the `Timer`-based turn engine, fully replaced.
+### Retire (with care — it is more entangled than a lone file)
+- `scripts/runtime/battle_engine.gd` — the `Timer`-based turn engine, replaced by the real-time
+  system. **Blast radius (traced):** `scripts/main/main.gd` instantiates it and drives the
+  current playable prototype through it; `EmberhearthMapView` consumes its signals
+  (`damage_dealt`, `unit_defeated`, `skill_used`, `boss_telegraph`) to render game-feel effects
+  (lunges, hit flashes, camera); the taskbar routes skill buttons to it. It is documented across
+  five Sage flow docs and `docs/systems/COMBAT_SYSTEM.md`.
+- **Seam that de-risks the cutover (design decision):** the new `BattleManager` / `BattleEntity`
+  **re-emit the same combat signal vocabulary** (`damage_dealt(source_id, target_id, amount)`,
+  `unit_defeated(unit_id)`, `skill_used(skill_id)`, `boss_telegraph(message)`). The existing
+  presentation/feedback layer keeps working against that contract, so retiring the turn engine
+  does not orphan the map-view/taskbar feedback — only the tick source changes, not the events.
+- `scripts/main/main.gd` and `scripts/ui/taskbar.gd` are **re-pointed**, not deleted: the "Start
+  Battle" action loads `battle.tscn`, and skill buttons call `BattleManager.request_cast(...)`
+  instead of `BattleEngine.trigger_skill_*()`.
 
 ### New — pure-logic core (`scripts/combat/`, all `RefCounted`, headless-testable)
 | File | Responsibility |
@@ -134,7 +147,10 @@ default `lane`, stat weighting (multipliers applied to a clan's base numbers), `
 - **Cooldown tick:** `remaining -= delta × (1 + COOLDOWN_REDUCTION)`.
 - **Auto-cast:** each frame, poll ready allied skills; cast the **front-most X** one; then impose
   a global ~0.3s execution delay before the next cast — the deliberate interruption window.
-- **Manual override hook:** `request_cast(entity)` is stubbed for the future portrait-tap UI.
+- **Manual override:** `request_cast(entity)` is **implemented** and wired to the existing
+  taskbar skill buttons this slice (they replace `BattleEngine.trigger_skill_*`). It bypasses the
+  auto-cast queue and forces the entity's `CAST_SKILL` if the cooldown permits. Only the fancier
+  *portrait-ring* tap UI (P6) is deferred.
 
 ## 8. Scene, boot wiring, and data
 
@@ -142,7 +158,9 @@ default `lane`, stat weighting (multipliers applied to a clan's base numbers), `
 Root `BattleManager` (`Node2D`); a `Camera2D` following average ally X with smooth damping
 (basic follow only); background painted from existing assets via `AssetRegistry`; three left-side
 lane formation anchors + a right-side enemy spawn zone; each `BattleEntity` renders its
-idle/move sprite via existing `unit.*_idle` / `_move` shortcuts with a small HP bar; a minimal
+idle/move sprite via the existing **role-based** shortcuts (`unit.tank_*`, `unit.healer_*`,
+`unit.ranged_*`, `unit.mage_*`, `unit.enemy_boss_*`, …) — these map cleanly onto archetypes, so
+`archetypes.json` carries an `idle_shortcut` / `move_shortcut` per archetype (no new art) — with a small HP bar; a minimal
 HUD (wave number + skill-button row wired to `request_cast`). Victory/Defeat reports to
 `GameState` then returns to the meta hub.
 
@@ -168,18 +186,30 @@ remains the meta hub; a "Start Battle" action transitions into `battle.tscn` and
 
 ## 10. Testing
 
-- **Headless unit tests** (extend `tests/`, run like the existing gate tests):
+- **Headless unit tests** — follow the **existing scene-based harness** (`tests/bootstrap_test.tscn`
+  drives `tests/bootstrap_test.gd`); add a combat test scene that `new()`s the `RefCounted` core
+  classes and asserts:
   - `DamageCalculator` — DEF ratio curve, crit multiplier, `resist − bypass` clamp, int floor.
   - `StatSystem` — flat + percent stacking order, modifier expiry by duration.
   - `Skill` — starting cooldown seeds `remaining`, CDR scaling of tick, readiness ordering.
+- **Docs to update (Sage `update-docs`) — retiring the turn engine makes these stale:**
+  `docs/systems/COMBAT_SYSTEM.md` and the five `agents/sage/flows/*` docs that describe
+  `BattleEngine` (`playable-party-combat-mvp-flow`, `game-feel-effects-flow`,
+  `taskbar-battle-strip-layout-flow`, `tbh-combat-animation-and-camera-flow`,
+  and the presenter decision under `agents/sage/godot-runtime/decisions/`). Update them to the new
+  `BattleManager` architecture (they keep describing the same signal vocabulary, per §2's seam).
 - **Runtime smoke** (Sage automate-test): `run_game.ps1` + `tools/capture_runtime_screenshot.ps1`
   to prove the battle scene launches and renders; report the actual output, not "should pass".
 
 ## 11. Risks & notes
 
 - **Godot target:** 4.x (repo declares 4.2 features; local binary is Godot 4.7).
-- **Biggest churn:** retiring `battle_engine.gd` and any references from `main`/`taskbar`. The
-  meta layer (`GameState`) is the seam that keeps currency/save/progression intact.
+- **Biggest churn:** retiring `battle_engine.gd` is not a one-file delete — it is wired into
+  `main.gd`, the taskbar skill routing, and `EmberhearthMapView`'s game-feel effects, and
+  documented across six docs (§10). Two seams keep this tractable: (1) `GameState` stays the
+  meta layer (currency/save/progression intact), and (2) the new nodes re-emit the existing
+  combat **signal vocabulary** (§2) so the presentation layer survives with re-pointing, not a
+  rewrite.
 - **Determinism:** crit uses RNG; unit tests inject a seeded/forced roll so damage math is
   deterministic under test.
 - **Source-of-truth:** per `docs/DESIGN_SOURCE_OF_TRUTH.md`, `project_main_setting.md` outranks
