@@ -48,7 +48,7 @@ func tick_modifiers(delta: float) -> void:
 	for m in _modifiers:
 		if not m.is_permanent():
 			m.duration -= delta
-	_modifiers = _modifiers.filter(func(m): return m.duration >= 0.0)
+	_modifiers = _modifiers.filter(func(m): return m.is_permanent() or m.duration > 0.0)
 
 
 func is_alive() -> bool:
