@@ -1,0 +1,25 @@
+{
+  "style": "cozy_medieval_fantasy",
+  "instruments": [
+    "lute",
+    "harp",
+    "recorder",
+    "frame_drum",
+    "piano",
+    "nylon_guitar"
+  ],
+  "layers": [
+    "ambient_bed",
+    "warm_chords",
+    "melody",
+    "soft_percussion",
+    "tension"
+  ],
+  "states": [
+    "idle",
+    "wave_pressure",
+    "boss",
+    "reward",
+    "region_restored"
+  ]
+}

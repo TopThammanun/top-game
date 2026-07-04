@@ -1,0 +1,72 @@
+[
+  {
+    "wave": 1,
+    "type": "basic",
+    "goal": "teach auto-battle",
+    "reward": "soft_currency",
+    "enemies": ["tangleborn_yarnling"]
+  },
+  {
+    "wave": 2,
+    "type": "basic",
+    "goal": "show loot feed",
+    "reward": "soft_currency",
+    "enemies": ["tangleborn_yarnling", "tangleborn_yarnling"]
+  },
+  {
+    "wave": 3,
+    "type": "basic",
+    "goal": "first skill-ready moment",
+    "reward": "minor_material",
+    "enemies": ["tangleborn_yarnling", "tangleborn_yarnling", "tangleborn_yarnling"]
+  },
+  {
+    "wave": 4,
+    "type": "mixed",
+    "goal": "introduce front/middle/rear pressure",
+    "reward": "gear_drop_common",
+    "enemies": ["tangleborn_yarnling", "tangleborn_snarlbeast"]
+  },
+  {
+    "wave": 5,
+    "type": "mixed",
+    "goal": "teach shield timing",
+    "reward": "soft_currency",
+    "enemies": ["tangleborn_snarlbeast", "tangleborn_snarlbeast"]
+  },
+  {
+    "wave": 6,
+    "type": "affinity",
+    "goal": "introduce Hushweave as enemy pressure",
+    "reward": "minor_material",
+    "enemies": ["tangleborn_yarnling", "tangleborn_yarnling", "tangleborn_snarlbeast"]
+  },
+  {
+    "wave": 7,
+    "type": "milestone",
+    "goal": "reward chime and chest fill",
+    "reward": "afk_chest_boost",
+    "enemies": ["tangleborn_snarlbeast", "tangleborn_snarlbeast"]
+  },
+  {
+    "wave": 8,
+    "type": "pressure",
+    "goal": "healer timing",
+    "reward": "gear_drop_common",
+    "enemies": ["tangleborn_snarlbeast", "tangleborn_snarlbeast", "tangleborn_yarnling"]
+  },
+  {
+    "wave": 9,
+    "type": "pressure",
+    "goal": "support buff timing",
+    "reward": "gacha_ticket_fragment",
+    "enemies": ["tangleborn_snarlbeast", "tangleborn_snarlbeast", "tangleborn_snarlbeast"]
+  },
+  {
+    "wave": 10,
+    "type": "boss",
+    "goal": "boss telegraph and burst window",
+    "reward": "boss_chest",
+    "enemies": ["hollowmew_captain"]
+  }
+]

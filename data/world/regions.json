@@ -1,0 +1,79 @@
+[
+  {
+    "id": "emberhearth",
+    "name": "Emberhearth",
+    "capital_or_hub": "Pawmont",
+    "act": 1,
+    "role": "tutorial region and first campaign hub",
+    "landmark": "The Great Hearth",
+    "gameplay_unlocks": [
+      "starter party",
+      "basic auto-battle",
+      "taskbar commands",
+      "AFK rewards"
+    ],
+    "tone": "warm stone castle, hearthlight, knightly comfort",
+    "conflict": "small Unravel tears appear around the capital's hearth roads"
+  },
+  {
+    "id": "silkspiredale",
+    "name": "Silkspiredale",
+    "capital_or_hub": "Spindle Spires",
+    "act": 2,
+    "role": "magic and Threadweaving region",
+    "landmark": "The Singing Loomtower",
+    "gameplay_unlocks": [
+      "Threadweaving affinities",
+      "caster/support characters",
+      "rune tree"
+    ],
+    "tone": "soft mist, silk towers, scholarly magic",
+    "conflict": "Unravel static makes spell-threads sing out of tune"
+  },
+  {
+    "id": "mewrrowmarsh_tuna_coast",
+    "name": "Mewrrowmarsh / Tuna Coast",
+    "capital_or_hub": "Tuna Coast Market",
+    "act": 3,
+    "role": "resource and trade region",
+    "landmark": "The Lantern Pier",
+    "gameplay_unlocks": [
+      "craft materials",
+      "merchant NPCs",
+      "fishing-flavored rewards",
+      "equipment upgrade"
+    ],
+    "tone": "cozy seaside, fish market, lantern rain",
+    "conflict": "supply routes tangle as Unravel knots drift in from the milk seas"
+  },
+  {
+    "id": "frostmane_reach",
+    "name": "Frostmane Reach",
+    "capital_or_hub": "Cloudfur Shrine",
+    "act": 4,
+    "role": "healer and defense challenge region",
+    "landmark": "The Snow-Warmed Shrine",
+    "gameplay_unlocks": [
+      "healer spotlight",
+      "defense challenges",
+      "debuff cleansing"
+    ],
+    "tone": "eternal winter outside, soft firelight inside",
+    "conflict": "cold Hushweave scars slow healing and dull the world's colors"
+  },
+  {
+    "id": "unwoven_wastes",
+    "name": "The Unwoven Wastes",
+    "capital_or_hub": "The Frayed Edge",
+    "act": 5,
+    "role": "late-game and end-game region",
+    "landmark": "The Broken Spindle",
+    "gameplay_unlocks": [
+      "end-game waves",
+      "prestige/reweave hooks",
+      "high-risk affix farming"
+    ],
+    "tone": "pale, quiet, half-unmade landscape",
+    "conflict": "The Unravel openly pulls Yarnthread out of the Great Weave"
+  }
+]

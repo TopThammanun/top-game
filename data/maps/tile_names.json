@@ -1,0 +1,49 @@
+{
+  "_meta": {
+    "about": "Named map tiles for the overworld tilesheet: name -> [col, row] on the 16px grid. This is the swap layer for MAP TILES, the same idea as data/asset_shortcuts.json is for whole assets. Map plans and code should reference these names instead of raw [col, row] pairs.",
+    "biome_agnostic": "All six tilesheets share one identical tile layout, so these names work for every biome. To retheme a whole map, keep the names and swap the tilesheet_shortcut (map.default_tilesheet / map.desert_tilesheet / map.snow_tilesheet).",
+    "resolve": "AssetRegistry.load_map_tile(name) / get_map_tile_coords(name). See docs/ASSET_GUIDE.md section 3.2.",
+    "extend": "Add a name here (never a raw [col,row] in game code). Find coordinates with the labeled tilesheet or asset_sliced/tiles/<sheet>/<scale>/index.json (tile_col / tile_row)."
+  },
+
+  "grass": [12, 5],
+  "grass_plain": [14, 4],
+  "grass_dark": [10, 4],
+  "grass_light": [12, 4],
+  "grass_tuft": [10, 6],
+  "sand": [1, 3],
+  "water": [5, 9],
+  "water_deep": [5, 29],
+
+  "road": [1, 3],
+  "road_h": [1, 3],
+  "road_v": [1, 3],
+  "road_alt": [2, 4],
+  "path_light": [1, 3],
+  "path_edge": [0, 4],
+  "path_dot": [3, 6],
+  "water_trim": [6, 13],
+
+  "tree": [0, 1],
+  "tree_2": [1, 1],
+  "tree_pine": [2, 0],
+  "sapling": [8, 1],
+  "plant": [9, 1],
+  "rock": [12, 1],
+  "rock_snow": [3, 1],
+  "bed": [11, 1],
+
+  "house_orange": [7, 33],
+  "house_blue": [13, 33],
+  "house_pink": [19, 33],
+  "house_green": [25, 41],
+  "market_canopy": [12, 50],
+  "market_crates": [12, 51],
+  "banner_pink": [30, 50],
+  "banner_marker": [30, 56],
+  "tent_orange": [18, 60],
+  "tower_blue": [26, 54],
+  "potion_blue": [20, 52],
+  "camp_marker": [7, 58],
+  "reward_glyph": [28, 62]
+}

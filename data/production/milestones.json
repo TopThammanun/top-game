@@ -1,0 +1,56 @@
+[
+  {
+    "id": "prototype",
+    "window": "0-3 months",
+    "required": [
+      "Emberhearth region",
+      "party of four",
+      "10-wave MVP combat",
+      "1 boss",
+      "AFK reward chest",
+      "basic taskbar UI",
+      "6 clan samples",
+      "asset-backed UI"
+    ],
+    "acceptance": [
+      "first_session_reward_within_5_minutes",
+      "taskbar_triggers_skill",
+      "afk_chest_claimable",
+      "boss_clear_reward_feedback"
+    ]
+  },
+  {
+    "id": "vertical_slice",
+    "window": "3-6 months",
+    "required": [
+      "friendly gacha",
+      "pity",
+      "equipment",
+      "cosmetics",
+      "offline cap",
+      "adaptive audio prototype",
+      "2 playable regions"
+    ],
+    "acceptance": [
+      "rates_visible",
+      "duplicates_convert_fairly",
+      "audio_layers_react_to_game_states"
+    ]
+  },
+  {
+    "id": "soft_launch",
+    "window": "6-10 months",
+    "required": [
+      "3 playable regions",
+      "daily weekly loop",
+      "guild or social-lite",
+      "battle pass",
+      "event loop"
+    ],
+    "acceptance": [
+      "day_1_retention_above_40_percent",
+      "day_7_retention_above_20_percent",
+      "monetization_feedback_not_pressure_dominant"
+    ]
+  }
+]

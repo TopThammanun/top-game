@@ -1,0 +1,51 @@
+[
+  {
+    "id": "skill_1",
+    "group": "skill",
+    "label": "Skill 1",
+    "asset_shortcut": "ui.energy_orb",
+    "purpose": "first active skill trigger"
+  },
+  {
+    "id": "skill_2",
+    "group": "skill",
+    "label": "Skill 2",
+    "asset_shortcut": "ui.mp_orb",
+    "purpose": "second active skill trigger"
+  },
+  {
+    "id": "inventory",
+    "group": "menu",
+    "label": "Inventory",
+    "asset_shortcut": "ui.slot_weapon",
+    "purpose": "gear and loot management"
+  },
+  {
+    "id": "upgrade",
+    "group": "menu",
+    "label": "Upgrade",
+    "asset_shortcut": "ui.icon_primary_selected",
+    "purpose": "party, gear, and base upgrades"
+  },
+  {
+    "id": "quest",
+    "group": "menu",
+    "label": "Quest",
+    "asset_shortcut": "ui.button_gold",
+    "purpose": "campaign and daily tasks"
+  },
+  {
+    "id": "afk_chest",
+    "group": "reward",
+    "label": "AFK Chest",
+    "asset_shortcut": "ui.slot_potion",
+    "purpose": "claim idle rewards"
+  },
+  {
+    "id": "replay",
+    "group": "run",
+    "label": "Replay",
+    "asset_shortcut": "ui.hp_orb",
+    "purpose": "restart the 10-wave run with current upgrades"
+  }
+]

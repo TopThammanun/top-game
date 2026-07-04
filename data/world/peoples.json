@@ -1,0 +1,38 @@
+[
+  {
+    "id": "felikin",
+    "name": "Felikin",
+    "role": "primary_playable_people",
+    "usage": ["player party", "hero collection", "story protagonists"]
+  },
+  {
+    "id": "woolfolk",
+    "name": "Woolfolk",
+    "role": "support_people",
+    "usage": ["crafters", "merchants", "upgrade NPCs"]
+  },
+  {
+    "id": "houndsworn",
+    "name": "Houndsworn",
+    "role": "ally_rival_people",
+    "usage": ["challenge NPCs", "guild contacts", "honorable rivals"]
+  },
+  {
+    "id": "tinkerkin",
+    "name": "Tinkerkin",
+    "role": "builder_people",
+    "usage": ["base building", "automation unlocks", "device crafting"]
+  },
+  {
+    "id": "mothkin",
+    "name": "Mothkin",
+    "role": "mystic_people",
+    "usage": ["Silkspiredale lore", "magic trainers", "ancient secrets"]
+  },
+  {
+    "id": "ratterlings",
+    "name": "Ratterlings",
+    "role": "gray_faction_people",
+    "usage": ["informants", "smugglers", "trickster enemies", "event NPCs"]
+  }
+]

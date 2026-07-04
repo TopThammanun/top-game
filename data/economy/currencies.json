@@ -1,0 +1,32 @@
+[
+  {
+    "id": "soft_currency",
+    "name": "Pawcoins",
+    "source": ["waves", "afk_chest", "quests"],
+    "sink": ["character_level", "basic_upgrade", "shop_basics"]
+  },
+  {
+    "id": "premium_currency",
+    "name": "Star Yarn",
+    "source": ["achievements", "events", "purchase"],
+    "sink": ["gacha", "cosmetics", "premium_exchange"]
+  },
+  {
+    "id": "gacha_ticket",
+    "name": "Thread Ticket",
+    "source": ["daily", "events", "battle_pass", "exchange"],
+    "sink": ["character_or_cosmetic_pull"]
+  },
+  {
+    "id": "craft_material",
+    "name": "Loom Scraps",
+    "source": ["Tuna Coast routes", "waves", "AFK rewards"],
+    "sink": ["equipment_upgrade", "affix_reroll", "base_upgrade"]
+  },
+  {
+    "id": "event_token",
+    "name": "Festival Buttons",
+    "source": ["seasonal_event", "weekly_tasks"],
+    "sink": ["event_shop", "cosmetic_crafting"]
+  }
+]

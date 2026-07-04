@@ -1,0 +1,44 @@
+{
+  "source_of_truth": {
+    "setting": "project_main_setting.md",
+    "implementation_spec": "docs/TBH_GAME_SPEC_1_TO_100.md",
+    "identity": "data/project_identity.json",
+    "asset_catalog": "data/asset_catalog.json",
+    "asset_shortcuts": "data/asset_shortcuts.json"
+  },
+  "system_specs": {
+    "peoples_and_clans": "docs/world/PEOPLES_AND_CLANS.md",
+    "core_loop": "docs/systems/CORE_LOOP.md",
+    "combat": "docs/systems/COMBAT_SYSTEM.md",
+    "map_and_taskbar": "docs/systems/MAP_AND_TASKBAR.md",
+    "progression_and_economy": "docs/systems/PROGRESSION_AND_ECONOMY.md",
+    "monetization": "docs/systems/MONETIZATION_POLICY.md",
+    "sound_and_feel": "docs/audio/SOUND_AND_FEEL.md",
+    "milestones": "docs/production/MILESTONES_AND_ACCEPTANCE.md",
+    "issue_plan": "docs/production/ISSUE_PLAN.md"
+  },
+  "engine": {
+    "name": "Godot",
+    "version_family": "4.x",
+    "project_file": "project.godot",
+    "main_scene": "scenes/main/main.tscn"
+  },
+  "folder_contracts": {
+    "scenes/main": "boot scene and prototype shell",
+    "scenes/maps": "playable map scenes",
+    "scenes/ui": "taskbar and reusable UI scenes",
+    "scripts/autoload": "global autoload services",
+    "scripts/main": "prototype composition scripts",
+    "scripts/maps": "map-specific scripts",
+    "scripts/ui": "UI-specific scripts",
+    "scripts/runtime": "pure game state and simulation, no scene or UI code",
+    "resources/units": "future unit definition resources",
+    "resources/commands": "future taskbar command resources",
+    "tests": "GUT-compatible test scripts; entry via godot --headless -s"
+  },
+  "asset_rules": [
+    "Keep original source assets under asset/.",
+    "Use AssetRegistry and data/asset_shortcuts.json for stable gameplay references.",
+    "Regenerate data/asset_catalog.json after adding, removing, or renaming assets."
+  ]
+}

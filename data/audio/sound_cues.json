@@ -1,0 +1,58 @@
+[
+  {
+    "id": "ui_click",
+    "category": "sfx",
+    "priority": "prototype",
+    "variants_min": 4,
+    "mood": "tight_tactile"
+  },
+  {
+    "id": "loot_tiny_drop",
+    "category": "reward",
+    "priority": "prototype",
+    "reward_layer": 1,
+    "mood": "soft_chime"
+  },
+  {
+    "id": "loot_rare_drop",
+    "category": "reward",
+    "priority": "prototype",
+    "reward_layer": 2,
+    "mood": "brighter_chime"
+  },
+  {
+    "id": "level_up",
+    "category": "reward",
+    "priority": "prototype",
+    "reward_layer": 3,
+    "mood": "warm_rise"
+  },
+  {
+    "id": "afk_chest_open",
+    "category": "reward",
+    "priority": "prototype",
+    "reward_layer": 4,
+    "mood": "multi_stage_chest"
+  },
+  {
+    "id": "boss_clear",
+    "category": "reward",
+    "priority": "prototype",
+    "reward_layer": 5,
+    "mood": "celebration_without_noise"
+  },
+  {
+    "id": "cat_voice_mya",
+    "category": "voice",
+    "priority": "prototype",
+    "variants_min": 6,
+    "mood": "cute_short"
+  },
+  {
+    "id": "purr_ambient",
+    "category": "ambient",
+    "priority": "prototype",
+    "toggle": "ambient_volume",
+    "mood": "soft_signature"
+  }
+]

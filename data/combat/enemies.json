@@ -1,0 +1,44 @@
+[
+  {
+    "id": "tangleborn_yarnling",
+    "display_name": "Yarnling",
+    "faction": "tangleborn",
+    "role": "grunt",
+    "idle_asset": "unit.enemy_grunt_idle",
+    "move_asset": "unit.enemy_grunt_move",
+    "modulate_hint": "enemy_red",
+    "base_hp": 40,
+    "base_atk": 6,
+    "base_def": 2,
+    "affinity": "hushweave",
+    "notes": "Basic tangleborn pressure unit. Uses a dedicated beast shortcut; MapView keeps a light red faction tint."
+  },
+  {
+    "id": "tangleborn_snarlbeast",
+    "display_name": "Snarlbeast",
+    "faction": "tangleborn",
+    "role": "mid_pressure",
+    "idle_asset": "unit.enemy_brute_idle",
+    "move_asset": "unit.enemy_brute_move",
+    "modulate_hint": "enemy_red",
+    "base_hp": 80,
+    "base_atk": 10,
+    "base_def": 4,
+    "affinity": "hushweave",
+    "notes": "Medium-sized tangled fur beast. Introduced from wave 4 onward."
+  },
+  {
+    "id": "hollowmew_captain",
+    "display_name": "Hollowmew Captain",
+    "faction": "tangleborn",
+    "role": "boss",
+    "idle_asset": "unit.enemy_boss_idle",
+    "move_asset": "unit.enemy_boss_move",
+    "modulate_hint": "boss_purple",
+    "base_hp": 400,
+    "base_atk": 18,
+    "base_def": 8,
+    "affinity": "hushweave",
+    "notes": "Wave 10 boss. Shadow-cat corrupted by Hushweave. Uses a dedicated elemental boss shortcut with a purple faction tint."
+  }
+]

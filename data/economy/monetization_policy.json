@@ -1,0 +1,34 @@
+{
+  "promise": "cozy_fair_free_to_finish",
+  "allowed_spending": [
+    "cosmetics",
+    "convenience",
+    "collection_acceleration",
+    "premium_battle_pass_value",
+    "optional_extra_pulls"
+  ],
+  "forbidden_spending": [
+    "exclusive_story_completion",
+    "direct_unavoidable_victory",
+    "hidden_pity_manipulation",
+    "fake_timer_pressure",
+    "relief_from_intentional_pain"
+  ],
+  "gacha_rules": {
+    "display_rates": true,
+    "visible_pity": true,
+    "shard_exchange_paths": true,
+    "fair_duplicate_handling": true
+  },
+  "battle_pass": {
+    "free_track_required": true,
+    "premium_power_mandatory": false,
+    "main_premium_appeal": ["cosmetics", "currency", "value"]
+  },
+  "rewarded_ads": {
+    "optional": true,
+    "diegetic_offer": true,
+    "interruptive": false
+  },
+  "final_check": "Is this still cozy, fair, and free-to-finish?"
+}

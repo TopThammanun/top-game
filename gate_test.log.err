@@ -1,0 +1,5 @@
+WARNING: Grid cell out of range for map.default_tilesheet: column=999 row=999 grid=64x64
+   at: push_warning (core/variant/variant_utility.cpp:1033)
+   GDScript backtrace (most recent call first):
+       [0] load_grid_cell (res://scripts/autoload/asset_registry.gd:186)
+       [1] _ready (res://tests/bootstrap_test.gd:74)

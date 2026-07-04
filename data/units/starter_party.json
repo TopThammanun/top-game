@@ -1,0 +1,46 @@
+[
+  {
+    "id": "starter_ironmane_guardian",
+    "display_name": "Ironmane Guardian",
+    "clan_id": "maincoon_ironmane",
+    "party_role": "tank",
+    "lane": "front",
+    "idle_asset": "unit.tank_idle",
+    "move_asset": "unit.tank_move",
+    "starter_position": 1,
+    "skill_role": "party shield and taunt"
+  },
+  {
+    "id": "starter_wildstripe_striker",
+    "display_name": "Wildstripe Striker",
+    "clan_id": "bengalis_wildstripe",
+    "party_role": "dps",
+    "lane": "middle",
+    "idle_asset": "unit.striker_idle",
+    "move_asset": "unit.striker_move",
+    "starter_position": 2,
+    "skill_role": "timed crit burst"
+  },
+  {
+    "id": "starter_silkpaw_weaver",
+    "display_name": "Silkpaw Weaver",
+    "clan_id": "persephone_silkpaw",
+    "party_role": "support",
+    "lane": "rear",
+    "idle_asset": "unit.support_idle",
+    "move_asset": "unit.support_move",
+    "starter_position": 3,
+    "skill_role": "team buff and enemy slow"
+  },
+  {
+    "id": "starter_cloudfur_mender",
+    "display_name": "Cloudfur Mender",
+    "clan_id": "ragdollan_cloudfur",
+    "party_role": "healer",
+    "lane": "rear",
+    "idle_asset": "unit.healer_idle",
+    "move_asset": "unit.healer_move",
+    "starter_position": 4,
+    "skill_role": "heal and cleanse"
+  }
+]

@@ -1,0 +1,29 @@
+{
+  "primary_loop": [
+    "open_game",
+    "claim_afk_rewards",
+    "open_or_collect_loot",
+    "upgrade_party_gear_or_base",
+    "push_waves_or_region_node",
+    "return_to_idle"
+  ],
+  "positive_feedback_max_gap_seconds": 3,
+  "session_targets": {
+    "first_session_minutes": 5,
+    "normal_session_minutes_min": 3,
+    "normal_session_minutes_max": 10
+  },
+  "player_interventions": [
+    "trigger_skill",
+    "focus_target",
+    "use_item",
+    "claim_burst_reward",
+    "upgrade_build",
+    "choose_push_or_farm"
+  ],
+  "balance_guardrails": [
+    "offline_rewards_useful_not_dominant",
+    "no_intentional_paywall_progression_wall",
+    "fix_reward_cadence_before_feature_bloat"
+  ]
+}

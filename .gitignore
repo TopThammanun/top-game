@@ -1,0 +1,9 @@
+.godot/
+.import/
+.export/
+export.cfg
+export_presets.cfg
+*.tmp
+*.log
+Godot*.exe
+godot_runtime_screenshot.png

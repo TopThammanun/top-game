@@ -1,0 +1,36 @@
+{
+  "production_title": "TBH: Task Bar Hero",
+  "fantasy_title": "Whisker Realm",
+  "primary_world": "Purralia",
+  "primary_world_thai": "เพอร์ราเลีย",
+  "genre": "Idle + Turn-based RPG",
+  "tone": "cozy medieval fantasy",
+  "setting_source": "project_main_setting.md",
+  "implementation_spec": "docs/TBH_GAME_SPEC_1_TO_100.md",
+  "identity_spec_step": 1,
+  "player_role": "Threadbound",
+  "core_conflict": "The Unravel is loosening the Yarnthread that holds the Great Weave together.",
+  "pillars": [
+    "Sound Design",
+    "Cuteness",
+    "Idle party optimization",
+    "Friendly monetization"
+  ],
+  "canonical_usage": {
+    "use_production_title_for": [
+      "Godot project name",
+      "repository README",
+      "build/export labels"
+    ],
+    "use_fantasy_title_for": [
+      "world bible",
+      "player-facing fantasy identity",
+      "story and marketing copy"
+    ],
+    "use_primary_world_for": [
+      "narrative setting",
+      "region progression",
+      "lore references"
+    ]
+  }
+}

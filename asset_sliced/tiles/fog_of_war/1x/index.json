@@ -1,0 +1,21 @@
+{
+    "sheet":  "fog_of_war",
+    "scale":  "1x",
+    "cell":  16,
+    "source":  "asset/map/1x/FogOfWar.png",
+    "object_count":  1,
+    "objects":  [
+                    {
+                        "file":  "fog_autotile_000_c0_r0.png",
+                        "role":  "fog_autotile",
+                        "tile_col":  0,
+                        "tile_row":  0,
+                        "px_x":  0,
+                        "px_y":  0,
+                        "px_w":  448,
+                        "px_h":  80,
+                        "tiles_w":  28,
+                        "tiles_h":  5
+                    }
+                ]
+}

@@ -1,0 +1,33 @@
+; Engine configuration file.
+; Open this folder with Godot 4.x to create local import metadata.
+
+config_version=5
+
+[application]
+
+config/name="TBH: Task Bar Hero"
+config/description="Idle + turn-based RPG starter set in Whisker Realm / Purralia, with an AI-friendly asset catalog."
+run/main_scene="res://scenes/main/main.tscn"
+config/features=PackedStringArray("4.2")
+config/icon="res://asset/ui/Individual files/1x/Mini icons/Icon_01.png"
+
+[autoload]
+
+AssetRegistry="*res://scripts/autoload/asset_registry.gd"
+GameState="*res://scripts/runtime/game_state.gd"
+
+[display]
+
+window/size/viewport_width=1280
+window/size/viewport_height=720
+window/stretch/mode="canvas_items"
+window/stretch/aspect="expand"
+
+[gui]
+
+theme/default_font="res://asset/ui/Fonts/FantasyRPGtext (size 8).ttf"
+theme/default_font_size=16
+
+[rendering]
+
+textures/canvas_textures/default_texture_filter=0

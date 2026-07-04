@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell(Test-Path *)",
+      "PowerShell($godot = 'C:\\\\Work\\\\Personal\\\\top-game\\\\Godot_v4.7-stable_win64.exe\\\\Godot_v4.7-stable_win64.exe'; & $godot --headless --path 'C:\\\\Work\\\\Personal\\\\top-game' 'res://tests/bootstrap_test.tscn' 2>&1 | Out-String)"
+    ]
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "slots": [
+    "weapon",
+    "armor",
+    "accessory_collar",
+    "charm"
+  ],
+  "rarities": [
+    "Common",
+    "Rare",
+    "Epic",
+    "Legendary",
+    "Ancient/Mythic"
+  ],
+  "affixes": [
+    "cooldown",
+    "crit",
+    "healing",
+    "shield",
+    "speed",
+    "offline_reward",
+    "soft_currency_gain",
+    "skill_charge"
+  ],
+  "crafting_terms": [
+    "stitch",
+    "mend",
+    "reweave",
+    "thread-set",
+    "reroll_affix"
+  ],
+  "power_curve_rule": "Rarity increases identity and affix depth without creating pay-to-unblock walls."
+}

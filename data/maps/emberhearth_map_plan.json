@@ -1,0 +1,143 @@
+{
+  "id": "emberhearth_pawmont_outskirts",
+  "region_id": "emberhearth",
+  "tilesheet_shortcut": "map.default_tilesheet",
+  "tile_size": 16,
+  "display_scale": 2,
+  "map_width": 28,
+  "map_height": 8,
+  "tile_layers": {
+    "ground_fill": {
+      "tile": "grass"
+    },
+    "patches": [
+      {
+        "x": 0,
+        "y": 0,
+        "width": 28,
+        "height": 1,
+        "tile": "grass_light"
+      },
+      {
+        "x": 0,
+        "y": 6,
+        "width": 28,
+        "height": 1,
+        "tile": "grass_dark"
+      },
+      {
+        "x": 15,
+        "y": 1,
+        "width": 5,
+        "height": 2,
+        "tile": "grass_plain"
+      }
+    ],
+    "roads": [
+      {
+        "x": 0,
+        "y": 4,
+        "width": 28,
+        "height": 1,
+        "tile": "road_h"
+      },
+      {
+        "x": 13,
+        "y": 0,
+        "width": 2,
+        "height": 8,
+        "tile": "road_v"
+      },
+      {
+        "x": 20,
+        "y": 3,
+        "width": 8,
+        "height": 1,
+        "tile": "road_alt"
+      }
+    ],
+    "water": [
+      {
+        "x": 0,
+        "y": 7,
+        "width": 28,
+        "height": 1,
+        "tile": "water_deep"
+      }
+    ],
+    "decor": [
+      { "x": 0, "y": 1, "tile": "tree" },
+      { "x": 1, "y": 1, "tile": "tree_2" },
+      { "x": 9, "y": 3, "tile": "sapling" },
+      { "x": 10, "y": 3, "tile": "plant" },
+      { "x": 16, "y": 2, "tile": "rock" },
+      { "x": 17, "y": 2, "tile": "grass_tuft" },
+      { "x": 26, "y": 2, "tile": "potion_blue" },
+      { "x": 27, "y": 6, "tile": "reward_glyph" }
+    ],
+    "stamps": [
+      {
+        "x": 3,
+        "y": 0,
+        "width": 3,
+        "height": 3,
+        "tile": "house_orange",
+        "mode": "stamp"
+      },
+      {
+        "x": 22,
+        "y": 0,
+        "width": 3,
+        "height": 3,
+        "tile": "house_blue",
+        "mode": "stamp"
+      },
+      {
+        "x": 6,
+        "y": 1,
+        "width": 5,
+        "height": 1,
+        "tile": "market_canopy",
+        "mode": "stamp"
+      },
+      {
+        "x": 6,
+        "y": 2,
+        "width": 5,
+        "height": 2,
+        "tile": "market_crates",
+        "mode": "stamp"
+      },
+      {
+        "x": 18,
+        "y": 5,
+        "width": 5,
+        "height": 3,
+        "tile": "tent_orange",
+        "mode": "stamp"
+      },
+      {
+        "x": 24,
+        "y": 4,
+        "width": 2,
+        "height": 2,
+        "tile": "banner_pink",
+        "mode": "stamp"
+      }
+    ]
+  },
+  "visual_goals": [
+    "asset_backed_village_market",
+    "flush_background_blocks",
+    "lower_side_battle_lane",
+    "taskbar_hero_readability",
+    "party_enemy_silhouettes_readable"
+  ],
+  "scene_target": "scenes/maps/emberhearth_map_view.tscn",
+  "script_target": "scripts/maps/emberhearth_map_view.gd",
+  "readability_rules": [
+    "party_and_enemies_visible_at_a_glance",
+    "wave_path_clear",
+    "taskbar_not_covering_core_action"
+  ]
+}

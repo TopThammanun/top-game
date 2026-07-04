@@ -1,0 +1,32 @@
+[
+  {
+    "id": "emberweave",
+    "name": "Emberweave",
+    "role": "damage_and_warmth",
+    "tags": ["burn", "burst", "warmth"]
+  },
+  {
+    "id": "tideweave",
+    "name": "Tideweave",
+    "role": "healing_and_flow",
+    "tags": ["heal", "recover", "flow"]
+  },
+  {
+    "id": "galeweave",
+    "name": "Galeweave",
+    "role": "speed_and_crit",
+    "tags": ["speed", "crit", "dodge"]
+  },
+  {
+    "id": "stoneweave",
+    "name": "Stoneweave",
+    "role": "defense_and_stability",
+    "tags": ["shield", "armor", "stability"]
+  },
+  {
+    "id": "hushweave",
+    "name": "Hushweave",
+    "role": "unravel_corruption",
+    "tags": ["silence", "slow", "forbidden", "enemy"]
+  }
+]

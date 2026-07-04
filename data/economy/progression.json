@@ -1,0 +1,33 @@
+{
+  "character_progression": [
+    "level",
+    "ascension_star",
+    "skill_level",
+    "role_growth"
+  ],
+  "account_progression": {
+    "system": "rune_talent_tree",
+    "unlocks": [
+      "offline_reward_cap",
+      "auto_features",
+      "taskbar_slots",
+      "global_stat_bonuses",
+      "region_quality_of_life"
+    ]
+  },
+  "base_progression": {
+    "name": "The Loomstead",
+    "functions": [
+      "craft_material_production",
+      "landmark_buffs",
+      "npc_home",
+      "cosmetic_display",
+      "idle_income"
+    ]
+  },
+  "reward_layers": {
+    "short_term": ["coins", "tiny_drops", "chest_fill"],
+    "medium_term": ["gear", "skill_levels", "base_upgrades"],
+    "long_term": ["collection", "ascension", "region_restoration", "cosmetics"]
+  }
+}

@@ -1,0 +1,20 @@
+SCRIPT ERROR: Parse Error: Cannot infer the type of "missing" variable because the value doesn't have a set type.
+   at: GDScript::reload (res://scripts/runtime/battle_engine.gd:56)
+SCRIPT ERROR: Parse Error: Cannot infer the type of "alive_enemies" variable because the value doesn't have a set type.
+   at: GDScript::reload (res://scripts/runtime/battle_engine.gd:69)
+SCRIPT ERROR: Parse Error: Cannot infer the type of "target" variable because the value doesn't have a set type.
+   at: GDScript::reload (res://scripts/runtime/battle_engine.gd:73)
+SCRIPT ERROR: Parse Error: Cannot infer the type of "dealt" variable because the value doesn't have a set type.
+   at: GDScript::reload (res://scripts/runtime/battle_engine.gd:77)
+SCRIPT ERROR: Parse Error: Cannot infer the type of "target" variable because the value doesn't have a set type.
+   at: GDScript::reload (res://scripts/runtime/battle_engine.gd:97)
+SCRIPT ERROR: Parse Error: Cannot infer the type of "dealt" variable because the value doesn't have a set type.
+   at: GDScript::reload (res://scripts/runtime/battle_engine.gd:100)
+SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+   at: GDScript::reload (res://scripts/main/main.gd:0)
+ERROR: Failed to load script "res://scripts/main/main.gd" with error "Compilation failed".
+   at: load (modules/gdscript/gdscript_resource_format.cpp:46)
+SCRIPT ERROR: Invalid call. Nonexistent function 'new' in base 'GDScript'.
+   at: _ready (res://scripts/main/main.gd:23)
+   GDScript backtrace (most recent call first):
+       [0] _ready (res://scripts/main/main.gd:23)
