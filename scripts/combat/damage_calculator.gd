@@ -3,12 +3,18 @@ extends RefCounted
 
 # CRK-style pipeline (spec §4). Static utility; pass crit_roll >= 0 in tests
 # for determinism, or -1.0 to roll randf() at runtime.
+#
+# Cross-references sibling combat scripts via preload consts (see
+# agents/sage/godot-runtime/decisions/headless-global-class-cache.md).
 
-static func compute(attacker: StatSystem, defender: StatSystem, skill_ratio: float = 1.0, crit_roll: float = -1.0) -> Dictionary:
-	var S := CombatEnums.StatKey
-	var atk := attacker.get_stat(S.ATK)
-	var deff := defender.get_stat(S.DEF)
-	var raw := atk * skill_ratio
+const CombatEnumsClass = preload("res://scripts/combat/combat_enums.gd")
+
+
+static func compute(attacker, defender, skill_ratio: float = 1.0, crit_roll: float = -1.0) -> Dictionary:
+	var S := CombatEnumsClass.StatKey
+	var atk: float = attacker.get_stat(S.ATK)
+	var deff: float = defender.get_stat(S.DEF)
+	var raw: float = atk * skill_ratio
 
 	# 1. DEF mitigation (ratio curve, diminishing returns, never negative)
 	var dmg := 0.0

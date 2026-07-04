@@ -3,6 +3,13 @@ extends RefCounted
 
 # Base + advanced stats with a modifier stack. Final value:
 #   (base + sum FLAT) * (1 + sum PERCENT). Current HP tracked separately.
+#
+# Cross-references sibling combat scripts via preload consts (project convention,
+# see game_state.gd) so the module resolves in a headless run without needing the
+# .godot global-class-cache to be (re)built. See
+# agents/sage/godot-runtime/decisions/headless-global-class-cache.md
+
+const CombatEnumsClass = preload("res://scripts/combat/combat_enums.gd")
 
 var _base: Dictionary = {}      # StatKey(int) -> float
 var _modifiers: Array = []      # Array[StatModifier]
@@ -12,7 +19,7 @@ var current_hp: float = 0.0
 func _init(base_stats: Dictionary = {}) -> void:
 	for k in base_stats:
 		_base[int(k)] = float(base_stats[k])
-	current_hp = get_stat(CombatEnums.StatKey.HP)
+	current_hp = get_stat(CombatEnumsClass.StatKey.HP)
 
 
 func set_base(stat: int, value: float) -> void:
@@ -23,7 +30,7 @@ func get_base(stat: int) -> float:
 	return float(_base.get(stat, 0.0))
 
 
-func add_modifier(mod: StatModifier) -> void:
+func add_modifier(mod) -> void:
 	_modifiers.append(mod)
 
 
@@ -37,7 +44,7 @@ func get_stat(stat: int) -> float:
 	for m in _modifiers:
 		if m.stat != stat:
 			continue
-		if m.type == CombatEnums.ModifierType.FLAT:
+		if m.type == CombatEnumsClass.ModifierType.FLAT:
 			flat += m.value
 		else:
 			pct += m.value
@@ -60,4 +67,4 @@ func take_damage(amount: float) -> void:
 
 
 func heal(amount: float) -> void:
-	current_hp = min(get_stat(CombatEnums.StatKey.HP), current_hp + amount)
+	current_hp = min(get_stat(CombatEnumsClass.StatKey.HP), current_hp + amount)
