@@ -6,9 +6,23 @@ extends Node
 
 var _failures: Array[String] = []
 
+# Dynamic references to scripts loaded at runtime
+var CombatEnums
+var StatSystem
+var StatModifier
+var DamageCalculator
+
+func _enter_tree() -> void:
+	# Load scripts at the earliest opportunity
+	CombatEnums = load("res://scripts/combat/combat_enums.gd")
+	StatSystem = load("res://scripts/combat/stat_system.gd")
+	StatModifier = load("res://scripts/combat/stat_modifier.gd")
+	DamageCalculator = load("res://scripts/combat/damage_calculator.gd")
+
 
 func _ready() -> void:
 	_check_stat_system()
+	_check_damage()
 	_finish()
 
 
@@ -22,8 +36,8 @@ func _approx(a: float, b: float, eps: float = 0.001) -> bool:
 
 
 func _check_stat_system() -> void:
-	var S := CombatEnums.StatKey
-	var s := StatSystem.new({ S.HP: 100.0, S.ATK: 20.0, S.DEF: 5.0 })
+	var S: Variant = CombatEnums.StatKey
+	var s: Variant = StatSystem.new({ S.HP: 100.0, S.ATK: 20.0, S.DEF: 5.0 })
 	_expect(_approx(s.get_stat(S.ATK), 20.0), "base ATK should be 20, got %f" % s.get_stat(S.ATK))
 	_expect(_approx(s.current_hp, 100.0), "current_hp should init to max HP 100, got %f" % s.current_hp)
 
@@ -49,6 +63,42 @@ func _check_stat_system() -> void:
 	_expect(_approx(s.current_hp, 100.0), "heal should cap at max HP 100, got %f" % s.current_hp)
 	s.take_damage(1000.0)
 	_expect(not s.is_alive(), "unit should be dead after lethal damage")
+
+
+func _check_damage() -> void:
+	var S: Variant = CombatEnums.StatKey
+	# ATK 100 vs DEF 100, no crit (crit_roll = 1.0 forces no crit):
+	# raw=100, mitigated = 100 * (100/200) = 50
+	var atkr: Variant = StatSystem.new({ S.ATK: 100.0 })
+	var deff: Variant = StatSystem.new({ S.HP: 999.0, S.DEF: 100.0 })
+	var r: Variant = DamageCalculator.compute(atkr, deff, 1.0, 1.0)
+	_expect(r.amount == 50, "100 ATK vs 100 DEF should be 50, got %d" % r.amount)
+	_expect(r.is_crit == false, "forced crit_roll 1.0 should not crit")
+
+	# crit doubles when CRIT_DMG = 1.0 and crit_roll below CRIT_CHANCE
+	var critr: Variant = StatSystem.new({ S.ATK: 100.0, S.CRIT_CHANCE: 0.5, S.CRIT_DMG: 1.0 })
+	var rc: Variant = DamageCalculator.compute(critr, deff, 1.0, 0.0)
+	_expect(rc.amount == 100, "crit (x2) on 50 base should be 100, got %d" % rc.amount)
+	_expect(rc.is_crit == true, "crit_roll 0.0 < 0.5 should crit")
+
+	# resist reduces; bypass negates it. DEF 0 so raw passes: raw=100.
+	var noDef: Variant = StatSystem.new({ S.HP: 999.0, S.DEF: 0.0, S.DMG_RESIST: 0.5 })
+	var plain: Variant = StatSystem.new({ S.ATK: 100.0 })
+	_expect(DamageCalculator.compute(plain, noDef, 1.0, 1.0).amount == 50,
+		"50% resist should halve 100 to 50")
+	var piercer: Variant = StatSystem.new({ S.ATK: 100.0, S.DMG_RESIST_BYPASS: 0.5 })
+	_expect(DamageCalculator.compute(piercer, noDef, 1.0, 1.0).amount == 100,
+		"0.5 bypass vs 0.5 resist should negate resist -> 100")
+
+	# resist clamps at 0.9 (never 100% immune)
+	var wall: Variant = StatSystem.new({ S.HP: 999.0, S.DEF: 0.0, S.DMG_RESIST: 5.0 })
+	_expect(DamageCalculator.compute(plain, wall, 1.0, 1.0).amount == 10,
+		"resist clamps at 0.9 -> 100 becomes 10, got %d" % DamageCalculator.compute(plain, wall, 1.0, 1.0).amount)
+
+	# floor at 1
+	var tiny: Variant = StatSystem.new({ S.ATK: 1.0 })
+	var tank: Variant = StatSystem.new({ S.HP: 999.0, S.DEF: 10000.0 })
+	_expect(DamageCalculator.compute(tiny, tank, 1.0, 1.0).amount >= 1, "damage floors at 1")
 
 
 func _finish() -> void:
