@@ -13,6 +13,7 @@ const StatSystemClass = preload("res://scripts/combat/stat_system.gd")
 const StatModifierClass = preload("res://scripts/combat/stat_modifier.gd")
 const DamageCalculatorClass = preload("res://scripts/combat/damage_calculator.gd")
 const CombatSkillClass = preload("res://scripts/combat/combat_skill.gd")
+const SkillEffectClass = preload("res://scripts/combat/skill_effect.gd")
 
 var _failures: Array[String] = []
 
@@ -21,6 +22,7 @@ func _ready() -> void:
 	_check_stat_system()
 	_check_damage()
 	_check_skill()
+	_check_effect()
 	_finish()
 
 
@@ -117,6 +119,44 @@ func _check_skill() -> void:
 	# trigger resets to full cooldown (not starting cooldown)
 	sk.trigger()
 	_expect(_approx(sk.remaining, 8.0), "trigger should set remaining to cooldown 8.0, got %f" % sk.remaining)
+
+
+func _check_effect() -> void:
+	var S := CombatEnumsClass.StatKey
+
+	# aoe_damage hits every target and mutates their hp
+	var caster := StatSystemClass.new({ S.ATK: 100.0 })
+	var e1 := StatSystemClass.new({ S.HP: 999.0, S.DEF: 100.0 })
+	var e2 := StatSystemClass.new({ S.HP: 999.0, S.DEF: 100.0 })
+	var dmg_skill := CombatSkillClass.new({ "effect_type": "aoe_damage", "skill_ratio": 1.0 })
+	var results := SkillEffectClass.apply(dmg_skill, caster, [e1, e2], 1.0)
+	_expect(results.size() == 2, "aoe should return one result per target, got %d" % results.size())
+	_expect(_approx(e1.current_hp, 949.0), "e1 should take 50 dmg (999->949), got %f" % e1.current_hp)
+	_expect(_approx(e2.current_hp, 949.0), "e2 should take 50 dmg (999->949), got %f" % e2.current_hp)
+
+	# heal scales off caster ATK
+	var healer := StatSystemClass.new({ S.ATK: 40.0 })
+	var wounded := StatSystemClass.new({ S.HP: 100.0 })
+	wounded.take_damage(60.0)  # -> 40
+	var heal_skill := CombatSkillClass.new({ "effect_type": "heal", "skill_ratio": 1.0, "target_side": "ally" })
+	SkillEffectClass.apply(heal_skill, healer, [wounded])
+	_expect(_approx(wounded.current_hp, 80.0), "heal 40 should bring 40 -> 80, got %f" % wounded.current_hp)
+
+	# buff adds a percent modifier from a string stat key
+	var ally := StatSystemClass.new({ S.ATK: 100.0 })
+	var buff_skill := CombatSkillClass.new({
+		"effect_type": "buff", "target_side": "ally",
+		"effect_params": { "stat": "atk", "value": 0.3, "duration": 5.0 },
+	})
+	SkillEffectClass.apply(buff_skill, ally, [ally])
+	_expect(_approx(ally.get_stat(S.ATK), 130.0), "atk buff +30%% should give 130, got %f" % ally.get_stat(S.ATK))
+
+	# stun returns a control descriptor, mutates no stats
+	var target := StatSystemClass.new({ S.HP: 100.0 })
+	var stun_skill := CombatSkillClass.new({ "effect_type": "stun", "effect_params": { "duration": 1.5 } })
+	var stun_res := SkillEffectClass.apply(stun_skill, caster, [target])
+	_expect(stun_res.size() == 1 and _approx(stun_res[0].get("stun", 0.0), 1.5), "stun should report 1.5s descriptor")
+	_expect(_approx(target.current_hp, 100.0), "stun should not damage the target")
 
 
 func _finish() -> void:
