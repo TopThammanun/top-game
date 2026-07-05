@@ -26,6 +26,9 @@ const HORIZ_STEP := 120.0                 # horizontal spacing along the battle 
 const MAP_PLAN_PATH := "res://data/maps/emberhearth_map_plan.json"
 const AUTO_CAST_GRACE := 2.2              # a ready skill waits this long for a tap, then auto-fires
 const GROUND_LAYERS := ["patches", "roads", "beach", "water"]  # override order (later wins)
+const WALK_SPEED_SCALE := 1.8             # multiplies profile move_speed for on-screen approach
+const SPEED_STEPS := [1.0, 2.0, 3.0]      # battle-speed cycle (Engine.time_scale)
+const TASKBAR_H := 54.0
 
 # Skill id -> mini-icon number (falls back to effect_type, see _skill_icon_texture).
 const SKILL_ICONS := {
@@ -53,6 +56,13 @@ var _wave_label: Label
 var _banner_label: Label
 var _skill_bar: Control                   # bottom tap-to-cast skill menu
 var _skill_slots: Array = []              # per-ally: {unit, panel, cd_shade, cd_text, box_idle, box_ready}
+var _taskbar: Control                     # top command bar (Party / Skills / Speed / Menu)
+var _roster_panel: Control
+var _menu_panel: Control
+var _speed_btn: Button
+var _speed_idx: int = 0
+var _warp_layer: CanvasLayer
+var _warp_rect: ColorRect
 var _view_size: Vector2
 var _battle_y: float = 0.0
 var _wave: int = 1
@@ -62,6 +72,7 @@ var _font: Font
 
 
 func _ready() -> void:
+	Engine.time_scale = 1.0
 	_font = ThemeDB.fallback_font
 	_build_layers()
 	if not AssetRegistry.loaded:
@@ -120,6 +131,24 @@ func _build_layers() -> void:
 	_skill_bar.mouse_filter = Control.MOUSE_FILTER_IGNORE   # only the buttons catch input
 	_hud_layer.add_child(_skill_bar)
 
+	_taskbar = Control.new()
+	_taskbar.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_hud_layer.add_child(_taskbar)
+
+	_warp_layer = CanvasLayer.new()                        # full-screen warp flash, above HUD
+	_warp_layer.layer = 20
+	add_child(_warp_layer)
+	_warp_rect = ColorRect.new()
+	_warp_rect.color = Color(0.62, 0.86, 1.0)
+	_warp_rect.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_warp_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_warp_rect.modulate.a = 0.0
+	_warp_layer.add_child(_warp_rect)
+
+	# Taskbar background is translucent — keep it behind the title/wave labels and
+	# banner (which were added earlier) so they stay crisp on top of the bar.
+	_hud_layer.move_child(_taskbar, 0)
+
 
 func _hud_label(size: int, color: Color) -> Label:
 	var l := Label.new()
@@ -156,11 +185,10 @@ func _layout_background() -> void:
 	_render_map()
 
 	_title_label.text = "Emberhearth · Pawmont"
-	_title_label.position = Vector2(28, 20)
-	_wave_label.position = Vector2(30, 56)
 	_banner_label.size = Vector2(w, 60)
 	_banner_label.position = Vector2(0, h * 0.36)
 	_refresh_wave_label()
+	_build_taskbar()
 
 
 func _refresh_wave_label() -> void:
@@ -295,11 +323,13 @@ func _place_side(side_units: Array, is_ally: bool, battle_y: float) -> void:
 	for i in n:
 		var unit: Dictionary = side_units[i]
 		var x := start_x + float(i) * HORIZ_STEP
+		# Gentle vertical stagger so units stay readable when they converge on a target.
+		var y := battle_y + (float(i) - float(n - 1) * 0.5) * 9.0
 		var sprite: Sprite2D = unit["sprite"]
-		sprite.position = Vector2(x, battle_y)
+		sprite.position = Vector2(x, y)
 		sprite.flip_h = is_ally  # source frames face left; flip allies to face right
 		unit["home_x"] = x
-		unit["home_y"] = battle_y
+		unit["home_y"] = y
 		_update_overlay(unit)
 
 
@@ -408,12 +438,13 @@ func _process(delta: float) -> void:
 
 	for u in _units:
 		_animate(u, delta)
-		if u["alive"]:
+		if _phase == "fighting" and u["alive"]:
 			_act(u, delta)
 		_update_overlay(u)
 
 	_update_skill_bar()
-	_check_wave_end(delta)
+	if _phase == "fighting":
+		_check_wave_end(delta)
 	queue_redraw()
 
 
@@ -432,12 +463,24 @@ func _animate(u: Dictionary, delta: float) -> void:
 
 
 func _act(u: Dictionary, delta: float) -> void:
-	# Hold the rank; strike the nearest enemy on cadence (melee lunge in place).
+	# Approach then strike: walk toward the nearest enemy until inside attack_range,
+	# then hold and attack on cadence. Melee (small range) close in; ranged stay back.
 	var target = _nearest_enemy(u)
 	if target == null:
 		u["anim"] = "idle"
 		return
+	var dx: float = target["sprite"].position.x - u["sprite"].position.x
+	var dist: float = absf(dx)
+	var rng: float = float(u["atk_range"])
+	if dist > rng:
+		_walk_toward(u, dx, dist - rng, delta)
+		var sk = u["skill"]   # keep the skill cooling while marching in
+		if sk != null and not sk.is_ready():
+			sk.tick(delta, float(u["stats"].get_stat(CombatEnumsClass.StatKey.COOLDOWN_REDUCTION)))
+		return
+
 	u["anim"] = "idle"
+	u["sprite"].flip_h = dx > 0.0
 	var skill = u["skill"]
 	if skill != null:
 		if skill.is_ready():
@@ -454,6 +497,15 @@ func _act(u: Dictionary, delta: float) -> void:
 	if u["atk_t"] >= cadence:
 		u["atk_t"] = 0.0
 		_basic_attack(u, target)
+
+
+func _walk_toward(u: Dictionary, dx: float, remaining: float, delta: float) -> void:
+	u["anim"] = "move"
+	var sprite: Sprite2D = u["sprite"]
+	sprite.flip_h = dx > 0.0   # source frames face left; flip to face travel direction
+	var step: float = minf(float(u["move_speed"]) * WALK_SPEED_SCALE * delta, remaining)
+	if step > 0.0:
+		sprite.position.x += signf(dx) * step
 
 
 func _basic_attack(u: Dictionary, target: Dictionary) -> void:
@@ -633,6 +685,179 @@ func _skill_box(tint: Color, ready: bool) -> StyleBoxFlat:
 	return sb
 
 
+# ---------------------------------------------------------------- command taskbar
+
+func _build_taskbar() -> void:
+	if _taskbar == null:
+		return
+	for c in _taskbar.get_children():
+		c.queue_free()
+	_speed_btn = null
+	var w := _view_size.x
+
+	var bar := Panel.new()
+	bar.position = Vector2.ZERO
+	bar.size = Vector2(w, TASKBAR_H)
+	bar.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var sb := StyleBoxFlat.new()
+	sb.bg_color = Color(0.09, 0.08, 0.13, 0.93)
+	sb.border_width_bottom = 2
+	sb.border_color = Color(0.30, 0.26, 0.40)
+	bar.add_theme_stylebox_override("panel", sb)
+	_taskbar.add_child(bar)
+
+	_title_label.add_theme_font_size_override("font_size", 22)
+	_title_label.position = Vector2(18, 6)
+	_wave_label.position = Vector2(20, 32)
+
+	var specs := [
+		{"text": "Party", "cb": Callable(self, "_toggle_roster")},
+		{"text": "Skills", "cb": Callable(self, "_toggle_skills")},
+		{"text": _speed_text(), "cb": Callable(self, "_cycle_speed")},
+		{"text": "Menu", "cb": Callable(self, "_toggle_menu")},
+	]
+	var bh := 34.0
+	var by := (TASKBAR_H - bh) * 0.5
+	var bx := w - 14.0
+	for i in range(specs.size() - 1, -1, -1):
+		var spec: Dictionary = specs[i]
+		var btn := _bar_button(str(spec["text"]), bh)
+		bx -= btn.size.x
+		btn.position = Vector2(bx, by)
+		btn.pressed.connect(spec["cb"])
+		_taskbar.add_child(btn)
+		bx -= 8.0
+		if i == 2:
+			_speed_btn = btn
+
+	_build_roster_panel()
+	_build_menu_panel()
+
+
+func _bar_button(text: String, h: float) -> Button:
+	var b := Button.new()
+	b.text = text
+	b.focus_mode = Control.FOCUS_NONE
+	b.add_theme_font_size_override("font_size", 15)
+	b.add_theme_color_override("font_color", Color(0.95, 0.92, 0.84))
+	var sb := StyleBoxFlat.new()
+	sb.bg_color = Color(0.18, 0.16, 0.23, 0.96)
+	sb.set_corner_radius_all(7)
+	sb.set_border_width_all(1)
+	sb.border_color = Color(0.40, 0.35, 0.48)
+	b.add_theme_stylebox_override("normal", sb)
+	var hb: StyleBoxFlat = sb.duplicate()
+	hb.bg_color = Color(0.28, 0.24, 0.34, 0.99)
+	b.add_theme_stylebox_override("hover", hb)
+	b.add_theme_stylebox_override("pressed", hb)
+	var tw: float = _font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, 15).x
+	b.size = Vector2(tw + 26.0, h)
+	return b
+
+
+func _speed_text() -> String:
+	return "Speed %dx" % int(SPEED_STEPS[_speed_idx])
+
+
+func _cycle_speed() -> void:
+	_speed_idx = (_speed_idx + 1) % SPEED_STEPS.size()
+	Engine.time_scale = SPEED_STEPS[_speed_idx]
+	if _speed_btn != null and is_instance_valid(_speed_btn):
+		_speed_btn.text = _speed_text()
+
+
+func _toggle_skills() -> void:
+	if _skill_bar != null:
+		_skill_bar.visible = not _skill_bar.visible
+
+
+func _toggle_roster() -> void:
+	if _roster_panel == null:
+		return
+	var show := not _roster_panel.visible
+	_roster_panel.visible = show
+	if _menu_panel != null:
+		_menu_panel.visible = false
+	if show:
+		_fill_roster()
+
+
+func _toggle_menu() -> void:
+	if _menu_panel == null:
+		return
+	_menu_panel.visible = not _menu_panel.visible
+	if _roster_panel != null:
+		_roster_panel.visible = false
+
+
+func _hide_menus() -> void:
+	if _roster_panel != null:
+		_roster_panel.visible = false
+	if _menu_panel != null:
+		_menu_panel.visible = false
+
+
+func _build_menu_panel() -> void:
+	_menu_panel = _dropdown_panel(Vector2(_view_size.x - 210.0, TASKBAR_H + 6.0), Vector2(196, 92))
+	var restart := _bar_button("Restart run", 32.0)
+	restart.position = Vector2(10, 10)
+	restart.size.x = 176
+	restart.pressed.connect(_restart_run)
+	_menu_panel.add_child(restart)
+	var quit := _bar_button("Quit", 32.0)
+	quit.position = Vector2(10, 50)
+	quit.size.x = 176
+	quit.pressed.connect(func() -> void: get_tree().quit())
+	_menu_panel.add_child(quit)
+	_menu_panel.visible = false
+	_taskbar.add_child(_menu_panel)
+
+
+func _build_roster_panel() -> void:
+	_roster_panel = _dropdown_panel(Vector2(14.0, TASKBAR_H + 6.0), Vector2(240, 152))
+	_roster_panel.visible = false
+	_taskbar.add_child(_roster_panel)
+
+
+func _fill_roster() -> void:
+	for c in _roster_panel.get_children():
+		c.queue_free()
+	var title := _hud_label(15, Color(0.98, 0.93, 0.82))
+	title.text = "Party"
+	title.position = Vector2(12, 8)
+	_roster_panel.add_child(title)
+	var living := _living("ally")
+	if living.is_empty():
+		var none := _hud_label(13, Color(0.92, 0.72, 0.70))
+		none.text = "(no survivors)"
+		none.position = Vector2(12, 34)
+		_roster_panel.add_child(none)
+		return
+	var y := 34.0
+	for u in living:
+		var stats = u["stats"]
+		var line := _hud_label(13, Color(0.90, 0.92, 0.86))
+		line.text = "%s   %d/%d" % [str(u["name"]).split(" ")[0], int(stats.current_hp), int(u["hp_max"])]
+		line.position = Vector2(12, y)
+		_roster_panel.add_child(line)
+		y += 26.0
+
+
+func _dropdown_panel(pos: Vector2, size: Vector2) -> Panel:
+	var p := Panel.new()
+	p.position = pos
+	p.size = size
+	var sb := StyleBoxFlat.new()
+	sb.bg_color = Color(0.11, 0.10, 0.16, 0.97)
+	sb.set_corner_radius_all(9)
+	sb.set_border_width_all(2)
+	sb.border_color = Color(0.42, 0.36, 0.50)
+	sb.shadow_color = Color(0, 0, 0, 0.4)
+	sb.shadow_size = 8
+	p.add_theme_stylebox_override("panel", sb)
+	return p
+
+
 # ---------------------------------------------------------------- targeting
 
 func _nearest_enemy(u: Dictionary):
@@ -787,8 +1012,46 @@ func _check_wave_end(delta: float) -> void:
 
 
 func _advance_wave() -> void:
+	# Warp to the next stage: survivors march offscreen right, a flash covers the
+	# swap, then the party walks in from the left to meet the new wave.
+	_phase = "warp"
+	# Survivors march offscreen-right (0.6s). The swap frees these sprites at ~0.8s,
+	# so the march finishes first — no tween runs on a freed node.
+	for u in _living("ally"):
+		u["anim"] = "move"
+		u["sprite"].flip_h = true
+		var march := create_tween()
+		march.tween_property(u["sprite"], "position:x", u["sprite"].position.x + 320.0, 0.6) \
+			.set_trans(Tween.TRANS_SINE)
+	var warp := create_tween()
+	warp.tween_interval(0.5)
+	warp.tween_property(_warp_rect, "modulate:a", 1.0, 0.3)   # flash covers the swap (~0.8s)
+	warp.tween_callback(_do_wave_swap)
+	warp.tween_property(_warp_rect, "modulate:a", 0.0, 0.4)
+
+
+func _do_wave_swap() -> void:
 	_wave += 1
 	GameState.advance_to_wave(_wave)
+	_spawn_wave()
+	# Drop the party in at the left edge and let _act walk them into range (owns
+	# position.x, so no tween fights the approach).
+	for u in _living("ally"):
+		u["sprite"].position.x = maxf(24.0, float(u["home_x"]) - 150.0)
+		u["anim"] = "move"
+		u["sprite"].flip_h = true
+	_refresh_wave_label()
+	_phase = "fighting"
+
+
+func _restart_run() -> void:
+	_hide_menus()
+	GameState.reset_run()
+	_wave = GameState.wave
+	Engine.time_scale = SPEED_STEPS[_speed_idx]
+	_banner_label.visible = false
+	_warp_rect.modulate.a = 0.0
+	_phase = "fighting"
 	_spawn_wave()
 
 

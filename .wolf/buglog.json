@@ -152,7 +152,14 @@
       "file": "scripts/combat/battle_view.gd",
       "root_cause": "Overworld autotile tiles (grass/sand/water) have scalloped TRANSPARENT corners; used as flat full tiles their gaps let the sky gradient (maroon at that screen height) bleed through.",
       "fix": "Draw an opaque ground ColorRect (grass green) + shore ColorRect behind the tilemap in _render_map before laying tiles.",
-      "tags": ["godot", "tilemap", "transparency", "autotile", "map", "combat"],
+      "tags": [
+        "godot",
+        "tilemap",
+        "transparency",
+        "autotile",
+        "map",
+        "combat"
+      ],
       "related_bugs": [],
       "occurrences": 1,
       "last_seen": "2026-07-06T00:00:00.000Z"
@@ -164,10 +171,34 @@
       "file": "tests/bootstrap_test.gd",
       "root_cause": "Test hardcoded 224 (28x8); the shared emberhearth_map_plan.json was resized to 28x10 for the battle scene, so the legacy TileGrid view now correctly renders 280 cells.",
       "fix": "Derive expected cell count from the plan's map_width*map_height instead of hardcoding.",
-      "tags": ["test", "godot", "map", "regression", "shared-data"],
-      "related_bugs": ["bug-010"],
+      "tags": [
+        "test",
+        "godot",
+        "map",
+        "regression",
+        "shared-data"
+      ],
+      "related_bugs": [
+        "bug-010"
+      ],
       "occurrences": 1,
       "last_seen": "2026-07-06T00:05:00.000Z"
+    },
+    {
+      "id": "bug-012",
+      "timestamp": "2026-07-05T18:29:20.165Z",
+      "error_message": "Null/undefined access in ",
+      "file": "scripts/combat/battle_view.gd",
+      "root_cause": "Property access on potentially null/undefined value",
+      "fix": "Added null safety (optional chaining or null check)",
+      "tags": [
+        "auto-detected",
+        "null-safety",
+        "gd"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-05T18:29:20.165Z"
     }
   ]
 }

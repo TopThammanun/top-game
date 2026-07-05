@@ -1,7 +1,7 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-07-05T18:11:06.917Z
-> Files: 530 tracked | Anatomy hits: 0 | Misses: 0
+> Auto-maintained by OpenWolf. Last scanned: 2026-07-05T18:34:11.452Z
+> Files: 529 tracked | Anatomy hits: 0 | Misses: 0
 
 ## ./
 
@@ -634,7 +634,6 @@
 
 ## data/maps/
 
-- `emberhearth_map_plan.json` (~836 tok) — 28x10 coastal-village plan: layers ground_fill/patches/roads/beach/water/decor/stamps. Shared by battle_view.gd + emberhearth_map_view.gd.
 
 ## scenes/combat/
 
@@ -642,7 +641,7 @@
 
 ## scripts/combat/
 
-- `battle_view.gd` — Declares CharacterFactoryClass. Real-time auto-battler view: tiled coastal-village map (opaque base fill under scalloped tiles), horizontal TBH battle lane, bottom tap-to-cast skill bar (icon+cooldown+ready glow, AUTO_CAST_GRACE fallback). (~9000 tok)
+- `battle_view.gd` — Declares CharacterFactoryClass (~9530 tok)
 - `skill_effect.gd` — Declares CombatEnumsClass (~605 tok)
 
 ## tests/

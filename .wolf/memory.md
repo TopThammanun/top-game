@@ -76,3 +76,19 @@
 | 01:13 | Added tap-to-cast skill bar (icon+cooldown+ready glow) to battle | scripts/combat/battle_view.gd | working, screenshot-verified | ~4k |
 | 01:13 | Rebuilt map as connected coastal village + opaque base fill (fixes scalloped-tile sky bleed) | data/maps/emberhearth_map_plan.json, battle_view.gd | greener, connected | ~2k |
 | 01:13 | Fixed stale bootstrap TileGrid assertion to derive cells from plan dims | tests/bootstrap_test.gd | PASS | ~1k |
+| 01:15 | Session end: 16 writes across 3 files (emberhearth_map_plan.json, battle_view.gd, bootstrap_test.gd) | 37 reads | ~10155 tok |
+| 01:26 | Edited scripts/combat/battle_view.gd | 2→5 lines | ~106 |
+| 01:26 | Edited scripts/combat/battle_view.gd | expanded (+7 lines) | ~114 |
+| 01:26 | Edited scripts/combat/battle_view.gd | modified _ready() | ~26 |
+| 01:27 | Edited scripts/combat/battle_view.gd | expanded (+14 lines) | ~189 |
+| 01:27 | Edited scripts/combat/battle_view.gd | 6→5 lines | ~46 |
+| 01:27 | Edited scripts/combat/battle_view.gd | 9→10 lines | ~56 |
+| 01:27 | Edited scripts/combat/battle_view.gd | modified _act() | ~460 |
+| 01:28 | Edited scripts/combat/battle_view.gd | modified _advance_wave() | ~365 |
+| 01:29 | Edited scripts/combat/battle_view.gd | modified _build_taskbar() | ~1375 |
+| 01:30 | Edited scripts/combat/battle_view.gd | modified _do_wave_swap() | ~276 |
+| 01:32 | Edited scripts/combat/battle_view.gd | 2→6 lines | ~68 |
+| 01:34 | Edited scripts/combat/battle_view.gd | 12→14 lines | ~166 |
+| 01:36 | Combat walk-into-range (melee close/ranged shoot) + walk anim both sides | scripts/combat/battle_view.gd | working | ~3k |
+| 01:36 | Wave warp transition (march + flash + walk-in) | scripts/combat/battle_view.gd | working | ~1k |
+| 01:36 | Top command taskbar: Party/Skills/Speed/Menu + roster & menu panels | scripts/combat/battle_view.gd | working, title move_child fix | ~4k |
