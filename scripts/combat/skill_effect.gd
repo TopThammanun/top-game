@@ -32,9 +32,13 @@ static func apply(skill, caster, targets: Array, crit_roll: float = -1.0) -> Arr
 			var stat_key: int = CombatEnumsClass.stat_key_from_string(str(skill.effect_params.get("stat", "atk")))
 			var value := float(skill.effect_params.get("value", 0.3))
 			var duration := float(skill.effect_params.get("duration", 5.0))
+			# Modifier type is data-driven (default percent). Flat is required for
+			# buffs to fractional stats like dmg_resist, where percent would scale a
+			# near-zero base to nothing (e.g. a ward on a 0-resist unit).
+			var mod_type: int = CombatEnumsClass.ModifierType.FLAT if str(skill.effect_params.get("type", "percent")).to_lower() == "flat" else CombatEnumsClass.ModifierType.PERCENT
 			for i in targets.size():
 				var t = targets[i]
-				t.add_modifier(StatModifierClass.new(stat_key, CombatEnumsClass.ModifierType.PERCENT, value, "skill:%s" % skill.id, duration))
+				t.add_modifier(StatModifierClass.new(stat_key, mod_type, value, "skill:%s" % skill.id, duration))
 				out.append({ "target_index": i, "buff": value })
 		"stun":
 			var stun_duration := float(skill.effect_params.get("duration", 1.5))

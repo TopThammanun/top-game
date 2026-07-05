@@ -153,6 +153,16 @@ func _check_effect() -> void:
 	SkillEffectClass.apply(buff_skill, ally, [ally])
 	_expect(_approx(ally.get_stat(S.ATK), 130.0), "atk buff +30%% should give 130, got %f" % ally.get_stat(S.ATK))
 
+	# ward/bulwark: a FLAT buff to a fractional stat (dmg_resist) must be additive,
+	# not percent (percent would scale a 0 base to 0). type:"flat" drives this.
+	var guard := StatSystemClass.new({ S.DMG_RESIST: 0.0 })
+	var ward_skill := CombatSkillClass.new({
+		"effect_type": "buff", "target_side": "ally",
+		"effect_params": { "stat": "dmg_resist", "value": 0.2, "duration": 4.0, "type": "flat" },
+	})
+	SkillEffectClass.apply(ward_skill, guard, [guard])
+	_expect(_approx(guard.get_stat(S.DMG_RESIST), 0.2), "flat dmg_resist ward on 0 base should give +0.2, got %f" % guard.get_stat(S.DMG_RESIST))
+
 	# stun returns a control descriptor, mutates no stats
 	var target := StatSystemClass.new({ S.HP: 100.0 })
 	var stun_skill := CombatSkillClass.new({ "effect_type": "stun", "effect_params": { "duration": 1.5 } })
