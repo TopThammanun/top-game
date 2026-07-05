@@ -13,7 +13,7 @@ const CombatEnumsClass = preload("res://scripts/combat/combat_enums.gd")
 const DamageCalculatorClass = preload("res://scripts/combat/damage_calculator.gd")
 const SkillEffectClass = preload("res://scripts/combat/skill_effect.gd")
 
-const SPRITE_SCALE := 2.2                 # 3x source frame (48px) -> ~106px tall hero
+const SPRITE_SCALE := 2.5                 # 3x source frame (48px) -> ~120px tall hero
 const FRAME_W := 48.0
 const SPRITE_H := FRAME_W * SPRITE_SCALE
 const GROUND_Y_RATIO := 0.74              # ground line as a fraction of view height
@@ -22,7 +22,7 @@ const WALK_FRAME_SECONDS := 0.12
 const ANIM_ROW := 1                       # side-facing track in the 4x4 sheet
 const HP_MULT := 2.4                      # fatten the HP pool so fights are watchable
 const CADENCE_BASE := 1.5                 # seconds-per-attack scalar (higher = slower)
-const COL_GAP := 104.0                    # vertical spacing between units in a column
+const HORIZ_STEP := 120.0                 # horizontal spacing along the battle lane
 const MAP_PLAN_PATH := "res://data/maps/emberhearth_map_plan.json"
 
 var _factory
@@ -157,7 +157,7 @@ func _render_map() -> void:
 	var tile_px: float = _view_size.x / float(mw)
 	var map_h: float = tile_px * float(mh)
 	var y_off: float = _view_size.y - map_h            # village sits along the bottom
-	_battle_y = y_off + map_h * 0.42                   # the battle line (on the road band)
+	_battle_y = y_off + map_h * 0.55                   # the battle lane (on the road band)
 	for y in mh:
 		for x in mw:
 			for t in _cell_tiles(layers, x, y):
@@ -245,18 +245,20 @@ func _spawn_wave() -> void:
 
 
 func _place_side(side_units: Array, is_ally: bool, battle_y: float) -> void:
-	# TBH-style ranks: each side is a single vertical column facing the other —
-	# party on the left, monsters on the right. They hold the line and lunge to strike.
+	# Original TBH layout: one horizontal battle lane. Party lines up left-to-right
+	# on the left, monsters on the right, both on the same lane, facing each other.
+	# They hold the line and lunge to strike.
 	var n := side_units.size()
-	var x := _view_size.x * (0.33 if is_ally else 0.67)
+	var total := float(max(0, n - 1)) * HORIZ_STEP
+	var start_x: float = _view_size.x * 0.15 if is_ally else _view_size.x * 0.85 - total
 	for i in n:
 		var unit: Dictionary = side_units[i]
-		var y := battle_y + (float(i) - float(n - 1) * 0.5) * COL_GAP
+		var x := start_x + float(i) * HORIZ_STEP
 		var sprite: Sprite2D = unit["sprite"]
-		sprite.position = Vector2(x, y)
+		sprite.position = Vector2(x, battle_y)
 		sprite.flip_h = is_ally  # source frames face left; flip allies to face right
 		unit["home_x"] = x
-		unit["home_y"] = y
+		unit["home_y"] = battle_y
 		_update_overlay(unit)
 
 
