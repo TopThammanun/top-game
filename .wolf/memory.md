@@ -142,3 +142,4 @@
 | 02:32 | Edited scripts/combat/battle_view.gd | Color() → _hp_fill_color() | ~34 |
 | 02:33 | Edited tests/bootstrap_test.gd | modified has_asset() | ~80 |
 | 02:35 | Finish-chain: _hp_fill_color dedup, fixed stale slot comment, bootstrap_test guards new UI shortcuts | scripts/combat/battle_view.gd, tests/bootstrap_test.gd | tests PASS, app verified | ~1k |
+| 02:36 | Session end: 69 writes across 5 files (emberhearth_map_plan.json, battle_view.gd, bootstrap_test.gd, archetypes.json, asset_shortcuts.json) | 63 reads | ~26629 tok |
