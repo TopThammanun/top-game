@@ -99,3 +99,25 @@
 | 01:39 | Edited data/combat/archetypes.json | 280.0 → 400.0 | ~25 |
 | 01:39 | Edited data/combat/archetypes.json | 280.0 → 400.0 | ~25 |
 | 01:41 | Bumped ranged attack_range (mid_magic/bomber/ranged/support/healer) so they hold back | data/combat/archetypes.json | verified via screenshot | ~0.5k |
+| 01:41 | Session end: 33 writes across 4 files (emberhearth_map_plan.json, battle_view.gd, bootstrap_test.gd, archetypes.json) | 43 reads | ~13759 tok |
+| 01:49 | Edited data/combat/archetypes.json | 420.0 → 560.0 | ~26 |
+| 01:49 | Edited data/combat/archetypes.json | 360.0 → 480.0 | ~25 |
+| 01:49 | Edited data/combat/archetypes.json | 500.0 → 680.0 | ~25 |
+| 01:49 | Edited data/combat/archetypes.json | 400.0 → 560.0 | ~25 |
+| 01:49 | Edited data/combat/archetypes.json | 400.0 → 560.0 | ~25 |
+| 01:50 | Edited scripts/combat/battle_view.gd | modified sort_custom() | ~150 |
+| 01:53 | Edited scripts/combat/battle_view.gd | 2→3 lines | ~52 |
+| 01:53 | Edited scripts/combat/battle_view.gd | modified _bar_button() | ~491 |
+| 01:54 | Edited scripts/combat/battle_view.gd | 14→18 lines | ~207 |
+| 01:54 | Edited scripts/combat/battle_view.gd | 11→6 lines | ~56 |
+| 01:55 | Edited scripts/combat/battle_view.gd | Color() → add_theme_constant_override() | ~64 |
+| 01:55 | Edited scripts/combat/battle_view.gd | 4→4 lines | ~35 |
+| 01:56 | Edited scripts/combat/battle_view.gd | 19→17 lines | ~204 |
+| 01:56 | Edited scripts/combat/battle_view.gd | modified _dropdown_panel() | ~65 |
+| 01:57 | Edited scripts/combat/battle_view.gd | removed 13 lines | ~22 |
+| 01:57 | Edited scripts/combat/battle_view.gd | modified is_empty() | ~143 |
+| 01:58 | Edited scripts/combat/battle_view.gd | — | ~0 |
+| 02:00 | Edited scripts/combat/battle_view.gd | 6→6 lines | ~82 |
+| 02:01 | Edited scripts/combat/battle_view.gd | 8→9 lines | ~84 |
+| 02:02 | Ranged range bump + lane-sorted formation (front-liners lead, ranged hold back) | data/combat/archetypes.json, scripts/combat/battle_view.gd | ranged now clearly ranged | ~1k |
+| 02:02 | Reskinned HUD with asset/ui art: parchment nine-slice bar, banner title, wooden buttons, slot skill frames | scripts/combat/battle_view.gd | on-theme, screenshot-verified | ~5k |

@@ -1,7 +1,7 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-07-05T18:34:11.452Z
-> Files: 529 tracked | Anatomy hits: 0 | Misses: 0
+> Auto-maintained by OpenWolf. Last scanned: 2026-07-05T19:01:00.210Z
+> Files: 530 tracked | Anatomy hits: 0 | Misses: 0
 
 ## ./
 
@@ -630,6 +630,7 @@
 
 ## data/combat/
 
+- `archetypes.json` (~684 tok)
 - `skills.json` (~396 tok)
 
 ## data/maps/
@@ -641,7 +642,7 @@
 
 ## scripts/combat/
 
-- `battle_view.gd` — Declares CharacterFactoryClass (~9530 tok)
+- `battle_view.gd` — Declares CharacterFactoryClass (~9792 tok)
 - `skill_effect.gd` — Declares CombatEnumsClass (~605 tok)
 
 ## tests/

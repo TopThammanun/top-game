@@ -28,7 +28,8 @@ const AUTO_CAST_GRACE := 2.2              # a ready skill waits this long for a 
 const GROUND_LAYERS := ["patches", "roads", "beach", "water"]  # override order (later wins)
 const WALK_SPEED_SCALE := 1.8             # multiplies profile move_speed for on-screen approach
 const SPEED_STEPS := [1.0, 2.0, 3.0]      # battle-speed cycle (Engine.time_scale)
-const TASKBAR_H := 54.0
+const TASKBAR_H := 58.0
+const INK := Color(0.32, 0.20, 0.14)      # dark-brown text for light parchment panels
 
 # Skill id -> mini-icon number (falls back to effect_type, see _skill_icon_texture).
 const SKILL_ICONS := {
@@ -38,11 +39,6 @@ const SKILL_ICONS := {
 	"cloudfur_mend": 14,      # heal cross
 	"voicecaster_chord": 13,  # magic note
 	"emberpaw_dash": 9,       # sword
-}
-const SKILL_TINT := {
-	"aoe_damage": Color(0.95, 0.45, 0.40),
-	"heal": Color(0.45, 0.86, 0.52),
-	"buff": Color(0.52, 0.72, 1.0),
 }
 
 var _factory
@@ -318,10 +314,14 @@ func _place_side(side_units: Array, is_ally: bool, battle_y: float) -> void:
 	# on the left, monsters on the right, both on the same lane, facing each other.
 	# They hold the line and lunge to strike.
 	var n := side_units.size()
+	# Order by lane so the front line stands nearest the enemy and the backline
+	# (ranged/support/healer) sits behind it — allies fight rightward, enemies leftward.
+	var ordered := side_units.duplicate()
+	ordered.sort_custom(func(a, b): return (a["lane"] > b["lane"]) if is_ally else (a["lane"] < b["lane"]))
 	var total := float(max(0, n - 1)) * HORIZ_STEP
 	var start_x: float = _view_size.x * 0.15 if is_ally else _view_size.x * 0.85 - total
 	for i in n:
-		var unit: Dictionary = side_units[i]
+		var unit: Dictionary = ordered[i]
 		var x := start_x + float(i) * HORIZ_STEP
 		# Gentle vertical stagger so units stay readable when they converge on a target.
 		var y := battle_y + (float(i) - float(n - 1) * 0.5) * 9.0
@@ -567,15 +567,10 @@ func _build_skill_bar() -> void:
 		var u: Dictionary = heroes[i]
 		var skill = u["skill"]
 		var origin := Vector2(start_x + float(i) * (bw + gap), top)
-		var tint: Color = SKILL_TINT.get(skill.effect_type, Color(0.72, 0.72, 0.82))
-		var box_idle := _skill_box(tint, false)
-		var box_ready := _skill_box(tint, true)
 
-		var panel := Panel.new()
+		var panel := _ui_nine("ui.panel_bright", 22, 22, 22, 22)
 		panel.position = origin
 		panel.size = Vector2(bw, bh)
-		panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		panel.add_theme_stylebox_override("panel", box_idle)
 		_skill_bar.add_child(panel)
 
 		var icon_tex := _skill_icon_texture(str(skill.id), str(skill.effect_type))
@@ -589,7 +584,8 @@ func _build_skill_bar() -> void:
 			icon.size = Vector2(44, 44)
 			_skill_bar.add_child(icon)
 
-		var hero := _hud_label(12, Color(0.96, 0.93, 0.84))
+		var hero := _hud_label(12, INK)
+		hero.add_theme_constant_override("outline_size", 0)
 		hero.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		hero.text = str(u["name"]).split(" ")[0]
 		hero.position = origin + Vector2(0, bh - 22.0)
@@ -598,9 +594,9 @@ func _build_skill_bar() -> void:
 		_skill_bar.add_child(hero)
 
 		var cd_shade := ColorRect.new()
-		cd_shade.color = Color(0.03, 0.03, 0.05, 0.62)
-		cd_shade.position = origin
-		cd_shade.size = Vector2(bw, bh)
+		cd_shade.color = Color(0.18, 0.10, 0.06, 0.62)   # warm shade, inset to stay inside the frame
+		cd_shade.position = origin + Vector2(8, 8)
+		cd_shade.size = Vector2(bw - 16, bh - 16)
 		cd_shade.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		_skill_bar.add_child(cd_shade)
 
@@ -621,7 +617,7 @@ func _build_skill_bar() -> void:
 
 		_skill_slots.append({
 			"unit": u, "panel": panel, "cd_shade": cd_shade, "cd_text": cd_text,
-			"box_idle": box_idle, "box_ready": box_ready, "ready": true, "btn": btn,
+			"ready": true, "btn": btn,
 		})
 	_update_skill_bar()
 
@@ -630,25 +626,24 @@ func _update_skill_bar() -> void:
 	for slot in _skill_slots:
 		var u: Dictionary = slot["unit"]
 		var skill = u["skill"]
-		var panel: Panel = slot["panel"]
+		var panel: NinePatchRect = slot["panel"]
 		var cd_shade: ColorRect = slot["cd_shade"]
 		var cd_text: Label = slot["cd_text"]
 		var bh: float = panel.size.y
+		var shade_h: float = bh - 16.0
 		if not u["alive"]:
-			panel.modulate = Color(0.5, 0.5, 0.5, 0.55)
-			cd_shade.size.y = bh
+			panel.modulate = Color(0.55, 0.55, 0.55, 0.6)
+			cd_shade.size.y = shade_h
 			cd_text.text = ""
 			slot["btn"].disabled = true
 			continue
-		panel.modulate = Color.WHITE
 		var frac: float = clampf(skill.remaining / max(0.001, skill.cooldown), 0.0, 1.0)
-		cd_shade.size.y = bh * frac
+		cd_shade.size.y = shade_h * frac
 		var ready: bool = skill.is_ready()
-		if ready != slot["ready"]:
-			slot["ready"] = ready
-			panel.add_theme_stylebox_override("panel", slot["box_ready"] if ready else slot["box_idle"])
+		slot["ready"] = ready
+		panel.modulate = Color(1.0, 0.85, 0.42) if ready else Color.WHITE   # gold glow when ready
 		cd_text.text = "TAP" if ready else "%d" % int(ceil(skill.remaining))
-		cd_text.add_theme_color_override("font_color", Color(1.0, 0.92, 0.5) if ready else Color(0.85, 0.9, 0.96))
+		cd_text.add_theme_color_override("font_color", Color(0.40, 0.24, 0.10) if ready else Color(1.0, 0.95, 0.72))
 
 
 func _on_skill_pressed(u: Dictionary) -> void:
@@ -673,18 +668,6 @@ func _skill_icon_texture(skill_id: String, effect_type: String) -> Texture2D:
 	return null
 
 
-func _skill_box(tint: Color, ready: bool) -> StyleBoxFlat:
-	var sb := StyleBoxFlat.new()
-	sb.bg_color = Color(0.11, 0.10, 0.15, 0.90)
-	sb.set_corner_radius_all(10)
-	sb.set_border_width_all(3 if ready else 2)
-	sb.border_color = tint if ready else tint.darkened(0.45)
-	if ready:
-		sb.shadow_color = Color(tint.r, tint.g, tint.b, 0.5)
-		sb.shadow_size = 8
-	return sb
-
-
 # ---------------------------------------------------------------- command taskbar
 
 func _build_taskbar() -> void:
@@ -695,20 +678,24 @@ func _build_taskbar() -> void:
 	_speed_btn = null
 	var w := _view_size.x
 
-	var bar := Panel.new()
-	bar.position = Vector2.ZERO
-	bar.size = Vector2(w, TASKBAR_H)
-	bar.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	var sb := StyleBoxFlat.new()
-	sb.bg_color = Color(0.09, 0.08, 0.13, 0.93)
-	sb.border_width_bottom = 2
-	sb.border_color = Color(0.30, 0.26, 0.40)
-	bar.add_theme_stylebox_override("panel", sb)
+	# Parchment bar: bleed top/left/right borders offscreen so only the bottom edge
+	# shows as a framed divider under the HUD.
+	var bar := _ui_nine("ui.taskbar_panel", 22, 22, 22, 22)
+	bar.position = Vector2(-24, -26)
+	bar.size = Vector2(w + 48, TASKBAR_H + 26)
 	_taskbar.add_child(bar)
 
-	_title_label.add_theme_font_size_override("font_size", 22)
-	_title_label.position = Vector2(18, 6)
-	_wave_label.position = Vector2(20, 32)
+	var banner := _ui_nine("ui.title_banner", 30, 17, 30, 17)
+	banner.position = Vector2(12, 6)
+	banner.size = Vector2(336, 46)
+	_taskbar.add_child(banner)
+
+	_title_label.add_theme_font_size_override("font_size", 20)
+	_title_label.add_theme_color_override("font_color", Color(1.0, 0.91, 0.62))
+	_title_label.position = Vector2(34, 15)
+	_wave_label.add_theme_color_override("font_color", INK)
+	_wave_label.add_theme_constant_override("outline_size", 0)
+	_wave_label.position = Vector2(364, 20)
 
 	var specs := [
 		{"text": "Party", "cb": Callable(self, "_toggle_roster")},
@@ -739,20 +726,47 @@ func _bar_button(text: String, h: float) -> Button:
 	b.text = text
 	b.focus_mode = Control.FOCUS_NONE
 	b.add_theme_font_size_override("font_size", 15)
-	b.add_theme_color_override("font_color", Color(0.95, 0.92, 0.84))
-	var sb := StyleBoxFlat.new()
-	sb.bg_color = Color(0.18, 0.16, 0.23, 0.96)
-	sb.set_corner_radius_all(7)
-	sb.set_border_width_all(1)
-	sb.border_color = Color(0.40, 0.35, 0.48)
-	b.add_theme_stylebox_override("normal", sb)
-	var hb: StyleBoxFlat = sb.duplicate()
-	hb.bg_color = Color(0.28, 0.24, 0.34, 0.99)
-	b.add_theme_stylebox_override("hover", hb)
-	b.add_theme_stylebox_override("pressed", hb)
+	b.add_theme_color_override("font_color", Color(0.98, 0.93, 0.80))
+	b.add_theme_color_override("font_color_hover", Color(1.0, 0.98, 0.86))
+	b.add_theme_color_override("font_color_pressed", Color(1.0, 0.88, 0.66))
+	b.add_theme_stylebox_override("normal", _ui_stylebox("ui.button_normal", 14, 11, 14, 11))
+	b.add_theme_stylebox_override("hover", _ui_stylebox("ui.button_selected", 14, 11, 14, 11))
+	b.add_theme_stylebox_override("pressed", _ui_stylebox("ui.button_pressed", 14, 11, 14, 11))
 	var tw: float = _font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, 15).x
-	b.size = Vector2(tw + 26.0, h)
+	b.size = Vector2(tw + 32.0, h)
 	return b
+
+
+# --- UI-art helpers: load the Franuka UI kit (parchment panels, wooden buttons,
+# banners) from asset/ui via curated shortcuts; prefer the 2x variant for crispness.
+
+func _ui_texture(shortcut: String, scale: String = "2x") -> Texture2D:
+	var id := AssetRegistry.resolve_id(shortcut)
+	var scaled := id.replace("_1x_", "_%s_" % scale)
+	if AssetRegistry.has_asset(scaled):
+		return AssetRegistry.load_texture(scaled)
+	return AssetRegistry.load_texture(id)
+
+
+func _ui_nine(shortcut: String, l: int, t: int, r: int, b: int) -> NinePatchRect:
+	var np := NinePatchRect.new()
+	np.texture = _ui_texture(shortcut)
+	np.patch_margin_left = l
+	np.patch_margin_top = t
+	np.patch_margin_right = r
+	np.patch_margin_bottom = b
+	np.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	return np
+
+
+func _ui_stylebox(shortcut: String, l: int, t: int, r: int, b: int) -> StyleBoxTexture:
+	var sb := StyleBoxTexture.new()
+	sb.texture = _ui_texture(shortcut)
+	sb.texture_margin_left = l
+	sb.texture_margin_top = t
+	sb.texture_margin_right = r
+	sb.texture_margin_bottom = b
+	return sb
 
 
 func _speed_text() -> String:
@@ -822,40 +836,35 @@ func _build_roster_panel() -> void:
 func _fill_roster() -> void:
 	for c in _roster_panel.get_children():
 		c.queue_free()
-	var title := _hud_label(15, Color(0.98, 0.93, 0.82))
+	var title := _hud_label(15, INK)
+	title.add_theme_constant_override("outline_size", 0)
 	title.text = "Party"
-	title.position = Vector2(12, 8)
+	title.position = Vector2(16, 10)
 	_roster_panel.add_child(title)
 	var living := _living("ally")
 	if living.is_empty():
-		var none := _hud_label(13, Color(0.92, 0.72, 0.70))
+		var none := _hud_label(13, Color(0.55, 0.18, 0.14))
 		none.text = "(no survivors)"
-		none.position = Vector2(12, 34)
+		none.position = Vector2(16, 36)
 		_roster_panel.add_child(none)
 		return
-	var y := 34.0
+	var y := 36.0
 	for u in living:
 		var stats = u["stats"]
-		var line := _hud_label(13, Color(0.90, 0.92, 0.86))
+		var line := _hud_label(13, INK)
+		line.add_theme_constant_override("outline_size", 0)
 		line.text = "%s   %d/%d" % [str(u["name"]).split(" ")[0], int(stats.current_hp), int(u["hp_max"])]
 		line.position = Vector2(12, y)
 		_roster_panel.add_child(line)
 		y += 26.0
 
 
-func _dropdown_panel(pos: Vector2, size: Vector2) -> Panel:
-	var p := Panel.new()
-	p.position = pos
-	p.size = size
-	var sb := StyleBoxFlat.new()
-	sb.bg_color = Color(0.11, 0.10, 0.16, 0.97)
-	sb.set_corner_radius_all(9)
-	sb.set_border_width_all(2)
-	sb.border_color = Color(0.42, 0.36, 0.50)
-	sb.shadow_color = Color(0, 0, 0, 0.4)
-	sb.shadow_size = 8
-	p.add_theme_stylebox_override("panel", sb)
-	return p
+func _dropdown_panel(pos: Vector2, size: Vector2) -> Control:
+	var np := _ui_nine("ui.panel_dark", 22, 22, 22, 22)
+	np.position = pos
+	np.size = size
+	np.mouse_filter = Control.MOUSE_FILTER_STOP   # block clicks from falling through
+	return np
 
 
 # ---------------------------------------------------------------- targeting
