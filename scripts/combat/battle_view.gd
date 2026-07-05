@@ -13,7 +13,7 @@ const CombatEnumsClass = preload("res://scripts/combat/combat_enums.gd")
 const DamageCalculatorClass = preload("res://scripts/combat/damage_calculator.gd")
 const SkillEffectClass = preload("res://scripts/combat/skill_effect.gd")
 
-const SPRITE_SCALE := 2.8                 # 3x source frame (48px) -> ~134px tall hero
+const SPRITE_SCALE := 2.2                 # 3x source frame (48px) -> ~106px tall hero
 const FRAME_W := 48.0
 const SPRITE_H := FRAME_W * SPRITE_SCALE
 const GROUND_Y_RATIO := 0.74              # ground line as a fraction of view height
@@ -22,18 +22,20 @@ const WALK_FRAME_SECONDS := 0.12
 const ANIM_ROW := 1                       # side-facing track in the 4x4 sheet
 const HP_MULT := 2.4                      # fatten the HP pool so fights are watchable
 const CADENCE_BASE := 1.5                 # seconds-per-attack scalar (higher = slower)
+const COL_GAP := 104.0                    # vertical spacing between units in a column
+const MAP_PLAN_PATH := "res://data/maps/emberhearth_map_plan.json"
 
 var _factory
 var _units: Array = []                    # Array of unit dictionaries
 var _bg_layer: CanvasLayer
 var _hud_layer: CanvasLayer
 var _sky: TextureRect
-var _ground: ColorRect
-var _horizon: ColorRect
+var _map_root: Control
 var _title_label: Label
 var _wave_label: Label
 var _banner_label: Label
 var _view_size: Vector2
+var _battle_y: float = 0.0
 var _wave: int = 1
 var _phase: String = "boot"               # boot | fighting | won | lost
 var _post_timer: float = 0.0
@@ -76,13 +78,9 @@ func _build_layers() -> void:
 	_sky.stretch_mode = TextureRect.STRETCH_SCALE
 	_bg_layer.add_child(_sky)
 
-	_ground = ColorRect.new()
-	_ground.color = Color(0.20, 0.16, 0.17)
-	_bg_layer.add_child(_ground)
-
-	_horizon = ColorRect.new()
-	_horizon.color = Color(0.62, 0.44, 0.42, 0.55)
-	_bg_layer.add_child(_horizon)
+	_map_root = Control.new()          # holds the tiled village battlefield
+	_map_root.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_bg_layer.add_child(_map_root)
 
 	_hud_layer = CanvasLayer.new()
 	_hud_layer.layer = 10
@@ -117,7 +115,6 @@ func _on_resize() -> void:
 func _layout_background() -> void:
 	var w := _view_size.x
 	var h := _view_size.y
-	var ground_y := h * GROUND_Y_RATIO
 
 	var grad := Gradient.new()
 	grad.set_color(0, Color(0.13, 0.15, 0.26))
@@ -131,10 +128,7 @@ func _layout_background() -> void:
 	gt.fill_to = Vector2(0, 1)
 	_sky.texture = gt
 
-	_ground.position = Vector2(0, ground_y)
-	_ground.size = Vector2(w, h - ground_y)
-	_horizon.position = Vector2(0, ground_y - 4)
-	_horizon.size = Vector2(w, 8)
+	_render_map()
 
 	_title_label.text = "Emberhearth · Pawmont"
 	_title_label.position = Vector2(28, 20)
@@ -148,11 +142,91 @@ func _refresh_wave_label() -> void:
 	_wave_label.text = "Wave %d / %d   ·   auto-battle" % [_wave, GameState.MAX_WAVE]
 
 
+# ---------------------------------------------------------------- map background
+
+func _render_map() -> void:
+	for c in _map_root.get_children():
+		c.queue_free()
+	var plan := _load_map_plan()
+	var mw: int = int(plan.get("map_width", 28))
+	var mh: int = int(plan.get("map_height", 8))
+	var layers = plan.get("tile_layers", {})
+	if typeof(layers) != TYPE_DICTIONARY or mw <= 0 or mh <= 0:
+		_battle_y = _view_size.y * GROUND_Y_RATIO
+		return
+	var tile_px: float = _view_size.x / float(mw)
+	var map_h: float = tile_px * float(mh)
+	var y_off: float = _view_size.y - map_h            # village sits along the bottom
+	_battle_y = y_off + map_h * 0.42                   # the battle line (on the road band)
+	for y in mh:
+		for x in mw:
+			for t in _cell_tiles(layers, x, y):
+				var tex = _load_tile(str(t["name"]), int(t["ox"]), int(t["oy"]))
+				if tex == null:
+					continue
+				var tr := TextureRect.new()
+				tr.texture = tex
+				tr.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+				tr.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+				tr.stretch_mode = TextureRect.STRETCH_SCALE
+				tr.mouse_filter = Control.MOUSE_FILTER_IGNORE
+				tr.position = Vector2(float(x) * tile_px, y_off + float(y) * tile_px)
+				tr.size = Vector2(tile_px + 1.0, tile_px + 1.0)  # +1 hides seams
+				_map_root.add_child(tr)
+
+
+func _cell_tiles(layers: Dictionary, x: int, y: int) -> Array:
+	var out: Array = []
+	var ground = layers.get("ground_fill", {})
+	var ground_name := "grass"
+	if typeof(ground) == TYPE_DICTIONARY:
+		ground_name = str(ground.get("tile", "grass"))
+	for lname in ["patches", "roads", "water"]:
+		for e in layers.get(lname, []):
+			if typeof(e) != TYPE_DICTIONARY:
+				continue
+			if _in_rect(x, y, e):
+				ground_name = str(e.get("tile", ground_name))
+	out.append({ "name": ground_name, "ox": 0, "oy": 0 })
+	for d in layers.get("decor", []):
+		if typeof(d) == TYPE_DICTIONARY and int(d.get("x", -1)) == x and int(d.get("y", -1)) == y:
+			out.append({ "name": str(d.get("tile", "")), "ox": 0, "oy": 0 })
+	for s in layers.get("stamps", []):
+		if typeof(s) != TYPE_DICTIONARY:
+			continue
+		if _in_rect(x, y, s):
+			out.append({ "name": str(s.get("tile", "")), "ox": x - int(s.get("x", 0)), "oy": y - int(s.get("y", 0)) })
+	return out
+
+
+func _in_rect(x: int, y: int, e: Dictionary) -> bool:
+	var rx := int(e.get("x", 0))
+	var ry := int(e.get("y", 0))
+	var rw := int(e.get("width", 1))
+	var rh := int(e.get("height", 1))
+	return x >= rx and x < rx + rw and y >= ry and y < ry + rh
+
+
+func _load_tile(tile_name: String, ox: int, oy: int):
+	if tile_name == "":
+		return null
+	if ox == 0 and oy == 0:
+		return AssetRegistry.load_map_tile(tile_name)
+	return AssetRegistry.load_map_tile_offset(tile_name, ox, oy)
+
+
+func _load_map_plan() -> Dictionary:
+	if not FileAccess.file_exists(MAP_PLAN_PATH):
+		return {}
+	var parsed = JSON.parse_string(FileAccess.get_file_as_string(MAP_PLAN_PATH))
+	return parsed if typeof(parsed) == TYPE_DICTIONARY else {}
+
+
 # ---------------------------------------------------------------- wave spawning
 
 func _spawn_wave() -> void:
 	_clear_units()
-	var ground_y := _view_size.y * GROUND_Y_RATIO
+	var ground_y: float = _battle_y if _battle_y > 0.0 else _view_size.y * GROUND_Y_RATIO
 
 	var party: Array = GameState.party
 	var allies: Array = []
@@ -170,29 +244,19 @@ func _spawn_wave() -> void:
 	_refresh_wave_label()
 
 
-func _place_side(side_units: Array, is_ally: bool, ground_y: float) -> void:
-	# Clean 3-lane diagonal: front is nearest the centre line and lowest (drawn in
-	# front); rear is furthest out and highest (drawn behind). Extra units in the
-	# same lane stack downward with a slight inward step.
-	var dir := -1.0 if is_ally else 1.0
-	var center_x := _view_size.x * 0.5
-	var lane_depth := {
-		CombatEnumsClass.Lane.FRONT: 0,
-		CombatEnumsClass.Lane.MIDDLE: 1,
-		CombatEnumsClass.Lane.REAR: 2,
-	}
-	var per_lane: Dictionary = {}
-	for unit in side_units:
-		var lane: int = int(unit["lane"])
-		var d: int = int(lane_depth.get(lane, 1))
-		var k: int = int(per_lane.get(lane, 0))
-		per_lane[lane] = k + 1
-		var x: float = center_x + dir * (150.0 + float(d) * 128.0) - dir * float(k) * 40.0
-		var y: float = ground_y - 32.0 - float(d) * 44.0 + float(k) * 96.0
+func _place_side(side_units: Array, is_ally: bool, battle_y: float) -> void:
+	# TBH-style ranks: each side is a single vertical column facing the other —
+	# party on the left, monsters on the right. They hold the line and lunge to strike.
+	var n := side_units.size()
+	var x := _view_size.x * (0.33 if is_ally else 0.67)
+	for i in n:
+		var unit: Dictionary = side_units[i]
+		var y := battle_y + (float(i) - float(n - 1) * 0.5) * COL_GAP
 		var sprite: Sprite2D = unit["sprite"]
 		sprite.position = Vector2(x, y)
 		sprite.flip_h = is_ally  # source frames face left; flip allies to face right
 		unit["home_x"] = x
+		unit["home_y"] = y
 		_update_overlay(unit)
 
 
@@ -323,35 +387,24 @@ func _animate(u: Dictionary, delta: float) -> void:
 
 
 func _act(u: Dictionary, delta: float) -> void:
+	# Hold the rank; strike the nearest enemy on cadence (melee lunge in place).
 	var target = _nearest_enemy(u)
 	if target == null:
 		u["anim"] = "idle"
 		return
-	var sprite: Sprite2D = u["sprite"]
-	var tsprite: Sprite2D = target["sprite"]
-	var dx: float = tsprite.position.x - sprite.position.x
-	var dist: float = abs(dx)
-	var dir: float = sign(dx)
-
-	if dist > float(u["atk_range"]):
-		u["anim"] = "move"
-		sprite.position.x += dir * float(u["move_speed"]) * delta
-	else:
-		u["anim"] = "idle"
-		# skill first if ready
-		var skill = u["skill"]
-		if skill != null and skill.is_ready():
-			_cast_skill(u, skill)
-			skill.trigger()
-			return
-		if skill != null:
-			skill.tick(delta, float(u["stats"].get_stat(CombatEnumsClass.StatKey.COOLDOWN_REDUCTION)))
-		# basic attack on cadence
-		u["atk_t"] += delta
-		var cadence: float = CADENCE_BASE / max(0.5, float(u["stats"].get_stat(CombatEnumsClass.StatKey.ATK_SPD)))
-		if u["atk_t"] >= cadence:
-			u["atk_t"] = 0.0
-			_basic_attack(u, target)
+	u["anim"] = "idle"
+	var skill = u["skill"]
+	if skill != null and skill.is_ready():
+		_cast_skill(u, skill)
+		skill.trigger()
+		return
+	if skill != null:
+		skill.tick(delta, float(u["stats"].get_stat(CombatEnumsClass.StatKey.COOLDOWN_REDUCTION)))
+	u["atk_t"] += delta
+	var cadence: float = CADENCE_BASE / max(0.5, float(u["stats"].get_stat(CombatEnumsClass.StatKey.ATK_SPD)))
+	if u["atk_t"] >= cadence:
+		u["atk_t"] = 0.0
+		_basic_attack(u, target)
 
 
 func _basic_attack(u: Dictionary, target: Dictionary) -> void:
@@ -494,8 +547,8 @@ func _draw() -> void:
 		if u["alive"]:
 			# soft elliptical feet shadow
 			draw_set_transform(pos, 0.0, Vector2(1.0, 0.34))
-			draw_circle(Vector2.ZERO, 30, Color(0, 0, 0, 0.16))
-			draw_circle(Vector2.ZERO, 20, Color(0, 0, 0, 0.20))
+			draw_circle(Vector2.ZERO, SPRITE_SCALE * 11.0, Color(0, 0, 0, 0.15))
+			draw_circle(Vector2.ZERO, SPRITE_SCALE * 7.5, Color(0, 0, 0, 0.20))
 			draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
 			# hp bar above head
 			_draw_hp(u)
