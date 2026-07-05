@@ -1,0 +1,93 @@
+{
+  "session_id": "session-2026-07-05-2315",
+  "started": "2026-07-05T16:15:29.488Z",
+  "files_read": {
+    "c:/Work/Personal/top-game/data/combat/skills.json": {
+      "count": 1,
+      "tokens": 396,
+      "first_read": "2026-07-05T16:33:05.109Z"
+    },
+    "c:/Work/Personal/top-game/data/maps/tile_names.json": {
+      "count": 1,
+      "tokens": 0,
+      "first_read": "2026-07-05T16:33:05.494Z"
+    },
+    "c:/Work/Personal/top-game/asset/map/Examples/1.gif": {
+      "count": 1,
+      "tokens": 0,
+      "first_read": "2026-07-05T16:33:13.435Z"
+    },
+    "c:/Work/Personal/top-game/asset/map/Examples/Tilesheet (Animated Reference).gif": {
+      "count": 1,
+      "tokens": 0,
+      "first_read": "2026-07-05T16:33:13.750Z"
+    },
+    "c:/Work/Personal/top-game/asset/map/Examples/2.gif": {
+      "count": 1,
+      "tokens": 0,
+      "first_read": "2026-07-05T16:33:32.621Z"
+    },
+    "c:/Work/Personal/top-game/asset/map/Examples/3.gif": {
+      "count": 1,
+      "tokens": 0,
+      "first_read": "2026-07-05T16:33:33.102Z"
+    },
+    "c:/Work/Personal/top-game/asset/map/Examples/4.gif": {
+      "count": 1,
+      "tokens": 0,
+      "first_read": "2026-07-05T16:33:33.202Z"
+    },
+    "c:/Work/Personal/top-game/scripts/combat/battle_view.gd": {
+      "count": 1,
+      "tokens": 5429,
+      "first_read": "2026-07-05T16:34:12.597Z"
+    },
+    "c:/Work/Personal/top-game/asset_sliced/tiles/temperate_water/1x/index.json": {
+      "count": 1,
+      "tokens": 0,
+      "first_read": "2026-07-05T16:34:20.073Z"
+    },
+    "c:/Work/Personal/top-game/asset/map/1x/Tactical RPG Overworld Pack - Tilesheet.png": {
+      "count": 1,
+      "tokens": 0,
+      "first_read": "2026-07-05T16:35:14.410Z"
+    },
+    "c:/Work/Personal/top-game/asset_sliced/tiles/temperate_water/1x/terrain_swatch_foliage_004_c1_r3.png": {
+      "count": 1,
+      "tokens": 0,
+      "first_read": "2026-07-05T16:53:58.351Z"
+    },
+    "c:/Work/Personal/top-game/asset_sliced/tiles/temperate_water/1x/terrain_swatch_foliage_006_c5_r3.png": {
+      "count": 1,
+      "tokens": 0,
+      "first_read": "2026-07-05T16:53:58.892Z"
+    },
+    "c:/Work/Personal/top-game/asset_sliced/tiles/temperate_water/1x/terrain_swatch_foliage_009_c12_r3.png": {
+      "count": 1,
+      "tokens": 0,
+      "first_read": "2026-07-05T16:53:59.920Z"
+    },
+    "c:/Work/Personal/top-game/asset_sliced/tiles/temperate_water/1x/sand_water_autotile_000_c3_r16.png": {
+      "count": 1,
+      "tokens": 0,
+      "first_read": "2026-07-05T16:54:00.360Z"
+    },
+    "c:/Work/Personal/top-game/asset_sliced/tiles/temperate_water/1x/water_autotile_shallow_000_c3_r11.png": {
+      "count": 1,
+      "tokens": 0,
+      "first_read": "2026-07-05T16:54:00.896Z"
+    },
+    "c:/Work/Personal/top-game/scripts/combat/combat_skill.gd": {
+      "count": 1,
+      "tokens": 0,
+      "first_read": "2026-07-05T16:54:37.437Z"
+    }
+  },
+  "files_written": [],
+  "edit_counts": {},
+  "anatomy_hits": 2,
+  "anatomy_misses": 14,
+  "repeated_reads_warned": 0,
+  "cerebrum_warnings": 0,
+  "stop_count": 0
+}

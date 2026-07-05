@@ -127,10 +127,13 @@ icon silhouettes rather than a large decorative background.
 The playable prototype now uses the map and taskbar as a reactive combat HUD:
 
 - Party and monster sprites cycle real idle frames while visible.
+- Party sprites are horizontally flipped for the current side-facing read;
+  monster sprites also use their configured horizontal flip.
 - Units with `tank`, `dps`, or `enemy` roles switch to walk frames, move toward
-  the target cell, strike, then return to their lane slot.
-- Support and healer roles keep a short in-place ranged pulse instead of
-  walking into melee.
+  the target cell with distance-based timing, strike, then walk back to their
+  lane slot.
+- Support and healer roles stay in their lane, recoil briefly, and send a small
+  projectile toward the target instead of walking into melee.
 - Hits flash and shake the target, then spawn red floating damage numbers.
 - Heals flash green and spawn green floating recovery numbers.
 - Skills pulse the party and the pressed taskbar slot.

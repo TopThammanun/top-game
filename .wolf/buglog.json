@@ -1,0 +1,69 @@
+{
+  "version": 1,
+  "bugs": [
+    {
+      "id": "bug-001",
+      "timestamp": "2026-07-05T13:03:50.555Z",
+      "error_message": "Incorrect value in code",
+      "file": "project.godot",
+      "root_cause": "Had \"res://scenes/main/main.tscn\"",
+      "fix": "Changed to \"res://scenes/combat/battle.tscn\"",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "godot"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-05T13:03:50.555Z"
+    },
+    {
+      "id": "bug-002",
+      "timestamp": "2026-07-05T13:12:34.026Z",
+      "error_message": "Significant refactor of ",
+      "file": "scripts/combat/battle_view.gd",
+      "root_cause": "22 lines replaced/restructured",
+      "fix": "Rewrote 41→22 lines (22 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "gd"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-05T13:12:34.026Z"
+    },
+    {
+      "id": "bug-003",
+      "timestamp": "2026-07-05T13:21:14.340Z",
+      "error_message": "Significant refactor of ",
+      "file": "scripts/combat/battle_view.gd",
+      "root_cause": "3 lines replaced/restructured",
+      "fix": "Rewrote 6→3 lines (3 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "gd"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-05T13:21:14.340Z"
+    },
+    {
+      "id": "bug-004",
+      "timestamp": "2026-07-05T14:15:19.974Z",
+      "error_message": "Significant refactor of ",
+      "file": "scripts/combat/battle_view.gd",
+      "root_cause": "19 lines replaced/restructured",
+      "fix": "Rewrote 24→14 lines (19 removed) | Also: var sprite: Sprite2D = u[\"sprite\"]; var tsprite: Sprite2D = target[\"sprite\"]",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "gd"
+      ],
+      "related_bugs": [],
+      "occurrences": 2,
+      "last_seen": "2026-07-05T14:15:59.394Z"
+    }
+  ]
+}

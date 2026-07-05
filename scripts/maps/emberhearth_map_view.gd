@@ -19,7 +19,14 @@ const UNIT_STEP := 88.0
 const UNIT_ANIMATION_ROW := 1
 const IDLE_FRAME_SECONDS := 0.22
 const WALK_FRAME_SECONDS := 0.12
-const MELEE_APPROACH_GAP := 54.0
+const MELEE_CONTACT_OVERLAP := 18.0
+const MELEE_WALK_PIXELS_PER_SECOND := 720.0
+const MELEE_MIN_WALK_SECONDS := 0.34
+const MELEE_MAX_WALK_SECONDS := 0.72
+const MELEE_STRIKE_SECONDS := 0.12
+const RANGED_PROJECTILE_SECONDS := 0.24
+const PARTY_SPRITES_FLIP_H := true
+const ENEMY_SPRITES_FLIP_H := true
 
 var _map_grid: GridContainer
 var _region_label: Label
@@ -181,23 +188,26 @@ func _play_melee_attack(
 		direction = 1.0
 
 	var max_x: float = max(0.0, _stage.size.x - UNIT_CELL_SIZE.x)
-	var approach_x: float = clamp(target_cell.position.x - (direction * MELEE_APPROACH_GAP), 0.0, max_x)
+	var contact_gap: float = UNIT_CELL_SIZE.x - MELEE_CONTACT_OVERLAP
+	var approach_x: float = clamp(target_cell.position.x - (direction * contact_gap), 0.0, max_x)
 	var approach_position := Vector2(approach_x, return_position.y - 2.0)
+	var approach_seconds := _walk_duration(source_cell.position.distance_to(approach_position))
+	var return_seconds := _walk_duration(approach_position.distance_to(return_position))
 
 	_set_unit_animation(source_id, "move")
+	source_cell.z_index = 20
 	var tween := create_tween()
 	_attack_tweens_by_unit_id[source_id] = tween
-	tween.set_trans(Tween.TRANS_QUAD)
-	tween.set_ease(Tween.EASE_OUT)
-	tween.tween_property(source_cell, "position", approach_position, 0.24)
+	tween.tween_property(source_cell, "position", approach_position, approach_seconds).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 	tween.tween_callback(_set_unit_animation.bind(source_id, "idle"))
-	tween.tween_property(source_sprite, "scale", Vector2(1.16, 1.16), 0.06)
+	tween.tween_property(source_sprite, "scale", Vector2(1.16, 1.16), MELEE_STRIKE_SECONDS * 0.45).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 	tween.tween_callback(_spawn_spark_at_unit.bind(target_id, Color(1.0, 0.84, 0.38), 18.0))
-	tween.tween_property(source_sprite, "scale", Vector2.ONE, 0.08)
+	tween.tween_property(source_sprite, "scale", Vector2.ONE, MELEE_STRIKE_SECONDS * 0.55)
 	tween.tween_interval(0.04)
 	tween.tween_callback(_set_unit_animation.bind(source_id, "move"))
-	tween.tween_property(source_cell, "position", return_position, 0.22)
+	tween.tween_property(source_cell, "position", return_position, return_seconds).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 	tween.tween_callback(_set_unit_animation.bind(source_id, "idle"))
+	tween.tween_callback(_reset_attack_visual.bind(source_id))
 	tween.tween_callback(_clear_attack_tween.bind(source_id, tween))
 
 
@@ -209,14 +219,17 @@ func _play_ranged_attack(source_id: String, target_id: String, source_sprite: Te
 		direction = sign(target_center.x - source_center.x)
 		if direction == 0.0:
 			direction = 1.0
-	_spawn_spark_at_unit(target_id, Color(1.0, 0.84, 0.38), 18.0)
 	_set_unit_animation(source_id, "idle")
 	var start_position := source_sprite.position
 	var tween := create_tween()
 	tween.set_trans(Tween.TRANS_QUAD)
 	tween.set_ease(Tween.EASE_OUT)
-	tween.tween_property(source_sprite, "position", start_position + Vector2(12.0 * direction, -4.0), 0.08)
+	tween.tween_property(source_sprite, "position", start_position + Vector2(-5.0 * direction, -3.0), 0.08)
 	tween.tween_property(source_sprite, "position", start_position, 0.12)
+	if target_cell != null:
+		_spawn_projectile_between_units(source_id, target_id, Color(1.0, 0.84, 0.38), 10.0)
+	else:
+		_spawn_spark_at_unit(target_id, Color(1.0, 0.84, 0.38), 18.0)
 
 
 func play_hit(target_id: String, amount: int) -> void:
@@ -367,6 +380,10 @@ func _is_melee_unit(unit_id: String) -> bool:
 	return ["tank", "dps", "enemy"].has(str(unit.party_role))
 
 
+func _walk_duration(distance: float) -> float:
+	return clamp(distance / MELEE_WALK_PIXELS_PER_SECOND, MELEE_MIN_WALK_SECONDS, MELEE_MAX_WALK_SECONDS)
+
+
 func _lane_position_for_unit(unit_id: String, fallback: Vector2) -> Vector2:
 	if _lane_positions_by_unit_id.has(unit_id):
 		return _lane_positions_by_unit_id[unit_id]
@@ -380,11 +397,22 @@ func _cancel_attack_tween(unit_id: String) -> void:
 	if tween != null and is_instance_valid(tween):
 		tween.kill()
 	_attack_tweens_by_unit_id.erase(unit_id)
+	_reset_attack_visual(unit_id)
 
 
 func _clear_attack_tween(unit_id: String, tween: Tween) -> void:
 	if _attack_tweens_by_unit_id.get(unit_id) == tween:
 		_attack_tweens_by_unit_id.erase(unit_id)
+
+
+func _reset_attack_visual(unit_id: String) -> void:
+	var cell := _cell_for_unit(unit_id)
+	if cell != null:
+		cell.z_index = 0
+	var sprite := _sprite_for_unit(unit_id)
+	if sprite != null:
+		sprite.scale = Vector2.ONE
+	_set_unit_animation(unit_id, "idle")
 
 
 func _fill_units(units: Array) -> void:
@@ -429,6 +457,7 @@ func _build_unit_cell(u) -> Control:  # u: UnitState
 	sprite.custom_minimum_size = UNIT_SPRITE_SIZE
 	sprite.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	sprite.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	sprite.flip_h = _should_flip_unit_sprite(u)
 	var idle_frames := _load_animation_frames(str(u.idle_asset))
 	var move_asset_id := str(u.move_asset)
 	if move_asset_id == "":
@@ -791,6 +820,30 @@ func _spawn_spark_at_unit(unit_id: String, color: Color, size: float) -> void:
 	tween.tween_callback(spark.queue_free)
 
 
+func _spawn_projectile_between_units(source_id: String, target_id: String, color: Color, size: float) -> void:
+	if _stage == null:
+		_spawn_spark_at_unit(target_id, color, 18.0)
+		return
+	var stage_to_local: Transform2D = _stage.get_global_transform().affine_inverse()
+	var source_local: Vector2 = stage_to_local * _unit_anchor_global(source_id)
+	var target_local: Vector2 = stage_to_local * _unit_anchor_global(target_id)
+	var projectile := ColorRect.new()
+	projectile.name = "RangedProjectile"
+	projectile.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	projectile.color = color
+	projectile.modulate.a = 0.82
+	projectile.size = Vector2(size, size)
+	projectile.position = source_local - (projectile.size * 0.5)
+	projectile.z_index = 30
+	_stage.add_child(projectile)
+
+	var tween := create_tween()
+	tween.tween_property(projectile, "position", target_local - (projectile.size * 0.5), RANGED_PROJECTILE_SECONDS).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	tween.parallel().tween_property(projectile, "scale", Vector2(1.35, 1.35), RANGED_PROJECTILE_SECONDS)
+	tween.tween_callback(_spawn_spark_at_unit.bind(target_id, color, 18.0))
+	tween.tween_callback(projectile.queue_free)
+
+
 func _base_modulate_for_sprite(sprite: TextureRect) -> Color:
 	if sprite.has_meta("base_modulate"):
 		return sprite.get_meta("base_modulate")
@@ -822,6 +875,12 @@ func _short_unit_name(u) -> String:
 	if parts.size() > 0:
 		return str(parts[0])
 	return str(u.display_name)
+
+
+func _should_flip_unit_sprite(u) -> bool:
+	if str(u.party_role) == "enemy":
+		return ENEMY_SPRITES_FLIP_H
+	return PARTY_SPRITES_FLIP_H
 
 
 func _panel_style(shortcut: String, fallback_color: Color, border_width: int = 1) -> StyleBox:

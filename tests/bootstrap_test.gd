@@ -227,11 +227,65 @@ func _ready() -> void:
 			failures.append("UnitLayer should render animated Sprite nodes")
 		elif not animated_sprite.has_meta("idle_frames") or not animated_sprite.has_meta("move_frames"):
 			failures.append("MapView sprites should carry idle_frames and move_frames animation metadata")
+		if not GameState.party.is_empty():
+			var party_cell: Control = unit_layer.get_node_or_null("Cell_%s" % GameState.party[0].id) as Control
+			var party_sprite: TextureRect = null
+			if party_cell != null:
+				party_sprite = party_cell.find_child("Sprite", true, false) as TextureRect
+			if party_sprite == null:
+				failures.append("party unit should render a Sprite for facing checks")
+			elif not party_sprite.flip_h:
+				failures.append("party units should flip horizontally after the party-facing swap")
+		if GameState.wave_state != null and not GameState.wave_state.enemies.is_empty():
+			var facing_enemy_id: String = GameState.wave_state.enemies[0].id
+			var enemy_cell: Control = unit_layer.get_node_or_null("Cell_%s" % facing_enemy_id) as Control
+			var enemy_sprite: TextureRect = null
+			if enemy_cell != null:
+				enemy_sprite = enemy_cell.find_child("Sprite", true, false) as TextureRect
+			if enemy_sprite == null:
+				failures.append("enemy unit should render a Sprite for facing checks")
+			elif not enemy_sprite.flip_h:
+				failures.append("enemy units should flip horizontally to face the party")
 
 	if not GameState.party.is_empty() and GameState.wave_state != null and not GameState.wave_state.enemies.is_empty():
 		var hero_id: String = GameState.party[0].id
 		var enemy_id: String = GameState.wave_state.enemies[0].id
-		map_view.play_attack(hero_id, enemy_id)
+		var melee_cell: Control = unit_layer.get_node_or_null("Cell_%s" % hero_id) as Control
+		var target_cell: Control = unit_layer.get_node_or_null("Cell_%s" % enemy_id) as Control
+		if melee_cell != null and target_cell != null:
+			var melee_start_position: Vector2 = melee_cell.position
+			var target_start_position: Vector2 = target_cell.position
+			var total_melee_distance: float = abs(target_start_position.x - melee_start_position.x)
+			map_view.play_attack(hero_id, enemy_id)
+			await get_tree().create_timer(0.18).timeout
+			var melee_mid_position: Vector2 = melee_cell.position
+			var travelled_distance: float = abs(melee_mid_position.x - melee_start_position.x)
+			if travelled_distance <= 2.0:
+				failures.append("melee attacker should visibly walk out of its lane before striking")
+			if travelled_distance >= total_melee_distance * 0.75:
+				failures.append("melee attacker should not teleport most of the way to the target in 0.18s")
+			await get_tree().create_timer(1.65).timeout
+			if melee_cell.position.distance_to(melee_start_position) > 3.0:
+				failures.append("melee attacker should return to its lane after the walk-in strike")
+		else:
+			map_view.play_attack(hero_id, enemy_id)
+
+		var ranged_id := ""
+		for party_unit in GameState.party:
+			if str(party_unit.party_role) == "support" or str(party_unit.party_role) == "healer":
+				ranged_id = str(party_unit.id)
+				break
+		if ranged_id != "":
+			var ranged_cell: Control = unit_layer.get_node_or_null("Cell_%s" % ranged_id) as Control
+			if ranged_cell != null:
+				var ranged_start_position: Vector2 = ranged_cell.position
+				map_view.play_attack(ranged_id, enemy_id)
+				await get_tree().create_timer(0.05).timeout
+				if ranged_cell.position.distance_to(ranged_start_position) > 1.0:
+					failures.append("ranged/support attackers should stay in their lane while attacking")
+				if map_view.find_child("RangedProjectile", true, false) == null:
+					failures.append("ranged/support attacks should create a projectile instead of walking in")
+				await get_tree().create_timer(0.30).timeout
 		map_view.play_hit(enemy_id, 7)
 		map_view.play_heal(hero_id, 5)
 		map_view.play_skill_pulse("skill_1")
