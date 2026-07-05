@@ -81,13 +81,526 @@
       "count": 1,
       "tokens": 0,
       "first_read": "2026-07-05T16:54:37.437Z"
+    },
+    "c:/Work/Personal/top-game/asset/ui/Individual files/2x/Mini icons/Icon_01.png": {
+      "count": 1,
+      "tokens": 0,
+      "first_read": "2026-07-05T17:54:58.169Z"
+    },
+    "c:/Work/Personal/top-game/asset/ui/Individual files/2x/Mini icons/Icon_02.png": {
+      "count": 1,
+      "tokens": 0,
+      "first_read": "2026-07-05T17:54:58.659Z"
+    },
+    "c:/Work/Personal/top-game/asset/ui/Individual files/2x/Mini icons/Icon_03.png": {
+      "count": 1,
+      "tokens": 0,
+      "first_read": "2026-07-05T17:54:59.699Z"
+    },
+    "c:/Work/Personal/top-game/asset/ui/Individual files/2x/Mini icons/Icon_04.png": {
+      "count": 1,
+      "tokens": 0,
+      "first_read": "2026-07-05T17:55:00.188Z"
+    },
+    "c:/Work/Personal/top-game/asset/ui/Individual files/2x/Mini icons/Icon_05.png": {
+      "count": 1,
+      "tokens": 0,
+      "first_read": "2026-07-05T17:55:00.700Z"
+    },
+    "c:/Work/Personal/top-game/asset/ui/Individual files/2x/Mini icons/Icon_06.png": {
+      "count": 1,
+      "tokens": 0,
+      "first_read": "2026-07-05T17:55:01.763Z"
+    },
+    "c:/Work/Personal/top-game/asset/ui/Individual files/2x/Mini icons/Icon_07.png": {
+      "count": 1,
+      "tokens": 0,
+      "first_read": "2026-07-05T17:55:02.164Z"
+    },
+    "c:/Work/Personal/top-game/asset/ui/Individual files/2x/Mini icons/Icon_08.png": {
+      "count": 1,
+      "tokens": 0,
+      "first_read": "2026-07-05T17:55:02.597Z"
+    },
+    "c:/Work/Personal/top-game/asset/ui/Individual files/2x/Mini icons/Icon_09.png": {
+      "count": 1,
+      "tokens": 0,
+      "first_read": "2026-07-05T17:55:17.076Z"
+    },
+    "c:/Work/Personal/top-game/asset/ui/Individual files/2x/Mini icons/Icon_10.png": {
+      "count": 1,
+      "tokens": 0,
+      "first_read": "2026-07-05T17:55:17.662Z"
+    },
+    "c:/Work/Personal/top-game/asset/ui/Individual files/2x/Mini icons/Icon_11.png": {
+      "count": 1,
+      "tokens": 0,
+      "first_read": "2026-07-05T17:55:18.737Z"
+    },
+    "c:/Work/Personal/top-game/asset/ui/Individual files/2x/Mini icons/Icon_12.png": {
+      "count": 1,
+      "tokens": 0,
+      "first_read": "2026-07-05T17:55:19.081Z"
+    },
+    "c:/Work/Personal/top-game/asset/ui/Individual files/2x/Mini icons/Icon_13.png": {
+      "count": 1,
+      "tokens": 0,
+      "first_read": "2026-07-05T17:55:19.796Z"
+    },
+    "c:/Work/Personal/top-game/asset/ui/Individual files/2x/Mini icons/Icon_14.png": {
+      "count": 1,
+      "tokens": 0,
+      "first_read": "2026-07-05T17:55:20.611Z"
+    },
+    "c:/Work/Personal/top-game/asset/ui/Individual files/2x/Mini icons/Icon_15.png": {
+      "count": 1,
+      "tokens": 0,
+      "first_read": "2026-07-05T17:55:21.104Z"
+    },
+    "c:/Work/Personal/top-game/asset/ui/Individual files/2x/Mini icons/Icon_16.png": {
+      "count": 1,
+      "tokens": 0,
+      "first_read": "2026-07-05T17:55:21.716Z"
+    },
+    "C:/Users/topto/AppData/Local/Temp/tbh_skillbar_1.png": {
+      "count": 1,
+      "tokens": 0,
+      "first_read": "2026-07-05T18:02:13.687Z"
+    },
+    "C:/Users/topto/AppData/Local/Temp/tbh_skillbar_2.png": {
+      "count": 1,
+      "tokens": 0,
+      "first_read": "2026-07-05T18:04:55.796Z"
+    },
+    "C:/Users/topto/AppData/Local/Temp/tbh_skillbar_3.png": {
+      "count": 1,
+      "tokens": 0,
+      "first_read": "2026-07-05T18:06:31.712Z"
+    },
+    "C:/Users/topto/AppData/Local/Temp/tbh_skillbar_4.png": {
+      "count": 1,
+      "tokens": 0,
+      "first_read": "2026-07-05T18:08:48.538Z"
+    },
+    "c:/Work/Personal/top-game/tests/bootstrap_test.gd": {
+      "count": 1,
+      "tokens": 0,
+      "first_read": "2026-07-05T18:10:36.791Z"
+    },
+    "c:/Work/Personal/top-game/data/combat/archetypes.json": {
+      "count": 1,
+      "tokens": 0,
+      "first_read": "2026-07-05T18:23:19.105Z"
+    },
+    "c:/Work/Personal/top-game/scripts/runtime/game_state.gd": {
+      "count": 1,
+      "tokens": 0,
+      "first_read": "2026-07-05T18:23:34.892Z"
+    },
+    "C:/Users/topto/AppData/Local/Temp/tbh_move_1.png": {
+      "count": 1,
+      "tokens": 0,
+      "first_read": "2026-07-05T18:31:30.409Z"
+    },
+    "C:/Users/topto/AppData/Local/Temp/tbh_move_2.png": {
+      "count": 1,
+      "tokens": 0,
+      "first_read": "2026-07-05T18:33:20.709Z"
+    },
+    "C:/Users/topto/AppData/Local/Temp/tbh_move_3.png": {
+      "count": 1,
+      "tokens": 0,
+      "first_read": "2026-07-05T18:35:15.816Z"
+    },
+    "C:/Users/topto/AppData/Local/Temp/tbh_range_1.png": {
+      "count": 1,
+      "tokens": 0,
+      "first_read": "2026-07-05T18:39:56.519Z"
+    },
+    "c:/Work/Personal/top-game/asset/ui/Examples/Game mockup.png": {
+      "count": 1,
+      "tokens": 0,
+      "first_read": "2026-07-05T18:45:31.302Z"
+    },
+    "c:/Work/Personal/top-game/asset/ui/Examples/Menu boxes.png": {
+      "count": 1,
+      "tokens": 0,
+      "first_read": "2026-07-05T18:45:31.825Z"
+    },
+    "c:/Work/Personal/top-game/asset/ui/Individual files/3x/Buttons/Button_01A_Normal.png": {
+      "count": 1,
+      "tokens": 0,
+      "first_read": "2026-07-05T18:48:00.727Z"
+    },
+    "c:/Work/Personal/top-game/asset/ui/Individual files/3x/Buttons/Button_02A_Normal.png": {
+      "count": 1,
+      "tokens": 0,
+      "first_read": "2026-07-05T18:48:01.765Z"
+    },
+    "c:/Work/Personal/top-game/asset/ui/Individual files/3x/Background boxes/BGbox_01A.png": {
+      "count": 1,
+      "tokens": 0,
+      "first_read": "2026-07-05T18:48:02.245Z"
+    },
+    "c:/Work/Personal/top-game/asset/ui/Individual files/3x/Title banners/BannerMedium_01A.png": {
+      "count": 1,
+      "tokens": 0,
+      "first_read": "2026-07-05T18:48:02.723Z"
+    },
+    "c:/Work/Personal/top-game/asset/ui/Individual files/3x/Item slots/Slot_01_Empty.png": {
+      "count": 1,
+      "tokens": 0,
+      "first_read": "2026-07-05T18:48:03.260Z"
+    },
+    "c:/Work/Personal/top-game/asset/ui/Individual files/3x/Background boxes/BGbox_02A.png": {
+      "count": 1,
+      "tokens": 0,
+      "first_read": "2026-07-05T18:50:47.701Z"
+    },
+    "c:/Work/Personal/top-game/asset/ui/Individual files/3x/Background boxes/BGbox_03A.png": {
+      "count": 1,
+      "tokens": 0,
+      "first_read": "2026-07-05T18:50:48.098Z"
+    },
+    "c:/Work/Personal/top-game/asset/ui/Individual files/3x/Buttons/Button_01A_Pressed.png": {
+      "count": 1,
+      "tokens": 0,
+      "first_read": "2026-07-05T18:50:48.552Z"
+    },
+    "C:/Users/topto/AppData/Local/Temp/tbh_ui_1.png": {
+      "count": 1,
+      "tokens": 0,
+      "first_read": "2026-07-05T18:58:56.379Z"
+    },
+    "C:/Users/topto/AppData/Local/Temp/tbh_ui_2.png": {
+      "count": 1,
+      "tokens": 0,
+      "first_read": "2026-07-05T19:01:46.114Z"
     }
   },
-  "files_written": [],
-  "edit_counts": {},
+  "files_written": [
+    {
+      "file": "c:/Work/Personal/top-game/data/maps/emberhearth_map_plan.json",
+      "action": "create",
+      "tokens": 1069,
+      "at": "2026-07-05T17:56:56.996Z"
+    },
+    {
+      "file": "c:/Work/Personal/top-game/scripts/combat/battle_view.gd",
+      "action": "edit",
+      "tokens": 232,
+      "at": "2026-07-05T17:58:37.364Z"
+    },
+    {
+      "file": "c:/Work/Personal/top-game/scripts/combat/battle_view.gd",
+      "action": "edit",
+      "tokens": 73,
+      "at": "2026-07-05T17:58:47.396Z"
+    },
+    {
+      "file": "c:/Work/Personal/top-game/scripts/combat/battle_view.gd",
+      "action": "edit",
+      "tokens": 114,
+      "at": "2026-07-05T17:58:57.050Z"
+    },
+    {
+      "file": "c:/Work/Personal/top-game/scripts/combat/battle_view.gd",
+      "action": "edit",
+      "tokens": 18,
+      "at": "2026-07-05T17:59:09.777Z"
+    },
+    {
+      "file": "c:/Work/Personal/top-game/scripts/combat/battle_view.gd",
+      "action": "edit",
+      "tokens": 42,
+      "at": "2026-07-05T17:59:23.191Z"
+    },
+    {
+      "file": "c:/Work/Personal/top-game/scripts/combat/battle_view.gd",
+      "action": "edit",
+      "tokens": 42,
+      "at": "2026-07-05T17:59:34.475Z"
+    },
+    {
+      "file": "c:/Work/Personal/top-game/scripts/combat/battle_view.gd",
+      "action": "edit",
+      "tokens": 32,
+      "at": "2026-07-05T17:59:41.820Z"
+    },
+    {
+      "file": "c:/Work/Personal/top-game/scripts/combat/battle_view.gd",
+      "action": "edit",
+      "tokens": 127,
+      "at": "2026-07-05T17:59:52.425Z"
+    },
+    {
+      "file": "c:/Work/Personal/top-game/scripts/combat/battle_view.gd",
+      "action": "edit",
+      "tokens": 45,
+      "at": "2026-07-05T18:00:00.148Z"
+    },
+    {
+      "file": "c:/Work/Personal/top-game/scripts/combat/battle_view.gd",
+      "action": "edit",
+      "tokens": 52,
+      "at": "2026-07-05T18:00:09.577Z"
+    },
+    {
+      "file": "c:/Work/Personal/top-game/scripts/combat/battle_view.gd",
+      "action": "edit",
+      "tokens": 1386,
+      "at": "2026-07-05T18:01:17.322Z"
+    },
+    {
+      "file": "c:/Work/Personal/top-game/data/maps/emberhearth_map_plan.json",
+      "action": "edit",
+      "tokens": 565,
+      "at": "2026-07-05T18:04:18.943Z"
+    },
+    {
+      "file": "c:/Work/Personal/top-game/data/maps/emberhearth_map_plan.json",
+      "action": "edit",
+      "tokens": 75,
+      "at": "2026-07-05T18:05:55.544Z"
+    },
+    {
+      "file": "c:/Work/Personal/top-game/scripts/combat/battle_view.gd",
+      "action": "edit",
+      "tokens": 264,
+      "at": "2026-07-05T18:08:13.302Z"
+    },
+    {
+      "file": "c:/Work/Personal/top-game/tests/bootstrap_test.gd",
+      "action": "edit",
+      "tokens": 194,
+      "at": "2026-07-05T18:11:06.932Z"
+    },
+    {
+      "file": "c:/Work/Personal/top-game/scripts/combat/battle_view.gd",
+      "action": "edit",
+      "tokens": 114,
+      "at": "2026-07-05T18:26:07.659Z"
+    },
+    {
+      "file": "c:/Work/Personal/top-game/scripts/combat/battle_view.gd",
+      "action": "edit",
+      "tokens": 122,
+      "at": "2026-07-05T18:26:26.079Z"
+    },
+    {
+      "file": "c:/Work/Personal/top-game/scripts/combat/battle_view.gd",
+      "action": "edit",
+      "tokens": 28,
+      "at": "2026-07-05T18:26:48.424Z"
+    },
+    {
+      "file": "c:/Work/Personal/top-game/scripts/combat/battle_view.gd",
+      "action": "edit",
+      "tokens": 203,
+      "at": "2026-07-05T18:27:04.835Z"
+    },
+    {
+      "file": "c:/Work/Personal/top-game/scripts/combat/battle_view.gd",
+      "action": "edit",
+      "tokens": 49,
+      "at": "2026-07-05T18:27:16.711Z"
+    },
+    {
+      "file": "c:/Work/Personal/top-game/scripts/combat/battle_view.gd",
+      "action": "edit",
+      "tokens": 60,
+      "at": "2026-07-05T18:27:28.178Z"
+    },
+    {
+      "file": "c:/Work/Personal/top-game/scripts/combat/battle_view.gd",
+      "action": "edit",
+      "tokens": 492,
+      "at": "2026-07-05T18:27:47.629Z"
+    },
+    {
+      "file": "c:/Work/Personal/top-game/scripts/combat/battle_view.gd",
+      "action": "edit",
+      "tokens": 391,
+      "at": "2026-07-05T18:28:03.628Z"
+    },
+    {
+      "file": "c:/Work/Personal/top-game/scripts/combat/battle_view.gd",
+      "action": "edit",
+      "tokens": 1473,
+      "at": "2026-07-05T18:29:20.162Z"
+    },
+    {
+      "file": "c:/Work/Personal/top-game/scripts/combat/battle_view.gd",
+      "action": "edit",
+      "tokens": 296,
+      "at": "2026-07-05T18:30:46.143Z"
+    },
+    {
+      "file": "c:/Work/Personal/top-game/scripts/combat/battle_view.gd",
+      "action": "edit",
+      "tokens": 73,
+      "at": "2026-07-05T18:32:37.516Z"
+    },
+    {
+      "file": "c:/Work/Personal/top-game/scripts/combat/battle_view.gd",
+      "action": "edit",
+      "tokens": 177,
+      "at": "2026-07-05T18:34:11.469Z"
+    },
+    {
+      "file": "c:/Work/Personal/top-game/data/combat/archetypes.json",
+      "action": "edit",
+      "tokens": 26,
+      "at": "2026-07-05T18:38:55.701Z"
+    },
+    {
+      "file": "c:/Work/Personal/top-game/data/combat/archetypes.json",
+      "action": "edit",
+      "tokens": 25,
+      "at": "2026-07-05T18:38:57.180Z"
+    },
+    {
+      "file": "c:/Work/Personal/top-game/data/combat/archetypes.json",
+      "action": "edit",
+      "tokens": 25,
+      "at": "2026-07-05T18:38:58.691Z"
+    },
+    {
+      "file": "c:/Work/Personal/top-game/data/combat/archetypes.json",
+      "action": "edit",
+      "tokens": 25,
+      "at": "2026-07-05T18:39:00.591Z"
+    },
+    {
+      "file": "c:/Work/Personal/top-game/data/combat/archetypes.json",
+      "action": "edit",
+      "tokens": 25,
+      "at": "2026-07-05T18:39:01.873Z"
+    },
+    {
+      "file": "c:/Work/Personal/top-game/data/combat/archetypes.json",
+      "action": "edit",
+      "tokens": 26,
+      "at": "2026-07-05T18:49:53.295Z"
+    },
+    {
+      "file": "c:/Work/Personal/top-game/data/combat/archetypes.json",
+      "action": "edit",
+      "tokens": 25,
+      "at": "2026-07-05T18:49:54.766Z"
+    },
+    {
+      "file": "c:/Work/Personal/top-game/data/combat/archetypes.json",
+      "action": "edit",
+      "tokens": 25,
+      "at": "2026-07-05T18:49:56.235Z"
+    },
+    {
+      "file": "c:/Work/Personal/top-game/data/combat/archetypes.json",
+      "action": "edit",
+      "tokens": 25,
+      "at": "2026-07-05T18:49:57.757Z"
+    },
+    {
+      "file": "c:/Work/Personal/top-game/data/combat/archetypes.json",
+      "action": "edit",
+      "tokens": 25,
+      "at": "2026-07-05T18:49:59.078Z"
+    },
+    {
+      "file": "c:/Work/Personal/top-game/scripts/combat/battle_view.gd",
+      "action": "edit",
+      "tokens": 160,
+      "at": "2026-07-05T18:50:11.843Z"
+    },
+    {
+      "file": "c:/Work/Personal/top-game/scripts/combat/battle_view.gd",
+      "action": "edit",
+      "tokens": 56,
+      "at": "2026-07-05T18:53:35.358Z"
+    },
+    {
+      "file": "c:/Work/Personal/top-game/scripts/combat/battle_view.gd",
+      "action": "edit",
+      "tokens": 526,
+      "at": "2026-07-05T18:53:56.522Z"
+    },
+    {
+      "file": "c:/Work/Personal/top-game/scripts/combat/battle_view.gd",
+      "action": "edit",
+      "tokens": 222,
+      "at": "2026-07-05T18:54:16.264Z"
+    },
+    {
+      "file": "c:/Work/Personal/top-game/scripts/combat/battle_view.gd",
+      "action": "edit",
+      "tokens": 60,
+      "at": "2026-07-05T18:54:45.748Z"
+    },
+    {
+      "file": "c:/Work/Personal/top-game/scripts/combat/battle_view.gd",
+      "action": "edit",
+      "tokens": 68,
+      "at": "2026-07-05T18:55:32.839Z"
+    },
+    {
+      "file": "c:/Work/Personal/top-game/scripts/combat/battle_view.gd",
+      "action": "edit",
+      "tokens": 38,
+      "at": "2026-07-05T18:55:43.013Z"
+    },
+    {
+      "file": "c:/Work/Personal/top-game/scripts/combat/battle_view.gd",
+      "action": "edit",
+      "tokens": 219,
+      "at": "2026-07-05T18:56:41.974Z"
+    },
+    {
+      "file": "c:/Work/Personal/top-game/scripts/combat/battle_view.gd",
+      "action": "edit",
+      "tokens": 70,
+      "at": "2026-07-05T18:56:58.259Z"
+    },
+    {
+      "file": "c:/Work/Personal/top-game/scripts/combat/battle_view.gd",
+      "action": "edit",
+      "tokens": 24,
+      "at": "2026-07-05T18:57:27.840Z"
+    },
+    {
+      "file": "c:/Work/Personal/top-game/scripts/combat/battle_view.gd",
+      "action": "edit",
+      "tokens": 153,
+      "at": "2026-07-05T18:57:41.145Z"
+    },
+    {
+      "file": "c:/Work/Personal/top-game/scripts/combat/battle_view.gd",
+      "action": "edit",
+      "tokens": 0,
+      "at": "2026-07-05T18:58:20.541Z"
+    },
+    {
+      "file": "c:/Work/Personal/top-game/scripts/combat/battle_view.gd",
+      "action": "edit",
+      "tokens": 88,
+      "at": "2026-07-05T19:00:47.916Z"
+    },
+    {
+      "file": "c:/Work/Personal/top-game/scripts/combat/battle_view.gd",
+      "action": "edit",
+      "tokens": 90,
+      "at": "2026-07-05T19:01:00.226Z"
+    }
+  ],
+  "edit_counts": {
+    "data/maps/emberhearth_map_plan.json": 3,
+    "scripts/combat/battle_view.gd": 38,
+    "tests/bootstrap_test.gd": 1,
+    "data/combat/archetypes.json": 10
+  },
   "anatomy_hits": 2,
-  "anatomy_misses": 14,
+  "anatomy_misses": 53,
   "repeated_reads_warned": 0,
   "cerebrum_warnings": 0,
-  "stop_count": 0
+  "stop_count": 4
 }

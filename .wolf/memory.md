@@ -121,3 +121,4 @@
 | 02:01 | Edited scripts/combat/battle_view.gd | 8→9 lines | ~84 |
 | 02:02 | Ranged range bump + lane-sorted formation (front-liners lead, ranged hold back) | data/combat/archetypes.json, scripts/combat/battle_view.gd | ranged now clearly ranged | ~1k |
 | 02:02 | Reskinned HUD with asset/ui art: parchment nine-slice bar, banner title, wooden buttons, slot skill frames | scripts/combat/battle_view.gd | on-theme, screenshot-verified | ~5k |
+| 02:03 | Session end: 52 writes across 4 files (emberhearth_map_plan.json, battle_view.gd, bootstrap_test.gd, archetypes.json) | 55 reads | ~15659 tok |
