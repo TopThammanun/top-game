@@ -51,7 +51,7 @@ var _title_label: Label
 var _wave_label: Label
 var _banner_label: Label
 var _skill_bar: Control                   # bottom tap-to-cast skill menu
-var _skill_slots: Array = []              # per-ally: {unit, panel, cd_shade, cd_text, box_idle, box_ready}
+var _skill_slots: Array = []              # per-ally: {unit, panel, cd_shade, cd_text, ready, btn}
 var _taskbar: Control                     # top command bar (Party / Skills / Speed / Menu)
 var _menu_panel: Control
 var _speed_btn: Button
@@ -940,7 +940,7 @@ func _hp_bar_node(frac: float, w: float, h: float) -> Control:
 		root.add_child(frame)
 	var inset := 4.0
 	var fill := ColorRect.new()
-	fill.color = Color(0.96, 0.74, 0.28) if frac < 0.34 else Color(0.40, 0.82, 0.38)
+	fill.color = _hp_fill_color(frac, true)
 	fill.position = Vector2(inset, inset)
 	fill.size = Vector2((w - 2.0 * inset) * frac, h - 2.0 * inset)
 	fill.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -1093,11 +1093,15 @@ func _draw_hp(u: Dictionary) -> void:
 	else:
 		draw_rect(Rect2(origin - Vector2(2, 2), Vector2(w + 4, h + 4)), Color(0, 0, 0, 0.55))
 		draw_rect(Rect2(origin, Vector2(w, h)), Color(0.10, 0.08, 0.09))
-	var fill_col := Color(0.40, 0.82, 0.38) if u["side"] == "ally" else Color(0.87, 0.40, 0.36)
-	if frac < 0.34:
-		fill_col = Color(0.96, 0.74, 0.28)
+	var fill_col := _hp_fill_color(frac, u["side"] == "ally")
 	var inset := 4.0
 	draw_rect(Rect2(origin + Vector2(inset, inset), Vector2((w - 2.0 * inset) * frac, h - 2.0 * inset)), fill_col)
+
+
+func _hp_fill_color(frac: float, is_ally: bool) -> Color:
+	if frac < 0.34:
+		return Color(0.96, 0.74, 0.28)      # low HP -> amber
+	return Color(0.40, 0.82, 0.38) if is_ally else Color(0.87, 0.40, 0.36)
 
 
 # ---------------------------------------------------------------- wave flow

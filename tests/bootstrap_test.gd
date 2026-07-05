@@ -90,8 +90,14 @@ func _ready() -> void:
 		"unit.enemy_boss_idle",
 		"unit.enemy_boss_move",
 		"ui.panel_dark",
+		"ui.panel_bright",
 		"ui.taskbar_panel",
-		"ui.title_banner"
+		"ui.title_banner",
+		"ui.button_normal",
+		"ui.book",
+		"ui.hp_bar_frame",
+		"ui.hp_bar_fill",
+		"ui.hp_orb_frame"
 	]:
 		if not AssetRegistry.has_asset(shortcut):
 			failures.append("expected visual shortcut to resolve: %s" % shortcut)
