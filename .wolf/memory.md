@@ -92,3 +92,10 @@
 | 01:36 | Combat walk-into-range (melee close/ranged shoot) + walk anim both sides | scripts/combat/battle_view.gd | working | ~3k |
 | 01:36 | Wave warp transition (march + flash + walk-in) | scripts/combat/battle_view.gd | working | ~1k |
 | 01:36 | Top command taskbar: Party/Skills/Speed/Menu + roster & menu panels | scripts/combat/battle_view.gd | working, title move_child fix | ~4k |
+| 01:37 | Session end: 28 writes across 3 files (emberhearth_map_plan.json, battle_view.gd, bootstrap_test.gd) | 42 reads | ~13633 tok |
+| 01:38 | Edited data/combat/archetypes.json | 260.0 → 420.0 | ~26 |
+| 01:38 | Edited data/combat/archetypes.json | 220.0 → 360.0 | ~25 |
+| 01:38 | Edited data/combat/archetypes.json | 320.0 → 500.0 | ~25 |
+| 01:39 | Edited data/combat/archetypes.json | 280.0 → 400.0 | ~25 |
+| 01:39 | Edited data/combat/archetypes.json | 280.0 → 400.0 | ~25 |
+| 01:41 | Bumped ranged attack_range (mid_magic/bomber/ranged/support/healer) so they hold back | data/combat/archetypes.json | verified via screenshot | ~0.5k |
