@@ -24,6 +24,23 @@ const HP_MULT := 2.4                      # fatten the HP pool so fights are wat
 const CADENCE_BASE := 1.5                 # seconds-per-attack scalar (higher = slower)
 const HORIZ_STEP := 120.0                 # horizontal spacing along the battle lane
 const MAP_PLAN_PATH := "res://data/maps/emberhearth_map_plan.json"
+const AUTO_CAST_GRACE := 2.2              # a ready skill waits this long for a tap, then auto-fires
+const GROUND_LAYERS := ["patches", "roads", "beach", "water"]  # override order (later wins)
+
+# Skill id -> mini-icon number (falls back to effect_type, see _skill_icon_texture).
+const SKILL_ICONS := {
+	"wildstripe_burst": 9,    # sword
+	"ironmane_bulwark": 10,   # shield
+	"silkpaw_ward": 1,        # star ward
+	"cloudfur_mend": 14,      # heal cross
+	"voicecaster_chord": 13,  # magic note
+	"emberpaw_dash": 9,       # sword
+}
+const SKILL_TINT := {
+	"aoe_damage": Color(0.95, 0.45, 0.40),
+	"heal": Color(0.45, 0.86, 0.52),
+	"buff": Color(0.52, 0.72, 1.0),
+}
 
 var _factory
 var _units: Array = []                    # Array of unit dictionaries
@@ -34,6 +51,8 @@ var _map_root: Control
 var _title_label: Label
 var _wave_label: Label
 var _banner_label: Label
+var _skill_bar: Control                   # bottom tap-to-cast skill menu
+var _skill_slots: Array = []              # per-ally: {unit, panel, cd_shade, cd_text, box_idle, box_ready}
 var _view_size: Vector2
 var _battle_y: float = 0.0
 var _wave: int = 1
@@ -96,6 +115,11 @@ func _build_layers() -> void:
 	_banner_label.visible = false
 	_hud_layer.add_child(_banner_label)
 
+	_skill_bar = Control.new()
+	_skill_bar.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_skill_bar.mouse_filter = Control.MOUSE_FILTER_IGNORE   # only the buttons catch input
+	_hud_layer.add_child(_skill_bar)
+
 
 func _hud_label(size: int, color: Color) -> Label:
 	var l := Label.new()
@@ -110,6 +134,7 @@ func _on_resize() -> void:
 	_view_size = get_viewport().get_visible_rect().size
 	if _phase != "boot":
 		_layout_background()
+		_build_skill_bar()
 
 
 func _layout_background() -> void:
@@ -158,6 +183,21 @@ func _render_map() -> void:
 	var map_h: float = tile_px * float(mh)
 	var y_off: float = _view_size.y - map_h            # village sits along the bottom
 	_battle_y = y_off + map_h * 0.55                   # the battle lane (on the road band)
+	# Opaque ground behind the tiles: these autotile tiles have scalloped transparent
+	# corners, so without a base fill the sky gradient bleeds through as murky gaps.
+	var land_h: float = map_h * 0.82
+	var base := ColorRect.new()
+	base.color = Color(0.44, 0.62, 0.28)               # grass green
+	base.position = Vector2(0, y_off)
+	base.size = Vector2(_view_size.x, land_h)
+	base.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_map_root.add_child(base)
+	var shore := ColorRect.new()
+	shore.color = Color(0.20, 0.42, 0.52)              # shallow water under the coast
+	shore.position = Vector2(0, y_off + land_h)
+	shore.size = Vector2(_view_size.x, map_h - land_h)
+	shore.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_map_root.add_child(shore)
 	for y in mh:
 		for x in mw:
 			for t in _cell_tiles(layers, x, y):
@@ -181,7 +221,7 @@ func _cell_tiles(layers: Dictionary, x: int, y: int) -> Array:
 	var ground_name := "grass"
 	if typeof(ground) == TYPE_DICTIONARY:
 		ground_name = str(ground.get("tile", "grass"))
-	for lname in ["patches", "roads", "water"]:
+	for lname in GROUND_LAYERS:
 		for e in layers.get(lname, []):
 			if typeof(e) != TYPE_DICTIONARY:
 				continue
@@ -241,6 +281,7 @@ func _spawn_wave() -> void:
 	_place_side(allies, true, ground_y)
 	_place_side(enemies, false, ground_y)
 	_units = allies + enemies
+	_build_skill_bar()
 	_refresh_wave_label()
 
 
@@ -308,6 +349,7 @@ func _build_unit(profile: Dictionary, display_name: String, side: String, idle_a
 		"anim": "idle",
 		"anim_time": randf() * 2.0,
 		"atk_t": randf() * 0.6,
+		"ready_hold": 0.0,
 		"alive": true,
 		"home_x": 0.0,
 		"base_mod": (Color(1.0, 0.72, 0.70) if side == "enemy" else Color.WHITE),
@@ -370,6 +412,7 @@ func _process(delta: float) -> void:
 			_act(u, delta)
 		_update_overlay(u)
 
+	_update_skill_bar()
 	_check_wave_end(delta)
 	queue_redraw()
 
@@ -396,12 +439,16 @@ func _act(u: Dictionary, delta: float) -> void:
 		return
 	u["anim"] = "idle"
 	var skill = u["skill"]
-	if skill != null and skill.is_ready():
-		_cast_skill(u, skill)
-		skill.trigger()
-		return
 	if skill != null:
-		skill.tick(delta, float(u["stats"].get_stat(CombatEnumsClass.StatKey.COOLDOWN_REDUCTION)))
+		if skill.is_ready():
+			# Hand it to the player first: hold ready for a grace window, then auto-fire.
+			u["ready_hold"] = float(u["ready_hold"]) + delta
+			if u["ready_hold"] >= AUTO_CAST_GRACE:
+				_do_cast(u, skill)
+				return
+		else:
+			u["ready_hold"] = 0.0
+			skill.tick(delta, float(u["stats"].get_stat(CombatEnumsClass.StatKey.COOLDOWN_REDUCTION)))
 	u["atk_t"] += delta
 	var cadence: float = CADENCE_BASE / max(0.5, float(u["stats"].get_stat(CombatEnumsClass.StatKey.ATK_SPD)))
 	if u["atk_t"] >= cadence:
@@ -418,6 +465,12 @@ func _basic_attack(u: Dictionary, target: Dictionary) -> void:
 		_kill(target)
 
 
+func _do_cast(u: Dictionary, skill) -> void:
+	_cast_skill(u, skill)
+	skill.trigger()
+	u["ready_hold"] = 0.0
+
+
 func _cast_skill(u: Dictionary, skill) -> void:
 	var targets: Array = []
 	var pool: Array = _living(u["side"]) if skill.target_side != "enemy" else _living_enemies(u)
@@ -432,6 +485,152 @@ func _cast_skill(u: Dictionary, skill) -> void:
 			_hit(t, 0, false, false)
 		if not t["stats"].is_alive():
 			_kill(t)
+
+
+# ---------------------------------------------------------------- skill menu
+
+func _build_skill_bar() -> void:
+	if _skill_bar == null:
+		return
+	for c in _skill_bar.get_children():
+		c.queue_free()
+	_skill_slots.clear()
+
+	var heroes: Array = []
+	for u in _units:
+		if u["side"] == "ally" and u["skill"] != null:
+			heroes.append(u)
+	if heroes.is_empty():
+		return
+
+	var bw := 128.0
+	var bh := 82.0
+	var gap := 16.0
+	var count := heroes.size()
+	var total := float(count) * bw + float(count - 1) * gap
+	var start_x := (_view_size.x - total) * 0.5
+	var top := _view_size.y - bh - 16.0
+
+	for i in count:
+		var u: Dictionary = heroes[i]
+		var skill = u["skill"]
+		var origin := Vector2(start_x + float(i) * (bw + gap), top)
+		var tint: Color = SKILL_TINT.get(skill.effect_type, Color(0.72, 0.72, 0.82))
+		var box_idle := _skill_box(tint, false)
+		var box_ready := _skill_box(tint, true)
+
+		var panel := Panel.new()
+		panel.position = origin
+		panel.size = Vector2(bw, bh)
+		panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		panel.add_theme_stylebox_override("panel", box_idle)
+		_skill_bar.add_child(panel)
+
+		var icon_tex := _skill_icon_texture(str(skill.id), str(skill.effect_type))
+		if icon_tex != null:
+			var icon := TextureRect.new()
+			icon.texture = icon_tex
+			icon.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+			icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+			icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
+			icon.position = origin + Vector2(bw * 0.5 - 22.0, 8.0)
+			icon.size = Vector2(44, 44)
+			_skill_bar.add_child(icon)
+
+		var hero := _hud_label(12, Color(0.96, 0.93, 0.84))
+		hero.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		hero.text = str(u["name"]).split(" ")[0]
+		hero.position = origin + Vector2(0, bh - 22.0)
+		hero.size = Vector2(bw, 18)
+		hero.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		_skill_bar.add_child(hero)
+
+		var cd_shade := ColorRect.new()
+		cd_shade.color = Color(0.03, 0.03, 0.05, 0.62)
+		cd_shade.position = origin
+		cd_shade.size = Vector2(bw, bh)
+		cd_shade.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		_skill_bar.add_child(cd_shade)
+
+		var cd_text := _hud_label(17, Color(1.0, 0.92, 0.55))
+		cd_text.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		cd_text.position = origin + Vector2(0, 27.0)
+		cd_text.size = Vector2(bw, 24)
+		cd_text.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		_skill_bar.add_child(cd_text)
+
+		var btn := Button.new()
+		btn.flat = true
+		btn.position = origin
+		btn.size = Vector2(bw, bh)
+		btn.focus_mode = Control.FOCUS_NONE
+		btn.pressed.connect(_on_skill_pressed.bind(u))
+		_skill_bar.add_child(btn)
+
+		_skill_slots.append({
+			"unit": u, "panel": panel, "cd_shade": cd_shade, "cd_text": cd_text,
+			"box_idle": box_idle, "box_ready": box_ready, "ready": true, "btn": btn,
+		})
+	_update_skill_bar()
+
+
+func _update_skill_bar() -> void:
+	for slot in _skill_slots:
+		var u: Dictionary = slot["unit"]
+		var skill = u["skill"]
+		var panel: Panel = slot["panel"]
+		var cd_shade: ColorRect = slot["cd_shade"]
+		var cd_text: Label = slot["cd_text"]
+		var bh: float = panel.size.y
+		if not u["alive"]:
+			panel.modulate = Color(0.5, 0.5, 0.5, 0.55)
+			cd_shade.size.y = bh
+			cd_text.text = ""
+			slot["btn"].disabled = true
+			continue
+		panel.modulate = Color.WHITE
+		var frac: float = clampf(skill.remaining / max(0.001, skill.cooldown), 0.0, 1.0)
+		cd_shade.size.y = bh * frac
+		var ready: bool = skill.is_ready()
+		if ready != slot["ready"]:
+			slot["ready"] = ready
+			panel.add_theme_stylebox_override("panel", slot["box_ready"] if ready else slot["box_idle"])
+		cd_text.text = "TAP" if ready else "%d" % int(ceil(skill.remaining))
+		cd_text.add_theme_color_override("font_color", Color(1.0, 0.92, 0.5) if ready else Color(0.85, 0.9, 0.96))
+
+
+func _on_skill_pressed(u: Dictionary) -> void:
+	if not u["alive"]:
+		return
+	var skill = u["skill"]
+	if skill == null or not skill.is_ready():
+		return
+	if skill.target_side == "enemy" and _living_enemies(u).is_empty():
+		return
+	_do_cast(u, skill)
+
+
+func _skill_icon_texture(skill_id: String, effect_type: String) -> Texture2D:
+	var n: int = SKILL_ICONS.get(skill_id, 0)
+	if n == 0:
+		n = {"aoe_damage": 9, "heal": 14, "buff": 10}.get(effect_type, 1)
+	for sc in ["2x", "1x"]:
+		var cid := "ui_%s_mini_icon_icon_%02d" % [sc, n]
+		if AssetRegistry.has_asset(cid):
+			return AssetRegistry.load_texture(cid)
+	return null
+
+
+func _skill_box(tint: Color, ready: bool) -> StyleBoxFlat:
+	var sb := StyleBoxFlat.new()
+	sb.bg_color = Color(0.11, 0.10, 0.15, 0.90)
+	sb.set_corner_radius_all(10)
+	sb.set_border_width_all(3 if ready else 2)
+	sb.border_color = tint if ready else tint.darkened(0.45)
+	if ready:
+		sb.shadow_color = Color(tint.r, tint.g, tint.b, 0.5)
+		sb.shadow_size = 8
+	return sb
 
 
 # ---------------------------------------------------------------- targeting

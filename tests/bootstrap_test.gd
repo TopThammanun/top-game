@@ -208,11 +208,18 @@ func _ready() -> void:
 	await get_tree().process_frame
 	map_view.render(GameState.party, GameState.wave_state.enemies)
 	await get_tree().process_frame
+	var map_plan = JSON.parse_string(FileAccess.get_file_as_string("res://data/maps/emberhearth_map_plan.json"))
+	var map_w := 28
+	var map_h := 8
+	if typeof(map_plan) == TYPE_DICTIONARY:
+		map_w = int(map_plan.get("map_width", 28))
+		map_h = int(map_plan.get("map_height", 8))
+	var expected_cells := map_w * map_h
 	var tile_grid: GridContainer = map_view.find_child("TileGrid", true, false) as GridContainer
 	if tile_grid == null:
 		failures.append("MapView should contain TileGrid")
-	elif tile_grid.get_child_count() != 224:
-		failures.append("expected TileGrid to render 224 cells for the 28x8 map, got %d" % tile_grid.get_child_count())
+	elif tile_grid.get_child_count() != expected_cells:
+		failures.append("expected TileGrid to render %d cells for the %dx%d map, got %d" % [expected_cells, map_w, map_h, tile_grid.get_child_count()])
 	elif tile_grid.get_theme_constant("h_separation") != 0 or tile_grid.get_theme_constant("v_separation") != 0:
 		failures.append("TileGrid h/v separation should be 0 so background blocks are flush")
 

@@ -5,139 +5,64 @@
   "tile_size": 16,
   "display_scale": 2,
   "map_width": 28,
-  "map_height": 8,
+  "map_height": 10,
+  "_composition": "Coastal village battle lane. Reads top->bottom: village skyline (rows 0-2) -> grass field (3-4) -> dirt road fight-lane (5-6) -> grass bank (7) -> sand beach with irregular coast (8) -> water (9). Blocks are stacked so terrain connects: grass under everything, road/beach/water override as bands, trees frame the edges. See asset/map/Examples for the target look.",
   "tile_layers": {
     "ground_fill": {
       "tile": "grass"
     },
     "patches": [
-      {
-        "x": 0,
-        "y": 0,
-        "width": 28,
-        "height": 1,
-        "tile": "grass_light"
-      },
-      {
-        "x": 0,
-        "y": 6,
-        "width": 28,
-        "height": 1,
-        "tile": "grass_dark"
-      },
-      {
-        "x": 15,
-        "y": 1,
-        "width": 5,
-        "height": 2,
-        "tile": "grass_plain"
-      }
+      { "x": 0, "y": 0, "width": 28, "height": 3, "tile": "grass_light" },
+      { "x": 0, "y": 7, "width": 28, "height": 1, "tile": "grass_dark" }
     ],
     "roads": [
-      {
-        "x": 0,
-        "y": 4,
-        "width": 28,
-        "height": 1,
-        "tile": "road_h"
-      },
-      {
-        "x": 13,
-        "y": 0,
-        "width": 2,
-        "height": 8,
-        "tile": "road_v"
-      },
-      {
-        "x": 20,
-        "y": 3,
-        "width": 8,
-        "height": 1,
-        "tile": "road_alt"
-      }
+      { "x": 0, "y": 6, "width": 28, "height": 1, "tile": "road" }
+    ],
+    "beach": [
+      { "x": 0, "y": 8, "width": 28, "height": 1, "tile": "sand" }
     ],
     "water": [
-      {
-        "x": 0,
-        "y": 7,
-        "width": 28,
-        "height": 1,
-        "tile": "water_deep"
-      }
+      { "x": 0, "y": 9, "width": 28, "height": 1, "tile": "water_deep" },
+      { "x": 5, "y": 8, "width": 3, "height": 1, "tile": "water_deep" },
+      { "x": 20, "y": 8, "width": 4, "height": 1, "tile": "water_deep" }
     ],
     "decor": [
-      { "x": 0, "y": 1, "tile": "tree" },
-      { "x": 1, "y": 1, "tile": "tree_2" },
-      { "x": 9, "y": 3, "tile": "sapling" },
-      { "x": 10, "y": 3, "tile": "plant" },
-      { "x": 16, "y": 2, "tile": "rock" },
-      { "x": 17, "y": 2, "tile": "grass_tuft" },
-      { "x": 26, "y": 2, "tile": "potion_blue" },
-      { "x": 27, "y": 6, "tile": "reward_glyph" }
+      { "x": 0, "y": 1, "tile": "tree_pine" },
+      { "x": 1, "y": 3, "tile": "tree" },
+      { "x": 0, "y": 4, "tile": "tree_2" },
+      { "x": 27, "y": 1, "tile": "tree_pine" },
+      { "x": 26, "y": 3, "tile": "tree" },
+      { "x": 27, "y": 4, "tile": "tree_2" },
+      { "x": 15, "y": 3, "tile": "sapling" },
+      { "x": 19, "y": 3, "tile": "plant" },
+      { "x": 5, "y": 4, "tile": "grass_tuft" },
+      { "x": 24, "y": 4, "tile": "grass_tuft" },
+      { "x": 3, "y": 7, "tile": "rock" },
+      { "x": 25, "y": 7, "tile": "grass_tuft" },
+      { "x": 11, "y": 8, "tile": "potion_blue" },
+      { "x": 26, "y": 8, "tile": "reward_glyph" }
     ],
     "stamps": [
-      {
-        "x": 3,
-        "y": 0,
-        "width": 3,
-        "height": 3,
-        "tile": "house_orange",
-        "mode": "stamp"
-      },
-      {
-        "x": 22,
-        "y": 0,
-        "width": 3,
-        "height": 3,
-        "tile": "house_blue",
-        "mode": "stamp"
-      },
-      {
-        "x": 6,
-        "y": 1,
-        "width": 5,
-        "height": 1,
-        "tile": "market_canopy",
-        "mode": "stamp"
-      },
-      {
-        "x": 6,
-        "y": 2,
-        "width": 5,
-        "height": 2,
-        "tile": "market_crates",
-        "mode": "stamp"
-      },
-      {
-        "x": 18,
-        "y": 5,
-        "width": 5,
-        "height": 3,
-        "tile": "tent_orange",
-        "mode": "stamp"
-      },
-      {
-        "x": 24,
-        "y": 4,
-        "width": 2,
-        "height": 2,
-        "tile": "banner_pink",
-        "mode": "stamp"
-      }
+      { "x": 2, "y": 0, "width": 3, "height": 3, "tile": "house_orange", "mode": "stamp" },
+      { "x": 6, "y": 0, "width": 3, "height": 3, "tile": "house_blue", "mode": "stamp" },
+      { "x": 10, "y": 0, "width": 5, "height": 1, "tile": "market_canopy", "mode": "stamp" },
+      { "x": 10, "y": 1, "width": 5, "height": 2, "tile": "market_crates", "mode": "stamp" },
+      { "x": 16, "y": 0, "width": 3, "height": 3, "tile": "house_pink", "mode": "stamp" },
+      { "x": 21, "y": 0, "width": 3, "height": 3, "tile": "house_green", "mode": "stamp" }
     ]
   },
   "visual_goals": [
     "asset_backed_village_market",
-    "flush_background_blocks",
-    "lower_side_battle_lane",
-    "taskbar_hero_readability",
+    "connected_coastal_terrain",
+    "shoreline_beach_transition",
+    "road_fight_lane",
     "party_enemy_silhouettes_readable"
   ],
-  "scene_target": "scenes/maps/emberhearth_map_view.tscn",
-  "script_target": "scripts/maps/emberhearth_map_view.gd",
+  "scene_target": "scenes/combat/battle.tscn",
+  "script_target": "scripts/combat/battle_view.gd",
   "readability_rules": [
     "party_and_enemies_visible_at_a_glance",
     "wave_path_clear",
-    "taskbar_not_covering_core_action"
+    "skill_bar_not_covering_core_action"
   ]
 }

@@ -57,3 +57,22 @@
 
 | Time | Action | File(s) | Outcome | ~Tokens |
 |------|--------|---------|---------|--------|
+| 00:56 | Created data/maps/emberhearth_map_plan.json | — | ~1069 |
+| 00:58 | Edited scripts/combat/battle_view.gd | expanded (+17 lines) | ~217 |
+| 00:58 | Edited scripts/combat/battle_view.gd | 3→5 lines | ~68 |
+| 00:58 | Edited scripts/combat/battle_view.gd | 4→9 lines | ~106 |
+| 00:59 | Edited scripts/combat/battle_view.gd | modified get() | ~17 |
+| 00:59 | Edited scripts/combat/battle_view.gd | modified _on_resize() | ~39 |
+| 00:59 | Edited scripts/combat/battle_view.gd | 4→5 lines | ~39 |
+| 00:59 | Edited scripts/combat/battle_view.gd | 4→5 lines | ~30 |
+| 00:59 | Edited scripts/combat/battle_view.gd | modified is_ready() | ~118 |
+| 01:00 | Edited scripts/combat/battle_view.gd | 8→9 lines | ~42 |
+| 01:00 | Edited scripts/combat/battle_view.gd | modified _do_cast() | ~49 |
+| 01:01 | Edited scripts/combat/battle_view.gd | modified _build_skill_bar() | ~1294 |
+| 01:04 | Edited data/maps/emberhearth_map_plan.json | reduced (-10 lines) | ~565 |
+| 01:05 | Edited data/maps/emberhearth_map_plan.json | 9→7 lines | ~75 |
+| 01:08 | Edited scripts/combat/battle_view.gd | expanded (+15 lines) | ~247 |
+| 01:11 | Edited tests/bootstrap_test.gd | expanded (+7 lines) | ~182 |
+| 01:13 | Added tap-to-cast skill bar (icon+cooldown+ready glow) to battle | scripts/combat/battle_view.gd | working, screenshot-verified | ~4k |
+| 01:13 | Rebuilt map as connected coastal village + opaque base fill (fixes scalloped-tile sky bleed) | data/maps/emberhearth_map_plan.json, battle_view.gd | greener, connected | ~2k |
+| 01:13 | Fixed stale bootstrap TileGrid assertion to derive cells from plan dims | tests/bootstrap_test.gd | PASS | ~1k |

@@ -64,6 +64,110 @@
       "related_bugs": [],
       "occurrences": 2,
       "last_seen": "2026-07-05T14:15:59.394Z"
+    },
+    {
+      "id": "bug-005",
+      "timestamp": "2026-07-05T17:58:57.053Z",
+      "error_message": "Missing error handling in unknown",
+      "file": "scripts/combat/battle_view.gd",
+      "root_cause": "Code path had no error handling — exceptions would propagate uncaught",
+      "fix": "Added try/catch block",
+      "tags": [
+        "auto-detected",
+        "error-handling",
+        "gd"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-05T17:58:57.053Z"
+    },
+    {
+      "id": "bug-006",
+      "timestamp": "2026-07-05T17:59:52.429Z",
+      "error_message": "Significant refactor of ",
+      "file": "scripts/combat/battle_view.gd",
+      "root_cause": "3 lines replaced/restructured",
+      "fix": "Rewrote 9→13 lines (3 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "gd"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-05T17:59:52.429Z"
+    },
+    {
+      "id": "bug-007",
+      "timestamp": "2026-07-05T18:01:17.326Z",
+      "error_message": "Null/undefined access in ",
+      "file": "scripts/combat/battle_view.gd",
+      "root_cause": "Property access on potentially null/undefined value",
+      "fix": "Added null safety (optional chaining or null check)",
+      "tags": [
+        "auto-detected",
+        "null-safety",
+        "gd"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-05T18:01:17.326Z"
+    },
+    {
+      "id": "bug-008",
+      "timestamp": "2026-07-05T18:05:55.548Z",
+      "error_message": "Significant refactor of ",
+      "file": "data/maps/emberhearth_map_plan.json",
+      "root_cause": "3 lines replaced/restructured",
+      "fix": "Rewrote 9→7 lines (3 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "json"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-05T18:05:55.548Z"
+    },
+    {
+      "id": "bug-009",
+      "timestamp": "2026-07-05T18:11:06.935Z",
+      "error_message": "Significant refactor of ",
+      "file": "tests/bootstrap_test.gd",
+      "root_cause": "2 lines replaced/restructured",
+      "fix": "Rewrote 5→12 lines (2 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "gd"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-05T18:11:06.935Z"
+    },
+    {
+      "id": "bug-010",
+      "timestamp": "2026-07-06T00:00:00.000Z",
+      "error_message": "Battle map lower field rendered as murky tan/maroon around the fighters",
+      "file": "scripts/combat/battle_view.gd",
+      "root_cause": "Overworld autotile tiles (grass/sand/water) have scalloped TRANSPARENT corners; used as flat full tiles their gaps let the sky gradient (maroon at that screen height) bleed through.",
+      "fix": "Draw an opaque ground ColorRect (grass green) + shore ColorRect behind the tilemap in _render_map before laying tiles.",
+      "tags": ["godot", "tilemap", "transparency", "autotile", "map", "combat"],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-06T00:00:00.000Z"
+    },
+    {
+      "id": "bug-011",
+      "timestamp": "2026-07-06T00:05:00.000Z",
+      "error_message": "[bootstrap_test] FAIL — expected TileGrid to render 224 cells for the 28x8 map, got 280",
+      "file": "tests/bootstrap_test.gd",
+      "root_cause": "Test hardcoded 224 (28x8); the shared emberhearth_map_plan.json was resized to 28x10 for the battle scene, so the legacy TileGrid view now correctly renders 280 cells.",
+      "fix": "Derive expected cell count from the plan's map_width*map_height instead of hardcoding.",
+      "tags": ["test", "godot", "map", "regression", "shared-data"],
+      "related_bugs": ["bug-010"],
+      "occurrences": 1,
+      "last_seen": "2026-07-06T00:05:00.000Z"
     }
   ]
 }
