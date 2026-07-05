@@ -47,6 +47,10 @@
   "ui.icon_primary": "ui_1x_mini_icon_icon_01",
   "ui.icon_primary_selected": "ui_1x_mini_icon_icon_01_selected",
   "ui.hp_orb": "ui_1x_resource_orb_orb_hp",
+  "ui.hp_orb_frame": "ui_1x_resource_orb_orb_frame_hp",
   "ui.mp_orb": "ui_1x_resource_orb_orb_mp",
-  "ui.energy_orb": "ui_1x_resource_orb_orb_energy"
+  "ui.energy_orb": "ui_1x_resource_orb_orb_energy",
+  "ui.book": "ui_1x_spellbook_tab_spellbook",
+  "ui.hp_bar_frame": "ui_1x_slider_bar_slider02_box",
+  "ui.hp_bar_fill": "ui_1x_slider_bar_slider02_bar08"
 }

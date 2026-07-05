@@ -122,3 +122,17 @@
 | 02:02 | Ranged range bump + lane-sorted formation (front-liners lead, ranged hold back) | data/combat/archetypes.json, scripts/combat/battle_view.gd | ranged now clearly ranged | ~1k |
 | 02:02 | Reskinned HUD with asset/ui art: parchment nine-slice bar, banner title, wooden buttons, slot skill frames | scripts/combat/battle_view.gd | on-theme, screenshot-verified | ~5k |
 | 02:03 | Session end: 52 writes across 4 files (emberhearth_map_plan.json, battle_view.gd, bootstrap_test.gd, archetypes.json) | 55 reads | ~15659 tok |
+| 02:19 | Edited data/asset_shortcuts.json | 4→8 lines | ~101 |
+| 02:19 | Edited scripts/combat/battle_view.gd | 7→9 lines | ~106 |
+| 02:20 | Edited scripts/combat/battle_view.gd | expanded (+8 lines) | ~120 |
+| 02:20 | Edited scripts/combat/battle_view.gd | 3→4 lines | ~45 |
+| 02:20 | Edited scripts/combat/battle_view.gd | 11→16 lines | ~220 |
+| 02:21 | Edited scripts/combat/battle_view.gd | inline fix | ~16 |
+| 02:21 | Edited scripts/combat/battle_view.gd | 2→1 lines | ~6 |
+| 02:23 | Edited scripts/combat/battle_view.gd | modified _toggle_book() | ~131 |
+| 02:23 | Edited scripts/combat/battle_view.gd | modified _build_book_content() | ~1130 |
+| 02:24 | Edited scripts/combat/battle_view.gd | inline fix | ~15 |
+| 02:24 | Edited scripts/combat/battle_view.gd | 3→2 lines | ~34 |
+| 02:26 | Edited scripts/combat/battle_view.gd | 3→4 lines | ~42 |
+| 02:27 | Edited scripts/combat/battle_view.gd | removed 2 lines | ~4 |
+| 02:28 | RPG UI: book-style Party menu (Spellbook) + slider-frame HP bars | scripts/combat/battle_view.gd, data/asset_shortcuts.json | verified via screenshots | ~5k |

@@ -1,7 +1,7 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-07-05T19:01:00.210Z
-> Files: 530 tracked | Anatomy hits: 0 | Misses: 0
+> Auto-maintained by OpenWolf. Last scanned: 2026-07-05T19:27:09.976Z
+> Files: 531 tracked | Anatomy hits: 0 | Misses: 0
 
 ## ./
 
@@ -628,6 +628,10 @@
 - `Acolyte_03_Move.png.import` (~262 tok)
 - `Acolyte_04_Idle.png.import` (~262 tok)
 
+## data/
+
+- `asset_shortcuts.json` (~836 tok)
+
 ## data/combat/
 
 - `archetypes.json` (~684 tok)
@@ -642,7 +646,7 @@
 
 ## scripts/combat/
 
-- `battle_view.gd` — Declares CharacterFactoryClass (~9792 tok)
+- `battle_view.gd` — Declares CharacterFactoryClass (~10830 tok)
 - `skill_effect.gd` — Declares CombatEnumsClass (~605 tok)
 
 ## tests/

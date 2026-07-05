@@ -53,12 +53,14 @@ var _banner_label: Label
 var _skill_bar: Control                   # bottom tap-to-cast skill menu
 var _skill_slots: Array = []              # per-ally: {unit, panel, cd_shade, cd_text, box_idle, box_ready}
 var _taskbar: Control                     # top command bar (Party / Skills / Speed / Menu)
-var _roster_panel: Control
 var _menu_panel: Control
 var _speed_btn: Button
 var _speed_idx: int = 0
 var _warp_layer: CanvasLayer
 var _warp_rect: ColorRect
+var _hp_frame_tex: Texture2D              # slider-frame art for unit HP bars
+var _book_layer: CanvasLayer              # book-style party menu (Spellbook art)
+var _book: Control
 var _view_size: Vector2
 var _battle_y: float = 0.0
 var _wave: int = 1
@@ -87,6 +89,7 @@ func _try_start() -> void:
 	_phase = "fighting"
 	_factory = CharacterFactoryClass.new()
 	_factory.load_all()
+	_hp_frame_tex = _ui_texture("ui.hp_bar_frame", "1x")
 	_view_size = get_viewport().get_visible_rect().size
 	_layout_background()
 	_spawn_wave()
@@ -144,6 +147,14 @@ func _build_layers() -> void:
 	# Taskbar background is translucent — keep it behind the title/wave labels and
 	# banner (which were added earlier) so they stay crisp on top of the bar.
 	_hud_layer.move_child(_taskbar, 0)
+
+	_book_layer = CanvasLayer.new()            # book-style party menu, above the HUD
+	_book_layer.layer = 15
+	add_child(_book_layer)
+	_book = Control.new()
+	_book.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_book.visible = false
+	_book_layer.add_child(_book)
 
 
 func _hud_label(size: int, color: Color) -> Label:
@@ -698,7 +709,7 @@ func _build_taskbar() -> void:
 	_wave_label.position = Vector2(364, 20)
 
 	var specs := [
-		{"text": "Party", "cb": Callable(self, "_toggle_roster")},
+		{"text": "Party", "cb": Callable(self, "_toggle_book")},
 		{"text": "Skills", "cb": Callable(self, "_toggle_skills")},
 		{"text": _speed_text(), "cb": Callable(self, "_cycle_speed")},
 		{"text": "Menu", "cb": Callable(self, "_toggle_menu")},
@@ -717,7 +728,6 @@ func _build_taskbar() -> void:
 		if i == 2:
 			_speed_btn = btn
 
-	_build_roster_panel()
 	_build_menu_panel()
 
 
@@ -785,28 +795,29 @@ func _toggle_skills() -> void:
 		_skill_bar.visible = not _skill_bar.visible
 
 
-func _toggle_roster() -> void:
-	if _roster_panel == null:
+func _toggle_book() -> void:
+	if _book == null:
 		return
-	var show := not _roster_panel.visible
-	_roster_panel.visible = show
+	if _book.visible:
+		_book.visible = false
+		return
 	if _menu_panel != null:
 		_menu_panel.visible = false
-	if show:
-		_fill_roster()
+	_build_book_content()
+	_book.visible = true
 
 
 func _toggle_menu() -> void:
 	if _menu_panel == null:
 		return
 	_menu_panel.visible = not _menu_panel.visible
-	if _roster_panel != null:
-		_roster_panel.visible = false
+	if _book != null:
+		_book.visible = false
 
 
 func _hide_menus() -> void:
-	if _roster_panel != null:
-		_roster_panel.visible = false
+	if _book != null:
+		_book.visible = false
 	if _menu_panel != null:
 		_menu_panel.visible = false
 
@@ -827,36 +838,114 @@ func _build_menu_panel() -> void:
 	_taskbar.add_child(_menu_panel)
 
 
-func _build_roster_panel() -> void:
-	_roster_panel = _dropdown_panel(Vector2(14.0, TASKBAR_H + 6.0), Vector2(240, 152))
-	_roster_panel.visible = false
-	_taskbar.add_child(_roster_panel)
-
-
-func _fill_roster() -> void:
-	for c in _roster_panel.get_children():
+func _build_book_content() -> void:
+	# RPG book menu: an open Spellbook holding the party roster (icon + name + HP bar).
+	for c in _book.get_children():
 		c.queue_free()
-	var title := _hud_label(15, INK)
+	var view := _view_size
+
+	var dim := Button.new()   # dim backdrop; click outside the book to close
+	dim.set_anchors_preset(Control.PRESET_FULL_RECT)
+	var dsb := StyleBoxFlat.new()
+	dsb.bg_color = Color(0, 0, 0, 0.5)
+	dim.add_theme_stylebox_override("normal", dsb)
+	dim.add_theme_stylebox_override("hover", dsb)
+	dim.add_theme_stylebox_override("pressed", dsb)
+	dim.focus_mode = Control.FOCUS_NONE
+	dim.pressed.connect(func() -> void: _book.visible = false)
+	_book.add_child(dim)
+
+	var bw := minf(760.0, view.x * 0.64)
+	var bh := bw * 160.0 / 256.0
+	var bx := (view.x - bw) * 0.5
+	var by := (view.y - bh) * 0.5 - 8.0
+
+	var book_img := TextureRect.new()
+	book_img.texture = _ui_texture("ui.book", "3x")
+	book_img.stretch_mode = TextureRect.STRETCH_SCALE
+	book_img.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	book_img.position = Vector2(bx, by)
+	book_img.size = Vector2(bw, bh)
+	book_img.mouse_filter = Control.MOUSE_FILTER_STOP   # clicks on the book don't close it
+	_book.add_child(book_img)
+
+	var title := _hud_label(26, Color(0.74, 0.29, 0.16))
 	title.add_theme_constant_override("outline_size", 0)
-	title.text = "Party"
-	title.position = Vector2(16, 10)
-	_roster_panel.add_child(title)
-	var living := _living("ally")
-	if living.is_empty():
-		var none := _hud_label(13, Color(0.55, 0.18, 0.14))
-		none.text = "(no survivors)"
-		none.position = Vector2(16, 36)
-		_roster_panel.add_child(none)
-		return
-	var y := 36.0
-	for u in living:
-		var stats = u["stats"]
-		var line := _hud_label(13, INK)
-		line.add_theme_constant_override("outline_size", 0)
-		line.text = "%s   %d/%d" % [str(u["name"]).split(" ")[0], int(stats.current_hp), int(u["hp_max"])]
-		line.position = Vector2(12, y)
-		_roster_panel.add_child(line)
-		y += 26.0
+	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	title.text = "PARTY"
+	title.position = Vector2(bx, by + bh * 0.07)
+	title.size = Vector2(bw, 32)
+	_book.add_child(title)
+
+	var allies: Array = []
+	for u in _units:
+		if u["side"] == "ally":
+			allies.append(u)
+	var page_x := [bx + bw * 0.11, bx + bw * 0.57]
+	var row_y := by + bh * 0.27
+	var row_gap := bh * 0.30
+	for i in allies.size():
+		var col := 0 if i < 2 else 1
+		_book_hero_row(allies[i], page_x[col], row_y + float(i % 2) * row_gap, bw * 0.32)
+
+	var close := _bar_button("Close", 34.0)
+	close.position = Vector2(view.x * 0.5 - close.size.x * 0.5, by + bh + 4.0)
+	close.pressed.connect(func() -> void: _book.visible = false)
+	_book.add_child(close)
+
+
+func _book_hero_row(u: Dictionary, x: float, y: float, w: float) -> void:
+	var alive: bool = u["alive"]
+	var skill = u["skill"]
+	if skill != null:
+		var icon := TextureRect.new()
+		icon.texture = _skill_icon_texture(str(skill.id), str(skill.effect_type))
+		icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		icon.position = Vector2(x, y)
+		icon.size = Vector2(42, 42)
+		icon.modulate = Color.WHITE if alive else Color(0.5, 0.5, 0.5, 0.7)
+		icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		_book.add_child(icon)
+	var name_l := _hud_label(17, Color(0.30, 0.18, 0.12) if alive else Color(0.52, 0.22, 0.18))
+	name_l.add_theme_constant_override("outline_size", 0)
+	name_l.text = str(u["name"]).split(" ")[0] + ("" if alive else "  (down)")
+	name_l.position = Vector2(x + 52, y - 2)
+	name_l.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_book.add_child(name_l)
+	var stats = u["stats"]
+	var frac: float = clampf(stats.current_hp / float(u["hp_max"]), 0.0, 1.0) if alive else 0.0
+	var bar := _hp_bar_node(frac, w - 52.0, 16.0)
+	bar.position = Vector2(x + 52, y + 22)
+	_book.add_child(bar)
+	var hp_l := _hud_label(12, Color(0.34, 0.22, 0.14))
+	hp_l.add_theme_constant_override("outline_size", 0)
+	hp_l.text = "%d / %d" % [int(stats.current_hp) if alive else 0, int(u["hp_max"])]
+	hp_l.position = Vector2(x + 52, y + 40)
+	hp_l.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_book.add_child(hp_l)
+
+
+func _hp_bar_node(frac: float, w: float, h: float) -> Control:
+	var root := Control.new()
+	root.size = Vector2(w, h)
+	root.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	if _hp_frame_tex != null:
+		var frame := TextureRect.new()
+		frame.texture = _hp_frame_tex
+		frame.stretch_mode = TextureRect.STRETCH_SCALE
+		frame.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		frame.size = Vector2(w, h)
+		frame.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		root.add_child(frame)
+	var inset := 4.0
+	var fill := ColorRect.new()
+	fill.color = Color(0.96, 0.74, 0.28) if frac < 0.34 else Color(0.40, 0.82, 0.38)
+	fill.position = Vector2(inset, inset)
+	fill.size = Vector2((w - 2.0 * inset) * frac, h - 2.0 * inset)
+	fill.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	root.add_child(fill)
+	return root
 
 
 func _dropdown_panel(pos: Vector2, size: Vector2) -> Control:
@@ -994,16 +1083,21 @@ func _draw_hp(u: Dictionary) -> void:
 	var sprite: Sprite2D = u["sprite"]
 	var stats = u["stats"]
 	var frac: float = clamp(stats.current_hp / float(u["hp_max"]), 0.0, 1.0)
-	var w := 78.0
-	var h := 9.0
-	var top := sprite.position.y - SPRITE_H - 12
+	var w := 84.0
+	var h := 15.0
+	var top := sprite.position.y - SPRITE_H - 14
 	var origin := Vector2(sprite.position.x - w * 0.5, top)
-	draw_rect(Rect2(origin - Vector2(2, 2), Vector2(w + 4, h + 4)), Color(0, 0, 0, 0.55))
-	draw_rect(Rect2(origin, Vector2(w, h)), Color(0.10, 0.08, 0.09))
-	var fill_col := Color(0.42, 0.85, 0.40) if u["side"] == "ally" else Color(0.90, 0.42, 0.40)
+	# ornate slider frame (has its own dark track); colored fill drawn inside it.
+	if _hp_frame_tex != null:
+		draw_texture_rect(_hp_frame_tex, Rect2(origin, Vector2(w, h)), false)
+	else:
+		draw_rect(Rect2(origin - Vector2(2, 2), Vector2(w + 4, h + 4)), Color(0, 0, 0, 0.55))
+		draw_rect(Rect2(origin, Vector2(w, h)), Color(0.10, 0.08, 0.09))
+	var fill_col := Color(0.40, 0.82, 0.38) if u["side"] == "ally" else Color(0.87, 0.40, 0.36)
 	if frac < 0.34:
-		fill_col = Color(0.95, 0.72, 0.30)
-	draw_rect(Rect2(origin, Vector2(w * frac, h)), fill_col)
+		fill_col = Color(0.96, 0.74, 0.28)
+	var inset := 4.0
+	draw_rect(Rect2(origin + Vector2(inset, inset), Vector2((w - 2.0 * inset) * frac, h - 2.0 * inset)), fill_col)
 
 
 # ---------------------------------------------------------------- wave flow
