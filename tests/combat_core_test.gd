@@ -14,6 +14,7 @@ const StatModifierClass = preload("res://scripts/combat/stat_modifier.gd")
 const DamageCalculatorClass = preload("res://scripts/combat/damage_calculator.gd")
 const CombatSkillClass = preload("res://scripts/combat/combat_skill.gd")
 const SkillEffectClass = preload("res://scripts/combat/skill_effect.gd")
+const CharacterFactoryClass = preload("res://scripts/combat/character_factory.gd")
 
 var _failures: Array[String] = []
 
@@ -23,6 +24,7 @@ func _ready() -> void:
 	_check_damage()
 	_check_skill()
 	_check_effect()
+	_check_factory()
 	_finish()
 
 
@@ -157,6 +159,29 @@ func _check_effect() -> void:
 	var stun_res := SkillEffectClass.apply(stun_skill, caster, [target])
 	_expect(stun_res.size() == 1 and _approx(stun_res[0].get("stun", 0.0), 1.5), "stun should report 1.5s descriptor")
 	_expect(_approx(target.current_hp, 100.0), "stun should not damage the target")
+
+
+func _check_factory() -> void:
+	var f := CharacterFactoryClass.new()
+	f.load_all()
+
+	_expect(f.archetype_ids().size() == 8, "expected 8 archetypes, got %d" % f.archetype_ids().size())
+
+	var clan_ids := f.clan_ids()
+	_expect(clan_ids.size() >= 1, "expected at least one clan to build from")
+	for cid in clan_ids:
+		var p := f.build_from_clan(cid)
+		var stats = p.get("stats")
+		_expect(stats != null, "clan %s should produce a StatSystem" % cid)
+		_expect(stats != null and stats.get_stat(CombatEnumsClass.StatKey.HP) > 0.0, "clan %s should have HP > 0" % cid)
+		_expect(int(p.get("lane", -1)) in [CombatEnumsClass.Lane.FRONT, CombatEnumsClass.Lane.MIDDLE, CombatEnumsClass.Lane.REAR], "clan %s should map to a valid lane" % cid)
+		_expect(str(p.get("idle_shortcut", "")) != "", "clan %s should carry an idle_shortcut" % cid)
+		_expect(float(p.get("attack_range", 0.0)) > 0.0, "clan %s should have attack_range > 0" % cid)
+
+	for eid in f.enemy_ids():
+		var pe := f.build_from_enemy(eid)
+		var es = pe.get("stats")
+		_expect(es != null and es.get_stat(CombatEnumsClass.StatKey.HP) > 0.0, "enemy %s should have HP > 0" % eid)
 
 
 func _finish() -> void:
