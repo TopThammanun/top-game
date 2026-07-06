@@ -143,3 +143,13 @@
 | 02:33 | Edited tests/bootstrap_test.gd | modified has_asset() | ~80 |
 | 02:35 | Finish-chain: _hp_fill_color dedup, fixed stale slot comment, bootstrap_test guards new UI shortcuts | scripts/combat/battle_view.gd, tests/bootstrap_test.gd | tests PASS, app verified | ~1k |
 | 02:36 | Session end: 69 writes across 5 files (emberhearth_map_plan.json, battle_view.gd, bootstrap_test.gd, archetypes.json, asset_shortcuts.json) | 63 reads | ~26629 tok |
+| 08:49 | Created data/maps/emberhearth_map_plan.json | — | ~1024 |
+| 08:49 | Edited scripts/combat/battle_view.gd | 0.82 → 0.84 | ~9 |
+| 08:54 | Edited scripts/combat/battle_view.gd | modified _jrpg_window() | ~1320 |
+| 08:55 | Edited scripts/combat/battle_view.gd | 2→3 lines | ~73 |
+| 08:55 | Edited scripts/combat/battle_view.gd | expanded (+8 lines) | ~206 |
+| 08:56 | Edited scripts/combat/battle_view.gd | _ui_nine() → add_theme_stylebox_override() | ~205 |
+| 08:56 | Edited scripts/combat/battle_view.gd | modified _dropdown_panel() | ~52 |
+| 08:57 | Edited scripts/combat/battle_view.gd | removed 25 lines | ~19 |
+| 09:00 | Edited scripts/combat/battle_view.gd | 2→1 lines | ~7 |
+| 09:02 | Full-screen map (28x16) + JRPG command-box HUD (party window + skills window, dark taskbar) | data/maps/emberhearth_map_plan.json, scripts/combat/battle_view.gd | screenshot-verified, tests PASS | ~5k |

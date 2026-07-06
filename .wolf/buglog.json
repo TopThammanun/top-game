@@ -311,6 +311,22 @@
       "related_bugs": [],
       "occurrences": 1,
       "last_seen": "2026-07-05T19:32:37.503Z"
+    },
+    {
+      "id": "bug-020",
+      "timestamp": "2026-07-06T01:54:52.144Z",
+      "error_message": "Significant refactor of ",
+      "file": "scripts/combat/battle_view.gd",
+      "root_cause": "62 lines replaced/restructured",
+      "fix": "Rewrote 98→144 lines (62 removed) | Also: func _ui_nine(shortcut: String, l: int, t: int, r:; var np := NinePatchRect.new()",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "gd"
+      ],
+      "related_bugs": [],
+      "occurrences": 2,
+      "last_seen": "2026-07-06T01:57:06.670Z"
     }
   ]
 }

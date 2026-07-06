@@ -1,7 +1,7 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-07-05T19:33:53.743Z
-> Files: 531 tracked | Anatomy hits: 0 | Misses: 0
+> Auto-maintained by OpenWolf. Last scanned: 2026-07-06T02:00:08.818Z
+> Files: 532 tracked | Anatomy hits: 0 | Misses: 0
 
 ## ./
 
@@ -639,6 +639,7 @@
 
 ## data/maps/
 
+- `emberhearth_map_plan.json` (~1024 tok)
 
 ## scenes/combat/
 
@@ -646,7 +647,7 @@
 
 ## scripts/combat/
 
-- `battle_view.gd` — Declares CharacterFactoryClass (~10848 tok)
+- `battle_view.gd` — Declares CharacterFactoryClass (~11177 tok)
 - `skill_effect.gd` — Declares CombatEnumsClass (~605 tok)
 
 ## tests/

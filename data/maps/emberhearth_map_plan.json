@@ -5,57 +5,65 @@
   "tile_size": 16,
   "display_scale": 2,
   "map_width": 28,
-  "map_height": 10,
-  "_composition": "Coastal village battle lane. Reads top->bottom: village skyline (rows 0-2) -> grass field (3-4) -> dirt road fight-lane (5-6) -> grass bank (7) -> sand beach with irregular coast (8) -> water (9). Blocks are stacked so terrain connects: grass under everything, road/beach/water override as bands, trees frame the edges. See asset/map/Examples for the target look.",
+  "map_height": 16,
+  "_composition": "Full-screen coastal village (aspect ~1.75 ~= 16:9 so square tiles fill the viewport top-to-bottom). Reads top->bottom: distant field (0-1) -> village/market (2-4) -> open grass approach (5-7) -> dirt battle-lane where the parties fight (8-9) -> foreground grass (10-11) -> grass bank (12) -> sand beach (13) -> water (14-15). See asset/map/Examples for the target look.",
   "tile_layers": {
-    "ground_fill": {
-      "tile": "grass"
-    },
+    "ground_fill": { "tile": "grass" },
     "patches": [
-      { "x": 0, "y": 0, "width": 28, "height": 3, "tile": "grass_light" },
-      { "x": 0, "y": 7, "width": 28, "height": 1, "tile": "grass_dark" }
+      { "x": 0, "y": 0, "width": 28, "height": 5, "tile": "grass_light" },
+      { "x": 0, "y": 7, "width": 28, "height": 1, "tile": "grass_dark" },
+      { "x": 0, "y": 10, "width": 28, "height": 1, "tile": "grass_dark" },
+      { "x": 0, "y": 12, "width": 28, "height": 1, "tile": "grass_dark" }
     ],
     "roads": [
-      { "x": 0, "y": 6, "width": 28, "height": 1, "tile": "road" }
+      { "x": 0, "y": 8, "width": 28, "height": 2, "tile": "road" },
+      { "x": 13, "y": 5, "width": 2, "height": 3, "tile": "road" }
     ],
     "beach": [
-      { "x": 0, "y": 8, "width": 28, "height": 1, "tile": "sand" }
+      { "x": 0, "y": 13, "width": 28, "height": 1, "tile": "sand" },
+      { "x": 4, "y": 12, "width": 3, "height": 1, "tile": "sand" },
+      { "x": 20, "y": 12, "width": 4, "height": 1, "tile": "sand" }
     ],
     "water": [
-      { "x": 0, "y": 9, "width": 28, "height": 1, "tile": "water_deep" },
-      { "x": 5, "y": 8, "width": 3, "height": 1, "tile": "water_deep" },
-      { "x": 20, "y": 8, "width": 4, "height": 1, "tile": "water_deep" }
+      { "x": 0, "y": 14, "width": 28, "height": 2, "tile": "water_deep" },
+      { "x": 6, "y": 13, "width": 3, "height": 1, "tile": "water_deep" },
+      { "x": 21, "y": 13, "width": 3, "height": 1, "tile": "water_deep" }
     ],
     "decor": [
       { "x": 0, "y": 1, "tile": "tree_pine" },
-      { "x": 1, "y": 3, "tile": "tree" },
-      { "x": 0, "y": 4, "tile": "tree_2" },
+      { "x": 1, "y": 5, "tile": "tree" },
+      { "x": 0, "y": 6, "tile": "tree_2" },
       { "x": 27, "y": 1, "tile": "tree_pine" },
-      { "x": 26, "y": 3, "tile": "tree" },
-      { "x": 27, "y": 4, "tile": "tree_2" },
-      { "x": 15, "y": 3, "tile": "sapling" },
-      { "x": 19, "y": 3, "tile": "plant" },
-      { "x": 5, "y": 4, "tile": "grass_tuft" },
-      { "x": 24, "y": 4, "tile": "grass_tuft" },
-      { "x": 3, "y": 7, "tile": "rock" },
-      { "x": 25, "y": 7, "tile": "grass_tuft" },
-      { "x": 11, "y": 8, "tile": "potion_blue" },
-      { "x": 26, "y": 8, "tile": "reward_glyph" }
+      { "x": 26, "y": 5, "tile": "tree" },
+      { "x": 27, "y": 6, "tile": "tree_2" },
+      { "x": 8, "y": 6, "tile": "sapling" },
+      { "x": 18, "y": 6, "tile": "plant" },
+      { "x": 15, "y": 6, "tile": "rock" },
+      { "x": 5, "y": 7, "tile": "grass_tuft" },
+      { "x": 22, "y": 7, "tile": "grass_tuft" },
+      { "x": 3, "y": 11, "tile": "rock" },
+      { "x": 11, "y": 11, "tile": "plant" },
+      { "x": 16, "y": 11, "tile": "grass_tuft" },
+      { "x": 24, "y": 11, "tile": "grass_tuft" },
+      { "x": 2, "y": 12, "tile": "rock" },
+      { "x": 25, "y": 12, "tile": "grass_tuft" },
+      { "x": 13, "y": 13, "tile": "potion_blue" },
+      { "x": 26, "y": 10, "tile": "reward_glyph" }
     ],
     "stamps": [
-      { "x": 2, "y": 0, "width": 3, "height": 3, "tile": "house_orange", "mode": "stamp" },
-      { "x": 6, "y": 0, "width": 3, "height": 3, "tile": "house_blue", "mode": "stamp" },
-      { "x": 10, "y": 0, "width": 5, "height": 1, "tile": "market_canopy", "mode": "stamp" },
-      { "x": 10, "y": 1, "width": 5, "height": 2, "tile": "market_crates", "mode": "stamp" },
-      { "x": 16, "y": 0, "width": 3, "height": 3, "tile": "house_pink", "mode": "stamp" },
-      { "x": 21, "y": 0, "width": 3, "height": 3, "tile": "house_green", "mode": "stamp" }
+      { "x": 2, "y": 2, "width": 3, "height": 3, "tile": "house_orange", "mode": "stamp" },
+      { "x": 6, "y": 2, "width": 3, "height": 3, "tile": "house_blue", "mode": "stamp" },
+      { "x": 10, "y": 2, "width": 5, "height": 1, "tile": "market_canopy", "mode": "stamp" },
+      { "x": 10, "y": 3, "width": 5, "height": 2, "tile": "market_crates", "mode": "stamp" },
+      { "x": 16, "y": 2, "width": 3, "height": 3, "tile": "house_pink", "mode": "stamp" },
+      { "x": 20, "y": 2, "width": 3, "height": 3, "tile": "house_green", "mode": "stamp" },
+      { "x": 23, "y": 2, "width": 5, "height": 3, "tile": "tent_orange", "mode": "stamp" }
     ]
   },
   "visual_goals": [
-    "asset_backed_village_market",
-    "connected_coastal_terrain",
-    "shoreline_beach_transition",
-    "road_fight_lane",
+    "fullscreen_no_letterbox",
+    "connected_coastal_village",
+    "road_fight_lane_mid_screen",
     "party_enemy_silhouettes_readable"
   ],
   "scene_target": "scenes/combat/battle.tscn",
@@ -63,6 +71,6 @@
   "readability_rules": [
     "party_and_enemies_visible_at_a_glance",
     "wave_path_clear",
-    "skill_bar_not_covering_core_action"
+    "command_boxes_not_covering_core_action"
   ]
 }

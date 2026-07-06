@@ -29,7 +29,6 @@ const GROUND_LAYERS := ["patches", "roads", "beach", "water"]  # override order 
 const WALK_SPEED_SCALE := 1.8             # multiplies profile move_speed for on-screen approach
 const SPEED_STEPS := [1.0, 2.0, 3.0]      # battle-speed cycle (Engine.time_scale)
 const TASKBAR_H := 58.0
-const INK := Color(0.32, 0.20, 0.14)      # dark-brown text for light parchment panels
 
 # Skill id -> mini-icon number (falls back to effect_type, see _skill_icon_texture).
 const SKILL_ICONS := {
@@ -50,8 +49,9 @@ var _map_root: Control
 var _title_label: Label
 var _wave_label: Label
 var _banner_label: Label
-var _skill_bar: Control                   # bottom tap-to-cast skill menu
-var _skill_slots: Array = []              # per-ally: {unit, panel, cd_shade, cd_text, ready, btn}
+var _skill_bar: Control                   # bottom JRPG command HUD (party + skills windows)
+var _skill_slots: Array = []              # command rows: {unit, state, hi, btn, ready}
+var _party_rows: Array = []               # party rows: {unit, fill, inner_w, hp_text, name}
 var _taskbar: Control                     # top command bar (Party / Skills / Speed / Menu)
 var _menu_panel: Control
 var _speed_btn: Button
@@ -220,7 +220,7 @@ func _render_map() -> void:
 	_battle_y = y_off + map_h * 0.55                   # the battle lane (on the road band)
 	# Opaque ground behind the tiles: these autotile tiles have scalloped transparent
 	# corners, so without a base fill the sky gradient bleeds through as murky gaps.
-	var land_h: float = map_h * 0.82
+	var land_h: float = map_h * 0.84
 	var base := ColorRect.new()
 	base.color = Color(0.44, 0.62, 0.28)               # grass green
 	base.position = Vector2(0, y_off)
@@ -558,103 +558,149 @@ func _build_skill_bar() -> void:
 	for c in _skill_bar.get_children():
 		c.queue_free()
 	_skill_slots.clear()
+	_party_rows.clear()
 
-	var heroes: Array = []
+	var allies: Array = []
 	for u in _units:
-		if u["side"] == "ally" and u["skill"] != null:
-			heroes.append(u)
-	if heroes.is_empty():
+		if u["side"] == "ally":
+			allies.append(u)
+	if allies.is_empty():
 		return
 
-	var bw := 128.0
-	var bh := 82.0
-	var gap := 16.0
-	var count := heroes.size()
-	var total := float(count) * bw + float(count - 1) * gap
-	var start_x := (_view_size.x - total) * 0.5
-	var top := _view_size.y - bh - 16.0
+	var pad := 16.0
+	var box_h := 150.0
+	var box_y := _view_size.y - box_h - 10.0
+	var box_w := (_view_size.x - pad * 2.0 - 28.0) * 0.5
 
-	for i in count:
-		var u: Dictionary = heroes[i]
-		var skill = u["skill"]
-		var origin := Vector2(start_x + float(i) * (bw + gap), top)
+	var pwin := _jrpg_window(Rect2(pad, box_y, box_w, box_h))
+	_skill_bar.add_child(pwin)
+	_add_window_title(pwin, "PARTY")
+	var py := 32.0
+	for u in allies:
+		_build_party_row(pwin, u, py, box_w)
+		py += 28.0
 
-		var panel := _ui_nine("ui.panel_bright", 22, 22, 22, 22)
-		panel.position = origin
-		panel.size = Vector2(bw, bh)
-		_skill_bar.add_child(panel)
-
-		var icon_tex := _skill_icon_texture(str(skill.id), str(skill.effect_type))
-		if icon_tex != null:
-			var icon := TextureRect.new()
-			icon.texture = icon_tex
-			icon.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-			icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-			icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
-			icon.position = origin + Vector2(bw * 0.5 - 22.0, 8.0)
-			icon.size = Vector2(44, 44)
-			_skill_bar.add_child(icon)
-
-		var hero := _hud_label(12, INK)
-		hero.add_theme_constant_override("outline_size", 0)
-		hero.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		hero.text = str(u["name"]).split(" ")[0]
-		hero.position = origin + Vector2(0, bh - 22.0)
-		hero.size = Vector2(bw, 18)
-		hero.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		_skill_bar.add_child(hero)
-
-		var cd_shade := ColorRect.new()
-		cd_shade.color = Color(0.18, 0.10, 0.06, 0.62)   # warm shade, inset to stay inside the frame
-		cd_shade.position = origin + Vector2(8, 8)
-		cd_shade.size = Vector2(bw - 16, bh - 16)
-		cd_shade.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		_skill_bar.add_child(cd_shade)
-
-		var cd_text := _hud_label(17, Color(1.0, 0.92, 0.55))
-		cd_text.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		cd_text.position = origin + Vector2(0, 27.0)
-		cd_text.size = Vector2(bw, 24)
-		cd_text.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		_skill_bar.add_child(cd_text)
-
-		var btn := Button.new()
-		btn.flat = true
-		btn.position = origin
-		btn.size = Vector2(bw, bh)
-		btn.focus_mode = Control.FOCUS_NONE
-		btn.pressed.connect(_on_skill_pressed.bind(u))
-		_skill_bar.add_child(btn)
-
-		_skill_slots.append({
-			"unit": u, "panel": panel, "cd_shade": cd_shade, "cd_text": cd_text,
-			"ready": true, "btn": btn,
-		})
+	var cwin := _jrpg_window(Rect2(_view_size.x - pad - box_w, box_y, box_w, box_h))
+	_skill_bar.add_child(cwin)
+	_add_window_title(cwin, "SKILLS")
+	var cy := 32.0
+	for u in allies:
+		if u["skill"] == null:
+			continue
+		_build_command_row(cwin, u, cy, box_w)
+		cy += 28.0
 	_update_skill_bar()
 
 
+func _jrpg_window(rect: Rect2) -> Panel:
+	var p := Panel.new()
+	p.position = rect.position
+	p.size = rect.size
+	var sb := StyleBoxFlat.new()
+	sb.bg_color = Color(0.08, 0.10, 0.19, 0.92)
+	sb.set_corner_radius_all(6)
+	sb.set_border_width_all(2)
+	sb.border_color = Color(0.58, 0.64, 0.85)
+	p.add_theme_stylebox_override("panel", sb)
+	return p
+
+
+func _add_window_title(win: Control, text: String) -> void:
+	var t := _hud_label(13, Color(0.76, 0.83, 1.0))
+	t.text = text
+	t.position = Vector2(12, 6)
+	t.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	win.add_child(t)
+
+
+func _build_party_row(win: Control, u: Dictionary, y: float, ww: float) -> void:
+	var name_l := _hud_label(14, Color(0.95, 0.96, 1.0))
+	name_l.text = str(u["name"]).split(" ")[0]
+	name_l.position = Vector2(12, y)
+	name_l.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	win.add_child(name_l)
+	var bar_x := 104.0
+	var bar_w := ww - bar_x - 72.0
+	var bar := _hp_bar_node(1.0, bar_w, 14.0)
+	bar.position = Vector2(bar_x, y + 2.0)
+	win.add_child(bar)
+	var fill: ColorRect = bar.get_child(bar.get_child_count() - 1)
+	var hp_l := _hud_label(11, Color(0.84, 0.88, 0.96))
+	hp_l.position = Vector2(ww - 66.0, y + 1.0)
+	hp_l.size = Vector2(58, 18)
+	hp_l.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	hp_l.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	win.add_child(hp_l)
+	_party_rows.append({ "unit": u, "fill": fill, "inner_w": bar_w - 8.0, "hp_text": hp_l, "name": name_l })
+
+
+func _build_command_row(win: Control, u: Dictionary, y: float, ww: float) -> void:
+	var skill = u["skill"]
+	var hi := ColorRect.new()
+	hi.color = Color(0.98, 0.82, 0.36, 0.20)   # gold highlight when the skill is ready
+	hi.position = Vector2(5, y - 2.0)
+	hi.size = Vector2(ww - 26.0, 26.0)
+	hi.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	hi.visible = false
+	win.add_child(hi)
+	var icon_tex := _skill_icon_texture(str(skill.id), str(skill.effect_type))
+	if icon_tex != null:
+		var icon := TextureRect.new()
+		icon.texture = icon_tex
+		icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		icon.position = Vector2(9, y - 1.0)
+		icon.size = Vector2(24, 24)
+		icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		win.add_child(icon)
+	var name_l := _hud_label(13, Color(0.93, 0.94, 1.0))
+	name_l.text = str(u["name"]).split(" ")[0]
+	name_l.position = Vector2(40, y + 1.0)
+	name_l.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	win.add_child(name_l)
+	var state_l := _hud_label(13, Color(0.75, 0.80, 0.92))
+	state_l.position = Vector2(ww - 92.0, y + 1.0)
+	state_l.size = Vector2(66, 18)
+	state_l.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	state_l.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	win.add_child(state_l)
+	var btn := Button.new()
+	btn.flat = true
+	btn.position = Vector2(5, y - 2.0)
+	btn.size = Vector2(ww - 26.0, 26.0)
+	btn.focus_mode = Control.FOCUS_NONE
+	btn.pressed.connect(_on_skill_pressed.bind(u))
+	win.add_child(btn)
+	_skill_slots.append({ "unit": u, "state": state_l, "hi": hi, "btn": btn, "ready": false })
+
+
 func _update_skill_bar() -> void:
+	for row in _party_rows:
+		var u: Dictionary = row["unit"]
+		var stats = u["stats"]
+		var alive: bool = u["alive"]
+		var frac: float = (clampf(stats.current_hp / max(1.0, float(u["hp_max"])), 0.0, 1.0)) if alive else 0.0
+		var fill: ColorRect = row["fill"]
+		fill.size.x = float(row["inner_w"]) * frac
+		fill.color = _hp_fill_color(frac, true)
+		row["hp_text"].text = "%d/%d" % [int(stats.current_hp) if alive else 0, int(u["hp_max"])]
+		row["name"].modulate = Color.WHITE if alive else Color(0.6, 0.6, 0.66)
 	for slot in _skill_slots:
 		var u: Dictionary = slot["unit"]
 		var skill = u["skill"]
-		var panel: NinePatchRect = slot["panel"]
-		var cd_shade: ColorRect = slot["cd_shade"]
-		var cd_text: Label = slot["cd_text"]
-		var bh: float = panel.size.y
-		var shade_h: float = bh - 16.0
+		var state: Label = slot["state"]
+		var hi: ColorRect = slot["hi"]
 		if not u["alive"]:
-			panel.modulate = Color(0.55, 0.55, 0.55, 0.6)
-			cd_shade.size.y = shade_h
-			cd_text.text = ""
+			state.text = "—"
+			state.add_theme_color_override("font_color", Color(0.6, 0.6, 0.66))
+			hi.visible = false
 			slot["btn"].disabled = true
 			continue
-		var frac: float = clampf(skill.remaining / max(0.001, skill.cooldown), 0.0, 1.0)
-		cd_shade.size.y = shade_h * frac
 		var ready: bool = skill.is_ready()
 		slot["ready"] = ready
-		panel.modulate = Color(1.0, 0.85, 0.42) if ready else Color.WHITE   # gold glow when ready
-		cd_text.text = "TAP" if ready else "%d" % int(ceil(skill.remaining))
-		cd_text.add_theme_color_override("font_color", Color(0.40, 0.24, 0.10) if ready else Color(1.0, 0.95, 0.72))
+		hi.visible = ready
+		state.text = "READY" if ready else "%ds" % int(ceil(skill.remaining))
+		state.add_theme_color_override("font_color", Color(1.0, 0.9, 0.45) if ready else Color(0.75, 0.80, 0.92))
 
 
 func _on_skill_pressed(u: Dictionary) -> void:
@@ -691,22 +737,24 @@ func _build_taskbar() -> void:
 
 	# Parchment bar: bleed top/left/right borders offscreen so only the bottom edge
 	# shows as a framed divider under the HUD.
-	var bar := _ui_nine("ui.taskbar_panel", 22, 22, 22, 22)
-	bar.position = Vector2(-24, -26)
-	bar.size = Vector2(w + 48, TASKBAR_H + 26)
+	var bar := Panel.new()
+	bar.position = Vector2.ZERO
+	bar.size = Vector2(w, TASKBAR_H)
+	bar.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var sb := StyleBoxFlat.new()
+	sb.bg_color = Color(0.08, 0.09, 0.16, 0.93)
+	sb.border_width_bottom = 2
+	sb.border_color = Color(0.40, 0.46, 0.64)
+	bar.add_theme_stylebox_override("panel", sb)
 	_taskbar.add_child(bar)
 
-	var banner := _ui_nine("ui.title_banner", 30, 17, 30, 17)
-	banner.position = Vector2(12, 6)
-	banner.size = Vector2(336, 46)
-	_taskbar.add_child(banner)
-
-	_title_label.add_theme_font_size_override("font_size", 20)
-	_title_label.add_theme_color_override("font_color", Color(1.0, 0.91, 0.62))
-	_title_label.position = Vector2(34, 15)
-	_wave_label.add_theme_color_override("font_color", INK)
-	_wave_label.add_theme_constant_override("outline_size", 0)
-	_wave_label.position = Vector2(364, 20)
+	_title_label.add_theme_font_size_override("font_size", 21)
+	_title_label.add_theme_color_override("font_color", Color(0.96, 0.94, 0.82))
+	_title_label.add_theme_constant_override("outline_size", 4)
+	_title_label.position = Vector2(18, 9)
+	_wave_label.add_theme_color_override("font_color", Color(0.72, 0.78, 0.95))
+	_wave_label.add_theme_constant_override("outline_size", 4)
+	_wave_label.position = Vector2(20, 34)
 
 	var specs := [
 		{"text": "Party", "cb": Callable(self, "_toggle_book")},
@@ -736,14 +784,22 @@ func _bar_button(text: String, h: float) -> Button:
 	b.text = text
 	b.focus_mode = Control.FOCUS_NONE
 	b.add_theme_font_size_override("font_size", 15)
-	b.add_theme_color_override("font_color", Color(0.98, 0.93, 0.80))
-	b.add_theme_color_override("font_color_hover", Color(1.0, 0.98, 0.86))
-	b.add_theme_color_override("font_color_pressed", Color(1.0, 0.88, 0.66))
-	b.add_theme_stylebox_override("normal", _ui_stylebox("ui.button_normal", 14, 11, 14, 11))
-	b.add_theme_stylebox_override("hover", _ui_stylebox("ui.button_selected", 14, 11, 14, 11))
-	b.add_theme_stylebox_override("pressed", _ui_stylebox("ui.button_pressed", 14, 11, 14, 11))
+	b.add_theme_color_override("font_color", Color(0.86, 0.90, 1.0))
+	b.add_theme_color_override("font_color_hover", Color(1.0, 1.0, 1.0))
+	b.add_theme_color_override("font_color_pressed", Color(0.80, 0.86, 1.0))
+	var sb := StyleBoxFlat.new()
+	sb.bg_color = Color(0.16, 0.18, 0.29, 0.96)
+	sb.set_corner_radius_all(5)
+	sb.set_border_width_all(1)
+	sb.border_color = Color(0.46, 0.52, 0.72)
+	b.add_theme_stylebox_override("normal", sb)
+	var hb: StyleBoxFlat = sb.duplicate()
+	hb.bg_color = Color(0.26, 0.30, 0.46, 0.99)
+	hb.border_color = Color(0.72, 0.78, 0.98)
+	b.add_theme_stylebox_override("hover", hb)
+	b.add_theme_stylebox_override("pressed", hb)
 	var tw: float = _font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, 15).x
-	b.size = Vector2(tw + 32.0, h)
+	b.size = Vector2(tw + 28.0, h)
 	return b
 
 
@@ -756,27 +812,6 @@ func _ui_texture(shortcut: String, scale: String = "2x") -> Texture2D:
 	if AssetRegistry.has_asset(scaled):
 		return AssetRegistry.load_texture(scaled)
 	return AssetRegistry.load_texture(id)
-
-
-func _ui_nine(shortcut: String, l: int, t: int, r: int, b: int) -> NinePatchRect:
-	var np := NinePatchRect.new()
-	np.texture = _ui_texture(shortcut)
-	np.patch_margin_left = l
-	np.patch_margin_top = t
-	np.patch_margin_right = r
-	np.patch_margin_bottom = b
-	np.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	return np
-
-
-func _ui_stylebox(shortcut: String, l: int, t: int, r: int, b: int) -> StyleBoxTexture:
-	var sb := StyleBoxTexture.new()
-	sb.texture = _ui_texture(shortcut)
-	sb.texture_margin_left = l
-	sb.texture_margin_top = t
-	sb.texture_margin_right = r
-	sb.texture_margin_bottom = b
-	return sb
 
 
 func _speed_text() -> String:
@@ -949,11 +984,9 @@ func _hp_bar_node(frac: float, w: float, h: float) -> Control:
 
 
 func _dropdown_panel(pos: Vector2, size: Vector2) -> Control:
-	var np := _ui_nine("ui.panel_dark", 22, 22, 22, 22)
-	np.position = pos
-	np.size = size
-	np.mouse_filter = Control.MOUSE_FILTER_STOP   # block clicks from falling through
-	return np
+	var p := _jrpg_window(Rect2(pos, size))
+	p.mouse_filter = Control.MOUSE_FILTER_STOP   # block clicks from falling through
+	return p
 
 
 # ---------------------------------------------------------------- targeting
