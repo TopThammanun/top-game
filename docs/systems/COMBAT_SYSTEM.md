@@ -94,6 +94,73 @@ Bosses need a short telegraph and one clear response window:
 - cleanse Hushweave
 - focus the knot
 
+## Roguelike run (Slice 1)
+
+The pivot's real-time driver (`scripts/combat/battle_view.gd`) now wraps combat in
+a Vampire-Survivors-style card-draft run, layered on top of the Combat Core above
+without changing it. Full design: `docs/superpowers/specs/2026-07-12-roguelike-draft-pivot-design.md`.
+
+Pure-logic classes under `scripts/roguelike/` (all `RefCounted`, headless-tested
+via `tests/roguelike_test.tscn` / `tests/roguelike_gamestate_test.tscn`, same
+preload-const pattern as Combat Core):
+
+- **`run_state.gd`** (`RunState`) — the run-scoped numbers: shared party XP curve
+  (`xp_to_next`/`add_xp`, quadratic-ish growth), `party_ids` roster, `pending_levelups`
+  counter, `party_cap` (5), and `upgrades`/`passives` — the accumulated, resolved
+  non-recruit picks from every draft this run.
+- **`card_data.gd`** (`CardData`) — one draft card parsed from `data/roguelike/cards.json`
+  (`recruit` / `stat` / `skill` / `passive` types); `bind_to_unit(clan_id)` clones a
+  card scoped to one specific ally.
+- **`card_system.gd`** (`CardSystem`) — the pool + weighted 3-card draw
+  (`data/roguelike/cards.json`, rarity-weighted, recruit weight tapers as the party
+  fills up); `resolve(card, run)` returns a scene-free descriptor dictionary the
+  scene applies (never touches `StatSystem` itself); guarantees at least one
+  non-recruit upgrade per draft when the pool has one.
+- **`scripts/ui/draft_view.gd`** (`DraftView`) — the modal 3-card overlay (reused
+  for both the pre-run starter pick and every level-up draft), emits `chosen(index)`.
+
+**The loop, driven by `battle_view.gd`:**
+
+1. **Pre-run pick** — `_begin_starter_pick()` freezes on boot (`_phase = "levelup"`,
+   `_picking_starter = true`) and shows one card per starter clan. Picking calls
+   `GameState.seed_run_party(clan_id)` (party of 1) and creates the `RunState`.
+2. **Shared XP** — kills and wave-clears feed `RunState.add_xp(...)`; `_process()`
+   gates on `_phase == "fighting" and _run.pending_levelups > 0` and calls
+   `_open_draft()`, which sets `Engine.time_scale = 0.0` (pausing combat; input is
+   not time-scaled so the overlay stays interactive) and draws 3 cards via
+   `CardSystem.draw`.
+3. **Pick applies** — `_apply_pick` routes a resolved card to `_apply_recruit` (grows
+   `RunState.party_ids`, arrives next wave) or `_apply_one_upgrade` (stat/skill/passive,
+   appended to `RunState.upgrades` and applied immediately to living allies via the
+   existing `StatModifier`/`CombatSkill` mutation paths). Multiple pending levels
+   re-open the draft until `pending_levelups` reaches 0, then time scale resumes.
+
+**Key invariant — upgrades are re-applied every wave.** `_spawn_wave` rebuilds each
+ally's `StatSystem`/`CombatSkill` from scratch every wave swap, so a permanent draft
+buff would be lost on the next wave if it only lived on the old (freed) unit. To
+prevent this, `_spawn_wave` replays the full `RunState.upgrades` list onto every
+freshly-built unit before the wave starts. Treat `RunState.upgrades` as the single
+source of truth for permanent run buffs — never mutate a built unit's stats/skill
+outside that list without also recording the resolved descriptor there.
+
+**Recruit next-wave:** a `recruit` pick calls `GameState.recruit_member(clan_id)`
+(appends a `UnitState`, de-duped) and `RunState.add_member(clan_id)`; the new ally
+does not spawn mid-wave — `_do_wave_swap` re-reads `GameState.party` on the next
+`_spawn_wave`, so the recruit appears at the start of the following wave.
+
+**Endless procedural scaling:** past the authored `MAX_WAVE` (10) catalog, `WaveState.for_wave`
+(`scripts/runtime/wave_state.gd`) generates enemies procedurally instead of erroring
+(boss every 5th wave, `wave_number % 5 == 0`), and `battle_view._scale_enemy` layers a
+per-wave stat multiplier (`HP`/`ATK` × `1.12^(wave-1)`, as a permanent `StatModifier`)
+onto each spawned enemy — so the run never "wins", it only ends on a wipe. The wave/party
+caps that previously hard-stopped at wave 10 / a party of 4 are lifted for run mode
+(`GameState.advance_to_wave`, `RunState.party_cap`).
+
+**End of run:** on a wipe, `_end("lost")` calls `GameState.end_run(result, reward)`,
+which banks a currency reward, updates `best_wave`, and saves — the only path in the
+pivot driver that grants currency (the legacy turn-based `BattleEngine` grants it via
+a separate `mark_wave_cleared`/`mark_wipe` path and is otherwise unrelated to this loop).
+
 ## Combat UI
 
 Combat UI must show:

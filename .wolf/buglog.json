@@ -327,6 +327,412 @@
       "related_bugs": [],
       "occurrences": 2,
       "last_seen": "2026-07-06T01:57:06.670Z"
+    },
+    {
+      "id": "bug-021",
+      "timestamp": "2026-07-11T13:37:42.814Z",
+      "error_message": "Significant refactor of ",
+      "file": "scripts/combat/battle_view.gd",
+      "root_cause": "57 lines replaced/restructured",
+      "fix": "Rewrote 67→140 lines (57 removed) | Also: # Parchment bar: bleed top/left/right borders offs; # shows as a framed divider under the HUD.",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "gd"
+      ],
+      "related_bugs": [],
+      "occurrences": 2,
+      "last_seen": "2026-07-11T13:39:16.722Z"
+    },
+    {
+      "id": "bug-022",
+      "timestamp": "2026-07-11T13:38:08.570Z",
+      "error_message": "Null/undefined access in ",
+      "file": "scripts/combat/battle_view.gd",
+      "root_cause": "Property access on potentially null/undefined value",
+      "fix": "Added null safety (optional chaining or null check)",
+      "tags": [
+        "auto-detected",
+        "null-safety",
+        "gd"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-11T13:38:08.570Z"
+    },
+    {
+      "id": "bug-023",
+      "timestamp": "2026-07-11T13:39:26.627Z",
+      "error_message": "Incorrect value in code",
+      "file": "scripts/combat/battle_view.gd",
+      "root_cause": "Had \"Speed %dx\"",
+      "fix": "Changed to \"%dx  SPEED\"",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "gd"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-11T13:39:26.627Z"
+    },
+    {
+      "id": "bug-024",
+      "timestamp": "2026-07-11T13:52:01.646Z",
+      "error_message": "Significant refactor of ",
+      "file": "scripts/combat/battle_view.gd",
+      "root_cause": "2 lines replaced/restructured",
+      "fix": "Rewrote 3→3 lines (2 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "gd"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-11T13:52:01.646Z"
+    },
+    {
+      "id": "bug-025",
+      "timestamp": "2026-07-11T13:54:54.946Z",
+      "error_message": "Wrong reference: _nav_buttons should be _curr_labels",
+      "file": "scripts/combat/battle_view.gd",
+      "root_cause": "Used \"_nav_buttons\" instead of \"_curr_labels\"",
+      "fix": "Changed _nav_buttons → _curr_labels",
+      "tags": [
+        "auto-detected",
+        "wrong-reference",
+        "gd"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-11T13:54:54.946Z"
+    },
+    {
+      "id": "bug-026",
+      "timestamp": "2026-07-11T13:55:12.541Z",
+      "error_message": "Incorrect value in code",
+      "file": "scripts/combat/battle_view.gd",
+      "root_cause": "Had \"role_l\"",
+      "fix": "Changed to \"skbtn\"",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "gd"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-11T13:55:12.541Z"
+    },
+    {
+      "id": "bug-027",
+      "timestamp": "2026-07-11T14:39:27.087Z",
+      "error_message": "Significant refactor of ",
+      "file": "scripts/combat/battle_view.gd",
+      "root_cause": "7 lines replaced/restructured",
+      "fix": "Rewrote 24→32 lines (7 removed) | Also: # hero cards; var stats = u[\"stats\"]",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "gd"
+      ],
+      "related_bugs": [],
+      "occurrences": 2,
+      "last_seen": "2026-07-11T14:40:37.304Z"
+    },
+    {
+      "id": "bug-028",
+      "timestamp": "2026-07-11T14:42:15.620Z",
+      "error_message": "Null/undefined access in ",
+      "file": "scripts/combat/battle_view.gd",
+      "root_cause": "Property access on potentially null/undefined value",
+      "fix": "Added null safety (optional chaining or null check) | Also: # ==========================================================; # Full-screen overlays reached from the top-bar nav. Each di",
+      "tags": [
+        "auto-detected",
+        "null-safety",
+        "gd"
+      ],
+      "related_bugs": [],
+      "occurrences": 2,
+      "last_seen": "2026-07-11T14:46:47.971Z"
+    },
+    {
+      "id": "bug-029",
+      "timestamp": "2026-07-11T14:47:20.046Z",
+      "error_message": "Wrong reference: TextClass should be TextServer",
+      "file": "scripts/combat/battle_view.gd",
+      "root_cause": "Used \"TextClass\" instead of \"TextServer\"",
+      "fix": "Changed TextClass → TextServer",
+      "tags": [
+        "auto-detected",
+        "wrong-reference",
+        "gd"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-11T14:47:20.046Z"
+    },
+    {
+      "id": "bug-030",
+      "timestamp": "2026-07-11T14:47:47.093Z",
+      "error_message": "Wrong return value",
+      "file": "scripts/combat/battle_view.gd",
+      "root_cause": "Was returning: int(CLAN_LEVEL.get(nm, 20 + GameState.upgrade_leve",
+      "fix": "Now returns: int(u[\"level\"])",
+      "tags": [
+        "auto-detected",
+        "return-value",
+        "gd"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-11T14:47:47.093Z"
+    },
+    {
+      "id": "bug-031",
+      "timestamp": "2026-07-11T14:50:11.543Z",
+      "error_message": "Significant refactor of ",
+      "file": "scripts/combat/battle_view.gd",
+      "root_cause": "6 lines replaced/restructured",
+      "fix": "Rewrote 7→9 lines (6 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "gd"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-11T14:50:11.543Z"
+    },
+    {
+      "id": "bug-032",
+      "timestamp": "2026-07-11T15:38:06.593Z",
+      "error_message": "Significant refactor of ",
+      "file": "scripts/combat/battle_view.gd",
+      "root_cause": "4 lines replaced/restructured",
+      "fix": "Rewrote 5→3 lines (4 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "gd"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-11T15:38:06.593Z"
+    },
+    {
+      "id": "bug-blackscreen-variant",
+      "timestamp": "2026-07-11T15:40:00.000Z",
+      "error_message": "BLACK SCREEN. Godot: 'Parse Error: The variable type is being inferred from a Variant value ... (Warning treated as error.)' at battle_view.gd:862 -> 'Failed to load script ... Parse error' -> scene never instantiates.",
+      "file": "scripts/combat/battle_view.gd",
+      "root_cause": "Project treats GDScript warnings as errors; `var n := {...}.get(rar, 3)` infers Variant -> fatal parse error kills the whole script. gdtoolkit does NOT catch this; only Godot does.",
+      "fix": "Annotate type instead of inferring from Variant: `var n: int = {...}.get(rar, 3)`. Never `:=` from Variant (Dictionary.get / dict-index / untyped). Verify with a real Godot run, not just gdtoolkit.",
+      "tags": [
+        "godot",
+        "gdscript",
+        "warnings-as-errors",
+        "variant-inference",
+        "black-screen",
+        "parse-error"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-11T15:40:00.000Z"
+    },
+    {
+      "id": "bug-034",
+      "timestamp": "2026-07-11T17:13:31.670Z",
+      "error_message": "Incorrect value in code",
+      "file": "docs/superpowers/specs/2026-07-12-roguelike-draft-pivot-design.md",
+      "root_cause": "Had `xp`",
+      "fix": "Changed to `RunState`",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-11T17:13:31.670Z"
+    },
+    {
+      "id": "bug-035",
+      "timestamp": "2026-07-11T17:17:52.733Z",
+      "error_message": "Significant refactor of ",
+      "file": "docs/superpowers/specs/2026-07-12-roguelike-draft-pivot-design.md",
+      "root_cause": "5 lines replaced/restructured",
+      "fix": "Rewrote 8→15 lines (5 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-11T17:17:52.733Z"
+    },
+    {
+      "id": "bug-036",
+      "timestamp": "2026-07-11T18:50:00.205Z",
+      "error_message": "Wrong reference: CardData should be self",
+      "file": "scripts/roguelike/card_data.gd",
+      "root_cause": "Used \"CardData\" instead of \"self\"",
+      "fix": "Changed CardData → self",
+      "tags": [
+        "auto-detected",
+        "wrong-reference",
+        "gd"
+      ],
+      "related_bugs": [],
+      "occurrences": 2,
+      "last_seen": "2026-07-11T18:51:37.045Z"
+    },
+    {
+      "id": "bug-037",
+      "timestamp": "2026-07-11T19:23:43.618Z",
+      "error_message": "Null/undefined access in ",
+      "file": "tests/roguelike_test.gd",
+      "root_cause": "Property access on potentially null/undefined value",
+      "fix": "Added null safety (optional chaining or null check)",
+      "tags": [
+        "auto-detected",
+        "null-safety",
+        "gd"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-11T19:23:43.618Z"
+    },
+    {
+      "id": "bug-038",
+      "timestamp": "2026-07-11T19:32:12.249Z",
+      "error_message": "Wrong return value",
+      "file": "scripts/runtime/wave_state.gd",
+      "root_cause": "Was returning: ws",
+      "fix": "Now returns: _procedural(wave_number, enemies_by_id)",
+      "tags": [
+        "auto-detected",
+        "return-value",
+        "gd"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-11T19:32:12.249Z"
+    },
+    {
+      "id": "bug-039",
+      "timestamp": "2026-07-11T19:38:19.966Z",
+      "error_message": "Incorrect value in code",
+      "file": "scripts/runtime/game_state.gd",
+      "root_cause": "Had \"Expected 4 starter party members, got %d\"",
+      "fix": "Changed to \"Party bootstrapped empty; a run must seed a start",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "gd"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-11T19:38:19.966Z"
+    },
+    {
+      "id": "bug-040",
+      "timestamp": "2026-07-11T22:46:26.658Z",
+      "error_message": "Null/undefined access in ",
+      "file": "scripts/combat/battle_view.gd",
+      "root_cause": "Property access on potentially null/undefined value",
+      "fix": "Added null safety (optional chaining or null check) | Also: if _run != null:; _run.add_xp(1) | Also: if _run != null:; _run.add_xp(5 + _wave) | Also: if _phase == \"fighting\" and _run != null and _run.pending_le; _open_draft() | Also: if _run != null:; GameState.end_run(result, _wave * 8)",
+      "tags": [
+        "auto-detected",
+        "null-safety",
+        "gd"
+      ],
+      "related_bugs": [],
+      "occurrences": 5,
+      "last_seen": "2026-07-11T22:47:09.151Z"
+    },
+    {
+      "id": "bug-041",
+      "timestamp": "2026-07-11T22:46:40.209Z",
+      "error_message": "Significant refactor of ",
+      "file": "scripts/combat/battle_view.gd",
+      "root_cause": "2 lines replaced/restructured",
+      "fix": "Rewrote 9→21 lines (2 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "gd"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-11T22:46:40.209Z"
+    },
+    {
+      "id": "bug-042",
+      "timestamp": "2026-07-11T23:12:27.504Z",
+      "error_message": "Missing await",
+      "file": "tests/roguelike_loop_test.gd",
+      "root_cause": "Async call without await — returned Promise instead of value",
+      "fix": "Added await to async call",
+      "tags": [
+        "auto-detected",
+        "async-fix",
+        "gd"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-11T23:12:27.504Z"
+    },
+    {
+      "id": "bug-043",
+      "timestamp": "2026-07-11T23:16:02.862Z",
+      "error_message": "Wrong reference: wiped should be lost",
+      "file": "docs/systems/COMBAT_SYSTEM.md",
+      "root_cause": "Used \"wiped\" instead of \"lost\"",
+      "fix": "Changed wiped → lost",
+      "tags": [
+        "auto-detected",
+        "wrong-reference",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-11T23:16:02.862Z"
+    },
+    {
+      "id": "bug-044",
+      "timestamp": "2026-07-11T23:16:29.315Z",
+      "error_message": "Significant refactor of ",
+      "file": "docs/systems/COMBAT_SYSTEM.md",
+      "root_cause": "5 lines replaced/restructured",
+      "fix": "Rewrote 5→7 lines (5 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-11T23:16:29.315Z"
+    },
+    {
+      "id": "bug-045",
+      "timestamp": "2026-07-12T06:20:00.000Z",
+      "error_message": "[roguelike_loop_test] printed PASS while a SCRIPT ERROR fired: \"Invalid access to property or key '_phase' on a base object of type 'previously freed'\" — exit 0 but the level-up/card-pick assertions never actually ran.",
+      "file": "tests/roguelike_loop_test.gd",
+      "root_cause": "GDScript coroutine functions (containing `await`) called WITHOUT `await` at the call site only run synchronously up to their first suspend point, then return immediately — they do not block the caller. `_ready()` called `_drive_starter_pick(scene)` (which internally called `_force_level_up(scene)`, which awaits `get_tree().process_frame`) as a plain statement, so `_ready()` proceeded straight to `scene.queue_free()` + `_finish()` before the suspended coroutines resumed. The background coroutines later resumed and touched the freed `scene`, and — more importantly — `_finish()` had already evaluated `_failures` (empty at that point) and printed a false PASS with exit 0.",
+      "fix": "Add `await` at every call site of a function that itself contains an `await` (`await _drive_starter_pick(scene)`, `await _force_level_up(scene)`), so `_ready()` genuinely waits for the whole chain to finish before freeing the scene and reporting PASS/FAIL. Also replaced a single `await get_tree().process_frame` assumption (that _process() reacts within exactly one frame) with a small bounded poll loop (up to 10 frames) before asserting the level-up draft opened, since the exact frame the pending_levelups check lands on relative to the process_frame signal isn't a timing guarantee worth hardcoding.",
+      "tags": [
+        "gdscript",
+        "async-await",
+        "coroutine",
+        "test-reliability",
+        "false-positive",
+        "roguelike"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-12T06:20:00.000Z"
     }
   ]
 }

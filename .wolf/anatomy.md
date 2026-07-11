@@ -1,7 +1,7 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-07-06T02:00:08.818Z
-> Files: 532 tracked | Anatomy hits: 0 | Misses: 0
+> Auto-maintained by OpenWolf. Last scanned: 2026-07-11T23:19:26.130Z
+> Files: 561 tracked | Anatomy hits: 0 | Misses: 0
 
 ## ./
 
@@ -21,6 +21,19 @@
 - `run_game.bat` (~31 tok)
 - `run_game.ps1` — Declares Resolve (~1468 tok)
 - `run_game.sh` (~1389 tok)
+- `whisker-realm.html` — Whisker Realm — Purralia (~17857 tok)
+
+## .superpowers/sdd/
+
+- `progress.md` — SDD Progress — Roguelike Draft Slice 1 (core in-run loop) (~1053 tok)
+- `task-1-report.md` — Task 1: RunState — Implementation Report (~871 tok)
+- `task-2-report.md` — Task 2: CardData — Implementation Report (~1292 tok)
+- `task-3-report.md` — Task 3: CardSystem — Implementation Report (~2219 tok)
+- `task-4-report.md` — Task 4: Roster data (2 new cats) + `UnitState.from_clan` + shortcuts — Implementation Report (~1587 tok)
+- `task-5-report.md` — Task 5: Endless Procedural Waves — Implementation Report (~875 tok)
+- `task-6-report.md` — Task 6 Report — GameState pre-run seed / recruit / end_run / endless cap-lift (~1539 tok)
+- `task-7-report.md` — Task 7: DraftView — Implementation Report (~756 tok)
+- `task-8-report.md` — Task 8 Report — wire the roguelike run loop into `battle_view.gd` (~3256 tok)
 
 ## agents/sage/
 
@@ -630,16 +643,37 @@
 
 ## data/
 
-- `asset_shortcuts.json` (~836 tok)
+- `asset_shortcuts.json` (~913 tok)
 
 ## data/combat/
 
 - `archetypes.json` (~684 tok)
-- `skills.json` (~396 tok)
+- `skills.json` (~514 tok)
 
 ## data/maps/
 
 - `emberhearth_map_plan.json` (~1024 tok)
+
+## data/roguelike/
+
+- `cards.json` — 19 draft cards (recruit/stat/skill/passive types) consumed by `CardSystem.load_all`; recruit cards key on `clans.json` clan_ids (~883 tok)
+- `run_config.json` — authored reference mirror of the run-tuning numbers (xp curve, party_cap, recruit_arrival_ratio, endless boss_every/stat_scale); values are currently duplicated in `RunState.DEFAULTS`/`battle_view._scale_enemy`, not read from this file yet (~53 tok)
+
+## data/units/
+
+- `clans.json` (~1228 tok)
+
+## docs/superpowers/plans/
+
+- `2026-07-12-roguelike-draft-slice-1.md` — Roguelike Draft — Slice 1 (Core In-Run Loop) Implementation Plan (~15248 tok)
+
+## docs/superpowers/specs/
+
+- `2026-07-12-roguelike-draft-pivot-design.md` — Design: Roguelike card-draft pivot (Vampire-Survivors-style progression on the auto-battler) (~5811 tok)
+
+## docs/systems/
+
+- `COMBAT_SYSTEM.md` — Combat System; now includes a "Roguelike run (Slice 1)" section documenting `scripts/roguelike/*`, the XP→draft loop, per-wave upgrade re-apply invariant, recruit-next-wave, endless scaling, end_run reward (~3700 tok)
 
 ## scenes/combat/
 
@@ -647,10 +681,32 @@
 
 ## scripts/combat/
 
-- `battle_view.gd` — Declares CharacterFactoryClass (~11177 tok)
+- `battle_view.gd` — Declares CharacterFactoryClass (~27356 tok)
 - `skill_effect.gd` — Declares CombatEnumsClass (~605 tok)
+
+## scripts/roguelike/
+
+- `card_data.gd` — `CardData`: one draft card parsed from `cards.json` (`from_dict`); `bind_to_unit(clan_id)` clones a party/global card scoped to one ally; `is_upgrade()` excludes recruit (~295 tok)
+- `card_system.gd` — `CardSystem`: card pool + weighted 3-card draw (`candidates`/`draw`/`resolve`/`describe`); recruit weight tapers as party fills; `resolve()` returns a scene-free descriptor dict, guarantees ≥1 non-recruit upgrade per draft when available (~1155 tok)
+- `run_state.gd` — `RunState` (RefCounted, no scene/GameState deps): run-scoped XP curve (`xp_to_next`/`add_xp`), `party_ids`/`party_cap`(5)/`pending_levelups`, and `upgrades`/`passives` — the accumulated resolved picks re-applied every `_spawn_wave` (~560 tok)
+
+## scripts/runtime/
+
+- `game_state.gd` — Declares UnitStateClass (~2383 tok)
+- `unit_state.gd` (~851 tok)
+- `wave_state.gd` — Declares UnitStateClass (~593 tok)
+
+## scripts/ui/
+
+- `draft_view.gd` — DraftView modal overlay — 3-card level-up draft UI (CanvasLayer, pure presentation) (~120 tok)
 
 ## tests/
 
 - `bootstrap_test.gd` (~4087 tok)
 - `combat_core_test.gd` — Declares CombatEnumsClass (~2642 tok)
+- `roguelike_gamestate_test.gd` — headless test of the `GameState` roguelike seams: `seed_run_party`/`recruit_member` (+ dedup)/`advance_to_wave` past `MAX_WAVE`/`end_run` reward+status. `[roguelike_gamestate_test] PASS`, exit 0 (~476 tok)
+- `roguelike_gamestate_test.tscn` — scene wrapper for `roguelike_gamestate_test.gd` (~63 tok)
+- `roguelike_loop_test.gd` — headless integration test that instances the REAL `scenes/combat/battle.tscn`, polls (bounded, ≤600 frames) to the starter-pick draft, drives `_on_draft_chosen`, force-levels via `RunState.add_xp`, and asserts the level-up draft opens + a pick applies an upgrade/recruit. Covers scene-wiring the pure-logic suites can't reach. `[roguelike_loop_test] PASS`, exit 0; verified green 4/4 runs (~909 tok)
+- `roguelike_loop_test.tscn` — scene wrapper for `roguelike_loop_test.gd` (~62 tok)
+- `roguelike_test.gd` — headless test of pure `RunState`/`CardSystem`/`CardData` logic: XP curve/level-ups, draw weighting + upgrade guarantee, recruit/stat/skill/passive `resolve()` descriptors. `[roguelike_test] PASS`, exit 0 (~2847 tok)
+- `roguelike_test.tscn` — scene wrapper for `roguelike_test.gd` (~56 tok)
