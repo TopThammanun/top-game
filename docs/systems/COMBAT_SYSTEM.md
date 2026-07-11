@@ -149,10 +149,11 @@ does not spawn mid-wave — `_do_wave_swap` re-reads `GameState.party` on the ne
 `_spawn_wave`, so the recruit appears at the start of the following wave.
 
 **Endless procedural scaling:** past the authored `MAX_WAVE` (10) catalog, `WaveState.for_wave`
-(`scripts/runtime/wave_state.gd`) generates enemies procedurally instead of erroring
-(boss every 5th wave, `wave_number % 5 == 0`), and `battle_view._scale_enemy` layers a
-per-wave stat multiplier (`HP`/`ATK` × `1.12^(wave-1)`, as a permanent `StatModifier`)
-onto each spawned enemy — so the run never "wins", it only ends on a wipe. The wave/party
+(`scripts/runtime/wave_state.gd`) generates enemy *composition* procedurally instead of erroring
+(boss every 5th wave, `wave_number % 5 == 0`). Separately, `battle_view._scale_enemy` runs on
+*every* wave and layers a stat multiplier (`HP`/`ATK` × `1.12^(wave-1)`, as a permanent
+`StatModifier`) onto each spawned enemy — a no-op at wave 1 (mult 1.0), ramping thereafter —
+so the run never "wins", it only ends on a wipe. The wave/party
 caps that previously hard-stopped at wave 10 / a party of 4 are lifted for run mode
 (`GameState.advance_to_wave`, `RunState.party_cap`).
 
