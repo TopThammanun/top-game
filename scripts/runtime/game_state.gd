@@ -61,8 +61,8 @@ func _bootstrap_state() -> void:
 	load_save()
 	_load_party()
 	_load_wave(1)
-	if party.size() != 4:
-		push_error("Expected 4 starter party members, got %d" % party.size())
+	if party.size() < 1:
+		push_warning("Party bootstrapped empty; a run must seed a starter cat")
 	best_wave = max(best_wave, wave)
 	is_ready = true
 	state_ready.emit()
@@ -113,9 +113,6 @@ func start_run() -> void:
 
 
 func advance_to_wave(n: int) -> void:
-	if n > MAX_WAVE:
-		push_warning("Wave %d exceeds MVP cap (%d)" % [n, MAX_WAVE])
-		return
 	_load_wave(n)
 
 
@@ -259,7 +256,7 @@ func load_save() -> void:
 		return
 
 	currency = max(0, int(parsed.get("currency", 0)))
-	best_wave = clamp(int(parsed.get("best_wave", 1)), 1, MAX_WAVE)
+	best_wave = max(1, int(parsed.get("best_wave", 1)))
 	upgrade_level = max(0, int(parsed.get("upgrade_level", 0)))
 	last_afk_unix = int(parsed.get("last_afk_unix", 0))
 	if last_afk_unix <= 0:
@@ -305,6 +302,45 @@ func _reward_soft_currency_for(w: int) -> int:
 	if w >= MAX_WAVE:
 		return 200
 	return 10 * w
+
+
+func get_clan_row(clan_id: String):
+	return _clans_by_id.get(clan_id)
+
+
+func _party_has_clan(clan_id: String) -> bool:
+	for u in party:
+		if u.clan_id == clan_id:
+			return true
+	return false
+
+
+func seed_run_party(clan_id: String) -> void:
+	party.clear()
+	if _clans_by_id.has(clan_id):
+		party.append(UnitStateClass.from_clan(_clans_by_id[clan_id]))
+	else:
+		push_error("seed_run_party: unknown clan_id %s" % clan_id)
+	_apply_upgrade_bonus_to_party(true)
+	party_changed.emit()
+
+
+func recruit_member(clan_id: String) -> bool:
+	if _clans_by_id.has(clan_id) and not _party_has_clan(clan_id):
+		party.append(UnitStateClass.from_clan(_clans_by_id[clan_id]))
+		_apply_upgrade_bonus_to_party(false)
+		party_changed.emit()
+		return true
+	return false
+
+
+func end_run(result: String, reward: int) -> void:
+	run_status = result
+	best_wave = max(best_wave, wave)
+	add_currency(max(0, reward))
+	progression_changed.emit()
+	save_game()
+	run_ended.emit(result)
 
 
 func _read_json_array(path: String) -> Array:
