@@ -5,12 +5,14 @@ extends Node
 # Mirrors tests/combat_core_test.gd: collect failures, print PASS/FAIL, quit 0/1.
 
 const RunStateClass = preload("res://scripts/roguelike/run_state.gd")
+const CardDataClass = preload("res://scripts/roguelike/card_data.gd")
 
 var _failures: Array[String] = []
 
 
 func _ready() -> void:
 	_check_run_state()
+	_check_card_data()
 	_finish()
 
 
@@ -50,6 +52,24 @@ func _check_run_state() -> void:
 	_expect(rs.party_size() == 5, "party caps at 5, got %d" % rs.party_size())
 	rs.add_member("a")
 	_expect(rs.party_size() == 5, "duplicate/over-cap add is a no-op")
+
+
+func _check_card_data() -> void:
+	var c = CardDataClass.from_dict({
+		"id": "atk_party_s", "type": "stat", "rarity": "common", "title": "Sharpened Claws",
+		"target": "party", "effect": { "stat": "atk", "mod": "percent", "value": 0.08 },
+	})
+	_expect(c.id == "atk_party_s", "id parsed")
+	_expect(c.type == "stat" and c.is_upgrade(), "stat is an upgrade")
+	_expect(float(c.effect.get("value", 0.0)) == 0.08, "effect value parsed")
+	_expect(c.unit_key == "", "unbound card has empty unit_key")
+
+	var bound = c.bind_to_unit("bengalis_wildstripe")
+	_expect(bound.unit_key == "bengalis_wildstripe", "bind sets unit_key")
+	_expect(c.unit_key == "", "bind does not mutate the original")
+
+	var rec = CardDataClass.from_dict({ "id": "r", "type": "recruit", "effect": { "clan_id": "x" } })
+	_expect(not rec.is_upgrade(), "recruit is not an upgrade")
 
 
 func _finish() -> void:
