@@ -12,6 +12,15 @@ const CharacterFactoryClass = preload("res://scripts/combat/character_factory.gd
 const CombatEnumsClass = preload("res://scripts/combat/combat_enums.gd")
 const DamageCalculatorClass = preload("res://scripts/combat/damage_calculator.gd")
 const SkillEffectClass = preload("res://scripts/combat/skill_effect.gd")
+const RunStateClass = preload("res://scripts/roguelike/run_state.gd")
+const CardSystemClass = preload("res://scripts/roguelike/card_system.gd")
+const DraftViewClass = preload("res://scripts/ui/draft_view.gd")
+const StatModifierClass = preload("res://scripts/combat/stat_modifier.gd")
+
+const BASE_STARTER_IDS := [
+	"maincoon_ironmane", "shorthold_emberpaw", "bengalis_wildstripe",
+	"siamheart_voicecasters", "persephone_silkpaw", "ragdollan_cloudfur",
+]
 
 const SPRITE_SCALE := 2.5                 # 3x source frame (48px) -> ~120px tall hero
 const FRAME_W := 48.0
@@ -166,6 +175,16 @@ var _phase: String = "boot"               # boot | fighting | won | lost
 var _post_timer: float = 0.0
 var _font: Font
 
+# --- roguelike run state ---
+var _run                                   # RunState
+var _card_system                           # CardSystem
+var _draft                                 # DraftView
+var _roster_ids: Array = []                # clan_ids recruitable this run
+var _rng: RandomNumberGenerator
+var _pending_cards: Array = []             # CardData currently shown in the draft
+var _picking_starter: bool = false
+var _starter_ids_cache: Array = []
+
 # --- new twilight HUD state ---
 var _cards: Array = []                     # hero cards: {unit, hp_fill, hp_w, hp_txt, name, skbtn, cd, cd_w, cd_h, sk_txt, ready}
 var _gems: int = 53                        # cosmetic currencies (Gold = GameState.currency)
@@ -198,6 +217,8 @@ var _reveal_box: Control                   # SUMMON screen pull-result container
 
 func _ready() -> void:
 	Engine.time_scale = 1.0
+	_rng = RandomNumberGenerator.new()
+	_rng.randomize()
 	_font = ThemeDB.fallback_font
 	_build_icons()
 	_build_layers()
@@ -226,7 +247,10 @@ func _try_start() -> void:
 	_hp_frame_tex = _ui_texture("ui.hp_bar_frame", "1x")
 	_view_size = get_viewport().get_visible_rect().size
 	_layout_background()
-	_spawn_wave()
+	_card_system = CardSystemClass.new()
+	_card_system.load_all()
+	_roster_ids = _factory.clan_ids()
+	_begin_starter_pick()
 
 
 # ---------------------------------------------------------------- scene scaffold
@@ -453,12 +477,24 @@ func _spawn_wave() -> void:
 	var party: Array = GameState.party
 	var allies: Array = []
 	for u in party:
-		allies.append(_build_unit(_factory.build_from_clan(str(u.clan_id)), str(u.display_name), "ally", str(u.idle_asset), str(u.move_asset)))
+		var au := _build_unit(_factory.build_from_clan(str(u.clan_id)), str(u.display_name), "ally", str(u.idle_asset), str(u.move_asset))
+		au["clan_id"] = str(u.clan_id)
+		allies.append(au)
+	# Allies are rebuilt each wave from fresh StatSystems, so re-apply the run's
+	# accumulated upgrades (this also makes recruits inherit party upgrades).
+	if _run != null:
+		for res in _run.upgrades:
+			_apply_one_upgrade(res, allies)
+		for a in allies:
+			a["stats"].current_hp = a["stats"].get_stat(CombatEnumsClass.StatKey.HP)
+			a["hp_max"] = maxf(1.0, a["stats"].get_stat(CombatEnumsClass.StatKey.HP))
 
 	var enemies: Array = []
 	if GameState.wave_state != null:
 		for e in GameState.wave_state.enemies:
-			enemies.append(_build_unit(_factory.build_from_enemy(str(e.enemy_id)), str(e.display_name), "enemy", str(e.idle_asset), str(e.move_asset)))
+			var eu := _build_unit(_factory.build_from_enemy(str(e.enemy_id)), str(e.display_name), "enemy", str(e.idle_asset), str(e.move_asset))
+			_scale_enemy(eu, _wave)
+			enemies.append(eu)
 
 	_place_side(allies, true, ground_y)
 	_place_side(enemies, false, ground_y)
@@ -542,6 +578,7 @@ func _build_unit(profile: Dictionary, display_name: String, side: String, idle_a
 		"alive": true,
 		"home_x": 0.0,
 		"base_mod": (Color(1.0, 0.72, 0.70) if side == "enemy" else Color.WHITE),
+		"clan_id": "",
 	}
 
 
@@ -602,6 +639,9 @@ func _process(delta: float) -> void:
 		_update_overlay(u)
 
 	_update_skill_bar()
+	if _phase == "fighting" and _run != null and _run.pending_levelups > 0:
+		_open_draft()
+		return
 	if _phase == "fighting":
 		_check_wave_end(delta)
 	queue_redraw()
@@ -1702,6 +1742,8 @@ func _kill(target: Dictionary) -> void:
 		_float_number(sprite.position + Vector2(0, -FRAME_W * SPRITE_SCALE - 6), "+%d" % reward, COL_GOLD2, false)
 		if randf() < 0.3:
 			_yarn += 1
+		if _run != null:
+			_run.add_xp(1)
 	var tw := create_tween()
 	tw.set_parallel(true)
 	tw.tween_property(sprite, "modulate:a", 0.0, 0.5)
@@ -1776,10 +1818,7 @@ func _check_wave_end(delta: float) -> void:
 	if allies_alive == 0:
 		_end("lost")
 	elif enemies_alive == 0:
-		if _wave >= GameState.MAX_WAVE:
-			_end("won")
-		else:
-			_advance_wave()
+		_advance_wave()
 
 
 func _advance_wave() -> void:
@@ -1812,6 +1851,8 @@ func _do_wave_swap() -> void:
 		u["anim"] = "move"
 		u["sprite"].flip_h = true
 	_refresh_wave_label()
+	if _run != null:
+		_run.add_xp(5 + _wave)
 	_phase = "fighting"
 
 
@@ -1829,6 +1870,8 @@ func _restart_run() -> void:
 func _end(result: String) -> void:
 	_phase = result
 	_post_timer = 3.0
+	if _run != null:
+		GameState.end_run(result, _wave * 8)
 	_banner_label.visible = true
 	if result == "won":
 		_gems += 5                             # boss chest gems
@@ -2633,3 +2676,171 @@ func _pull_card(data: Dictionary, x: float, y: float, w: float, delay: float) ->
 	var tw := card.create_tween()
 	tw.tween_interval(delay)
 	tw.tween_property(card, "scale", Vector2.ONE, 0.32).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+
+
+# ---------------------------------------------------------------- roguelike run
+
+func _ensure_draft() -> void:
+	if _draft == null:
+		_draft = DraftViewClass.new()
+		add_child(_draft)
+		_draft.chosen.connect(_on_draft_chosen)
+
+
+func _begin_starter_pick() -> void:
+	_phase = "levelup"                       # freeze the boot frame; no combat yet
+	_picking_starter = true
+	_starter_ids_cache = BASE_STARTER_IDS.duplicate()
+	var views: Array = []
+	for cid in _starter_ids_cache:
+		var row = GameState.get_clan_row(str(cid))
+		if row == null:
+			continue
+		views.append({
+			"title": str(row.get("public_name", cid)),
+			"desc": "Start as %s" % str(row.get("role", "")),
+			"rarity": "rare",
+			"sprite_shortcut": str(row.get("sprite_shortcut", "")),
+		})
+	_ensure_draft()
+	_draft.show_cards(views, _view_size)
+
+
+func _on_draft_chosen(index: int) -> void:
+	if _picking_starter:
+		_finish_starter_pick(index)
+	else:
+		_on_levelup_chosen(index)
+
+
+func _finish_starter_pick(index: int) -> void:
+	if index < 0 or index >= _starter_ids_cache.size():
+		return
+	var cid: String = str(_starter_ids_cache[index])
+	GameState.seed_run_party(cid)
+	_run = RunStateClass.new({}, cid)
+	_picking_starter = false
+	_draft.close()
+	_phase = "fighting"
+	_spawn_wave()
+
+
+func _open_draft() -> void:
+	_phase = "levelup"
+	Engine.time_scale = 0.0
+	_pending_cards = _card_system.draw(_run, _roster_ids, _rng)
+	var views: Array = []
+	for c in _pending_cards:
+		views.append({
+			"title": c.title,
+			"desc": _card_system.describe(c),
+			"rarity": c.rarity,
+			"sprite_shortcut": _card_sprite(c),
+		})
+	_ensure_draft()
+	_draft.show_cards(views, _view_size)
+
+
+func _on_levelup_chosen(index: int) -> void:
+	if index < 0 or index >= _pending_cards.size():
+		return
+	_apply_pick(_card_system.resolve(_pending_cards[index], _run))
+	_run.pending_levelups = max(0, _run.pending_levelups - 1)
+	_draft.close()
+	if _run.pending_levelups > 0:
+		_open_draft()
+	else:
+		Engine.time_scale = SPEED_STEPS[_speed_idx]
+		_phase = "fighting"
+
+
+func _card_sprite(card) -> String:
+	# recruit -> the recruited clan's sprite; unit-bound -> that ally's sprite;
+	# party/passive -> the first party member's sprite as a stand-in.
+	var cid: String = ""
+	if card.type == "recruit":
+		cid = str(card.effect.get("clan_id", ""))
+	elif card.unit_key != "":
+		cid = card.unit_key
+	elif _run != null and _run.party_size() > 0:
+		cid = str(_run.party_ids[0])
+	var row = GameState.get_clan_row(cid)
+	return str(row.get("sprite_shortcut", "")) if row != null else ""
+
+
+func _apply_pick(res: Dictionary) -> void:
+	if str(res.get("kind", "")) == "recruit":
+		_apply_recruit(res)
+		return
+	_run.upgrades.append(res)
+	if str(res.get("kind", "")) == "passive":
+		_run.passives.append(res)
+	_apply_one_upgrade(res, _living("ally"))
+
+
+func _apply_recruit(res: Dictionary) -> void:
+	var clan_id: String = str(res.get("clan_id", ""))
+	if clan_id == "":
+		return
+	if GameState.recruit_member(clan_id):
+		_run.add_member(clan_id)   # the recruit spawns next wave via _do_wave_swap
+
+
+func _apply_one_upgrade(res: Dictionary, allies: Array) -> void:
+	match str(res.get("kind", "")):
+		"stat", "passive":
+			_apply_stat_mod(res, allies)
+		"skill":
+			_apply_skill_mod(res, allies)
+
+
+func _apply_stat_mod(res: Dictionary, allies: Array) -> void:
+	var stat_key: int = CombatEnumsClass.stat_key_from_string(str(res.get("stat", "atk")))
+	if stat_key == -1:
+		return
+	var mod_type: int = (CombatEnumsClass.ModifierType.PERCENT
+		if str(res.get("mod", "percent")) == "percent"
+		else CombatEnumsClass.ModifierType.FLAT)
+	var value: float = float(res.get("value", 0.1))
+	var scope: String = str(res.get("scope", "party"))
+	var key: String = str(res.get("unit_key", ""))
+	var source: String = "draft" if str(res.get("kind", "")) == "stat" else "passive"
+	for u in allies:
+		if scope == "unit" and str(u.get("clan_id", "")) != key:
+			continue
+		u["stats"].add_modifier(StatModifierClass.new(stat_key, mod_type, value, source, 0.0))
+		if stat_key == CombatEnumsClass.StatKey.HP:
+			u["hp_max"] = maxf(1.0, u["stats"].get_stat(CombatEnumsClass.StatKey.HP))
+
+
+func _apply_skill_mod(res: Dictionary, allies: Array) -> void:
+	var key: String = str(res.get("unit_key", ""))
+	var field: String = str(res.get("field", "cooldown"))
+	var op: String = str(res.get("op", "mul"))
+	var value: float = float(res.get("value", 0.9))
+	for u in allies:
+		if key != "" and str(u.get("clan_id", "")) != key:
+			continue
+		var sk = u["skill"]
+		if sk == null:
+			continue
+		match field:
+			"cooldown":
+				sk.cooldown = maxf(0.5, sk.cooldown * value) if op == "mul" else maxf(0.5, sk.cooldown + value)
+			"skill_ratio":
+				sk.skill_ratio = sk.skill_ratio * value if op == "mul" else sk.skill_ratio + value
+			"max_targets":
+				sk.max_targets = int(sk.max_targets + value)
+
+
+func _scale_enemy(eu: Dictionary, wave: int) -> void:
+	if eu["stats"] == null:
+		return
+	var mult: float = pow(1.12, float(max(0, wave - 1)))
+	if mult <= 1.0:
+		return
+	var pct: float = mult - 1.0
+	eu["stats"].add_modifier(StatModifierClass.new(CombatEnumsClass.StatKey.HP, CombatEnumsClass.ModifierType.PERCENT, pct, "wavescale", 0.0))
+	eu["stats"].add_modifier(StatModifierClass.new(CombatEnumsClass.StatKey.ATK, CombatEnumsClass.ModifierType.PERCENT, pct, "wavescale", 0.0))
+	eu["stats"].current_hp = eu["stats"].get_stat(CombatEnumsClass.StatKey.HP)
+	eu["hp_max"] = maxf(1.0, eu["stats"].get_stat(CombatEnumsClass.StatKey.HP))
