@@ -44,6 +44,27 @@ static func from_starter(row: Dictionary, clan: Dictionary):
 	return u
 
 
+static func from_clan(clan: Dictionary):
+	var u = new()
+	u.clan_id = str(clan.get("id", ""))
+	u.id = "party_%s" % u.clan_id
+	u.display_name = str(clan.get("public_name", clan.get("id", "")))
+	u.party_role = str(clan.get("role", ""))
+	u.lane = str(clan.get("lane", "front"))
+	u.idle_asset = str(clan.get("sprite_shortcut", ""))
+	u.move_asset = _move_asset_from_row(clan, u.idle_asset)
+	u.modulate_hint = ""
+	u.base_hp_max = int(clan.get("base_hp", 100))
+	u.base_atk = int(clan.get("base_atk", 10))
+	u.base_def = int(clan.get("base_def", 5))
+	u.hp_max = u.base_hp_max
+	u.hp_current = u.hp_max
+	u.atk = u.base_atk
+	u.def = u.base_def
+	u.affinity = str(clan.get("affinity", "emberweave"))
+	return u
+
+
 static func from_enemy(row: Dictionary):
 	var u = new()
 	u.id = str(row.get("id", ""))

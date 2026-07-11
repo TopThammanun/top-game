@@ -7,6 +7,8 @@ extends Node
 const RunStateClass = preload("res://scripts/roguelike/run_state.gd")
 const CardDataClass = preload("res://scripts/roguelike/card_data.gd")
 const CardSystemClass = preload("res://scripts/roguelike/card_system.gd")
+const CharacterFactoryClass = preload("res://scripts/combat/character_factory.gd")
+const UnitStateClass = preload("res://scripts/runtime/unit_state.gd")
 
 var _failures: Array[String] = []
 
@@ -15,6 +17,7 @@ func _ready() -> void:
 	_check_run_state()
 	_check_card_data()
 	_check_card_system()
+	_check_roster()
 	_finish()
 
 
@@ -172,6 +175,38 @@ func _check_card_system() -> void:
 	var rs_pa: Dictionary = cs.resolve(pass_card, run2)
 	_expect(str(rs_pa.get("kind", "")) == "passive" and str(rs_pa.get("passive_id", "")) == "might", "passive resolves passive_id")
 	_expect(str(rs_pa.get("stat", "")) == "atk" and abs(float(rs_pa.get("value", 0.0)) - 0.12) < 0.001, "passive resolves stat/value")
+
+
+func _check_roster() -> void:
+	var f = CharacterFactoryClass.new()
+	f.load_all()
+	for cid in ["abyssian_quillwhisker", "devonrex_tinkertail"]:
+		_expect(f.has_clan(cid), "clan %s should exist" % cid)
+		var p: Dictionary = f.build_from_clan(cid)
+		var stats = p.get("stats")
+		_expect(stats != null and stats.get_stat(CombatEnumsForRoster().HP) > 0.0, "clan %s has HP>0" % cid)
+		_expect(p.get("skill") != null, "clan %s has a skill" % cid)
+
+	# from_clan builds a party unit with a sprite shortcut
+	var rows := _read_clans()
+	var iron: Dictionary = {}
+	for r in rows:
+		if str(r.get("id", "")) == "maincoon_ironmane":
+			iron = r
+	var u = UnitStateClass.from_clan(iron)
+	_expect(u.clan_id == "maincoon_ironmane", "from_clan sets clan_id")
+	_expect(u.idle_asset == "unit.tank_idle", "from_clan reads sprite_shortcut, got %s" % u.idle_asset)
+	_expect(u.move_asset == "unit.tank_move", "from_clan derives move shortcut, got %s" % u.move_asset)
+	_expect(u.base_hp_max > 0, "from_clan sets base hp")
+
+
+func CombatEnumsForRoster():
+	return preload("res://scripts/combat/combat_enums.gd").StatKey
+
+
+func _read_clans() -> Array:
+	var parsed = JSON.parse_string(FileAccess.get_file_as_string("res://data/units/clans.json"))
+	return parsed if typeof(parsed) == TYPE_ARRAY else []
 
 
 func _finish() -> void:

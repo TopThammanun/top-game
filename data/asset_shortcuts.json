@@ -52,5 +52,10 @@
   "ui.energy_orb": "ui_1x_resource_orb_orb_energy",
   "ui.book": "ui_1x_spellbook_tab_spellbook",
   "ui.hp_bar_frame": "ui_1x_slider_bar_slider02_box",
-  "ui.hp_bar_fill": "ui_1x_slider_bar_slider02_bar08"
+  "ui.hp_bar_fill": "ui_1x_slider_bar_slider02_bar08",
+  "unit.bomber_idle": "map_1x_unit_sapper_01_idle",
+  "unit.bomber_move": "map_1x_unit_sapper_01_move",
+  "ui.card_frame": "ui_1x_background_box_bgbox_04a",
+  "ui.card_title": "ui_1x_title_banner_bannersmall_01a",
+  "ui.portrait_frame": "ui_1x_item_slot_slot_02_empty"
 }

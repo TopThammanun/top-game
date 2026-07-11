@@ -12,5 +12,9 @@
   { "id": "voicecaster_chord", "clan_id": "siamheart_voicecasters", "starting_cooldown": 3.0, "cooldown": 6.0,
     "skill_ratio": 1.8, "effect_type": "aoe_damage", "target_side": "enemy", "max_targets": 0 },
   { "id": "emberpaw_dash", "clan_id": "shorthold_emberpaw", "starting_cooldown": 3.0, "cooldown": 8.0,
-    "skill_ratio": 1.5, "effect_type": "aoe_damage", "target_side": "enemy", "max_targets": 0 }
+    "skill_ratio": 1.5, "effect_type": "aoe_damage", "target_side": "enemy", "max_targets": 0 },
+  { "id": "quillwhisker_volley", "clan_id": "abyssian_quillwhisker", "starting_cooldown": 3.0, "cooldown": 6.0,
+    "skill_ratio": 1.6, "effect_type": "aoe_damage", "target_side": "enemy", "max_targets": 3 },
+  { "id": "tinkertail_flask", "clan_id": "devonrex_tinkertail", "starting_cooldown": 3.0, "cooldown": 7.0,
+    "skill_ratio": 1.4, "effect_type": "aoe_damage", "target_side": "enemy", "max_targets": 0 }
 ]
