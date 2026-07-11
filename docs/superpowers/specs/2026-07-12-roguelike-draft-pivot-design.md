@@ -119,6 +119,9 @@ Pure `RefCounted`. Loads `cards.json` once; every draft calls `draw(3)`.
   `{ kind:"skill", unit_key, field, value }`,
   `{ kind:"passive", passive_id, params }`.
   Keeping `resolve` scene-free keeps CardSystem headless-testable; the scene owns the mutation.
+  A **`unit_key` is a `clan_id`** — the party never holds duplicate clans (recruit is gated on
+  not-already-present), so `clan_id` is the stable per-ally key the scene maps to a live `_units`
+  entry. `target:"unit"` cards are expanded to one card per eligible party `clan_id` at draw time.
 - `describe(card, run_state) -> String` — the delta text shown on the card ("+18% party ATK",
   "unlocks AoE", "recruit Quillwhisker — ranged"). **Required** (§12 auto-battler pitfall: the
   draft is the entire skill expression, so choices must be legible).
@@ -163,14 +166,21 @@ where `front_charge`/`ambush` and `mid_magic`/`bomber` currently share a sprite 
 
 - **Roster size = 6 draftable + 2 meta-unlocked** (Quillwhisker & Tinkertail behind meta). Fixed,
   legible roster (auto-battler synergy must be tunable — not a wide pool).
-- **Recruit arrival:** a recruited cat enters at `arrival_level = max(1, floor(avg_party_level*0.7))`
-  and gets a **~2s spawn shield** so it does not instantly die.
+- **Recruit arrival:** a recruited cat enters at `arrival_level = max(1, floor(run_level*0.7))`
+  — 70% of the **shared run level** (§3), NOT an average of per-cat levels (those don't
+  accumulate). Its displayed `level` is this arrival level. It gets a **~2s spawn shield** so it
+  does not instantly die.
 - **Recruit timing (MVP decision):** the new `UnitState` is appended to `GameState.party` and the
   cat appears **at the start of the next wave** — `_do_wave_swap()` (`battle_view.gd:1804-1807`)
   re-reads `GameState.party` via `_spawn_wave()` (line 449), so no live re-render is needed. This
-  avoids the mid-wave placement reshuffle risk (§9). "Arrive mid-wave immediately" is a **polish
-  item (Slice 3)** via a new `_spawn_ally()` helper wrapping `_build_unit()` (line 495) + append to
-  `_units` + `_build_skill_bar()` (line 703).
+  avoids the mid-wave placement reshuffle risk (§9). On spawn the recruit **inherits every
+  `RunState` passive picked so far** (re-apply all active party-wide passives to the new unit).
+  "Arrive mid-wave immediately" is a **polish item (Slice 3)** via a new `_spawn_ally()` helper
+  wrapping `_build_unit()` (line 495) + append to `_units` + `_build_skill_bar()` (line 703).
+- **New skills must use a SUPPORTED effect type.** `SkillEffect.apply` (combat core Plan A)
+  handles ONLY `aoe_damage | heal | buff | stun`. Define `quillwhisker_volley` as `aoe_damage`
+  (`max_targets: 3`) and `tinkertail_flask` as `aoe_damage` (or `buff` on `amplify`). Do **not**
+  use a `dot` type unless `SkillEffect` is extended first, or the skill silently does nothing.
 
 ## 7. Integration seams in `battle_view.gd` (exact, from recon)
 
@@ -186,7 +196,9 @@ where `front_charge`/`ambush` and `mid_magic`/`bomber` currently share a sprite 
 same frame. Rule: **resolve the level-up draft BEFORE the wave warp.** Queue the draft; if
 `_check_wave_end` (line 605) wants to advance while `pending_levelups > 0`, hold the warp until the
 draft closes (or open the draft, and on close re-check wave end). Never open the draft during
-`"warp"`.
+`"warp"`. The **wave-clear bonus XP** (`5 + _wave`) is granted at wave-end (which starts the
+warp), so any level-up it triggers is resolved when the phase next returns to `"fighting"` (after
+`_do_wave_swap` spawns the new wave) — not mid-warp.
 
 - **Per-unit level field (display only):** XP is owned by `RunState` as one shared run level (§3);
   each unit dict gets a **derived** `level` field (its recruit arrival level, §6) for display —
@@ -224,13 +236,18 @@ draft closes (or open the draft, and on close re-check wave end). Never open the
     variants later for variety.
 - Both modes share the identical draft loop, XP curve, and card pool — only the wave container and
   end condition differ.
+- **Mode plumbing:** `RunState.mode` is the source of truth; `GameState` reads it when it calls
+  `WaveState.for_wave` so campaign takes the authored `mvp_waves.json` path and endless takes the
+  procedural path. Pass `mode` into `advance_to_wave`/`for_wave` (currently they take only a wave
+  number).
 
 ## 10. Build slices
 
-- **Slice 1 — core in-run loop (first playable):** pre-run hero pick (start with 1) · per-unit &
-  run XP · level-up pause + `DraftView` with all four card types · recruit next-wave · endless
-  escalating waves · wipe/end → `end_run` reward. Headless tests for `CardSystem` + `WaveState`
-  scaling. **Reroll/skip/banish, campaign, boss-every-N, meta UI, evolutions are OUT of Slice 1.**
+- **Slice 1 — core in-run loop (first playable):** a **minimal pre-run hero-pick screen** (choose
+  1 of the base cats → seed `GameState.party` with that single `UnitState`) · shared run XP (§3)
+  · level-up pause + `DraftView` with all four card types · recruit next-wave · endless escalating
+  waves · wipe/end → `end_run` reward. Headless tests for `CardSystem` + `WaveState` scaling.
+  **Reroll/skip/banish, campaign, boss-every-N, meta UI, evolutions are OUT of Slice 1.**
 - **Slice 2 — run shape & agency:** campaign mode + boss draft (4 cards) + boss-every-N · reroll
   (2/run, +1 per boss) · skip (+gold) · banish (1-2/run) · rarity pity.
 - **Slice 3 — depth & polish:** light meta-progression (Whisker Coins, 5 upgrades §11) · card-delta
