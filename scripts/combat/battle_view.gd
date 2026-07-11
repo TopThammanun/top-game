@@ -1859,12 +1859,12 @@ func _do_wave_swap() -> void:
 func _restart_run() -> void:
 	_hide_menus()
 	GameState.reset_run()
-	_wave = GameState.wave
-	Engine.time_scale = SPEED_STEPS[_speed_idx]
+	_wave = 1
+	_run = null
 	_banner_label.visible = false
 	_warp_rect.modulate.a = 0.0
-	_phase = "fighting"
-	_spawn_wave()
+	Engine.time_scale = SPEED_STEPS[_speed_idx]
+	_begin_starter_pick()
 
 
 func _end(result: String) -> void:
@@ -2690,12 +2690,13 @@ func _ensure_draft() -> void:
 func _begin_starter_pick() -> void:
 	_phase = "levelup"                       # freeze the boot frame; no combat yet
 	_picking_starter = true
-	_starter_ids_cache = BASE_STARTER_IDS.duplicate()
+	_starter_ids_cache = []
 	var views: Array = []
-	for cid in _starter_ids_cache:
+	for cid in BASE_STARTER_IDS:
 		var row = GameState.get_clan_row(str(cid))
 		if row == null:
 			continue
+		_starter_ids_cache.append(str(cid))
 		views.append({
 			"title": str(row.get("public_name", cid)),
 			"desc": "Start as %s" % str(row.get("role", "")),
@@ -2729,6 +2730,11 @@ func _open_draft() -> void:
 	_phase = "levelup"
 	Engine.time_scale = 0.0
 	_pending_cards = _card_system.draw(_run, _roster_ids, _rng)
+	if _pending_cards.is_empty():
+		_run.pending_levelups = max(0, _run.pending_levelups - 1)
+		Engine.time_scale = SPEED_STEPS[_speed_idx]
+		_phase = "fighting"
+		return
 	var views: Array = []
 	for c in _pending_cards:
 		views.append({
