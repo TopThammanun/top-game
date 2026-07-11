@@ -1,6 +1,9 @@
 class_name CardData
 extends RefCounted
 
+# One draft card. Parsed from data/roguelike/cards.json. `unit_key` is empty for
+# party/global cards, or a clan_id when the card is bound to one specific ally.
+
 var id: String = ""
 var type: String = ""
 var rarity: String = "common"
@@ -19,7 +22,7 @@ static func from_dict(d: Dictionary) -> CardData:
 	c.target = str(d.get("target", "party"))
 	var eff = d.get("effect", {})
 	if typeof(eff) == TYPE_DICTIONARY:
-		c.effect = eff
+		c.effect = eff.duplicate(true)
 	else:
 		c.effect = {}
 	c.unit_key = str(d.get("unit_key", ""))

@@ -68,6 +68,9 @@ func _check_card_data() -> void:
 	_expect(bound.unit_key == "bengalis_wildstripe", "bind sets unit_key")
 	_expect(c.unit_key == "", "bind does not mutate the original")
 
+	bound.effect["value"] = 999.0
+	_expect(float(c.effect.get("value", 0.0)) == 0.08, "bind_to_unit deep-copies effect; original unchanged")
+
 	var rec = CardDataClass.from_dict({ "id": "r", "type": "recruit", "effect": { "clan_id": "x" } })
 	_expect(not rec.is_upgrade(), "recruit is not an upgrade")
 
