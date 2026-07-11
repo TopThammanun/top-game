@@ -1,0 +1,9 @@
+{
+  "xp_base": 10.0,
+  "xp_lin": 6.0,
+  "xp_quad": 0.4,
+  "draft_size": 3,
+  "party_cap": 5,
+  "recruit_arrival_ratio": 0.7,
+  "endless": { "boss_every": 5, "stat_scale_base": 1.12 }
+}
