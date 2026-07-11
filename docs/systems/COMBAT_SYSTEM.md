@@ -157,9 +157,11 @@ caps that previously hard-stopped at wave 10 / a party of 4 are lifted for run m
 (`GameState.advance_to_wave`, `RunState.party_cap`).
 
 **End of run:** on a wipe, `_end("lost")` calls `GameState.end_run(result, reward)`,
-which banks a currency reward, updates `best_wave`, and saves — the only path in the
-pivot driver that grants currency (the legacy turn-based `BattleEngine` grants it via
-a separate `mark_wave_cleared`/`mark_wipe` path and is otherwise unrelated to this loop).
+which banks an end-of-run currency reward (`_wave * 8`), updates `best_wave`, and saves.
+This is separate from the in-run currency income the pivot driver already grants — a
+per-kill gold drip in `_kill` (`6 + _wave * 2` per enemy) and the BASE-screen collect —
+none of which routes through the legacy `mark_wave_cleared`/`mark_wipe` path (that path
+belongs to the retired turn-based `BattleEngine` and is unrelated to this loop).
 
 ## Combat UI
 
