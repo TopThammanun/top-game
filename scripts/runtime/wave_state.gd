@@ -33,7 +33,35 @@ static func for_wave(wave_number: int, waves_catalog: Array, enemies_by_id: Dict
 				enemy.id = "%s_%02d" % [enemy.enemy_id, spawn_index]
 				ws.enemies.append(enemy)
 			return ws
-	push_error("Wave not found in catalog: %d" % wave_number)
+	# Past the authored catalog: generate procedurally (endless mode).
+	return _procedural(wave_number, enemies_by_id)
+
+
+static func _procedural(wave_number: int, enemies_by_id: Dictionary):
+	var ws = new()
+	ws.wave = wave_number
+	var is_boss: bool = wave_number % 5 == 0
+	var comp: Array = []
+	if is_boss:
+		ws.type = "boss"
+		comp.append("hollowmew_captain")
+		var grunts: int = 2 + int(wave_number / 10)
+		for i in grunts:
+			comp.append("tangleborn_yarnling")
+	else:
+		ws.type = "endless"
+		var count: int = 3 + int(wave_number / 2)
+		for i in count:
+			comp.append("tangleborn_snarlbeast" if i % 3 == 0 else "tangleborn_yarnling")
+	var spawn_index: int = 0
+	for enemy_id in comp:
+		var enemy_row = enemies_by_id.get(str(enemy_id))
+		if enemy_row == null:
+			continue
+		spawn_index += 1
+		var enemy = UnitStateClass.from_enemy(enemy_row)
+		enemy.id = "%s_%02d" % [enemy.enemy_id, spawn_index]
+		ws.enemies.append(enemy)
 	return ws
 
 

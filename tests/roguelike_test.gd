@@ -9,6 +9,7 @@ const CardDataClass = preload("res://scripts/roguelike/card_data.gd")
 const CardSystemClass = preload("res://scripts/roguelike/card_system.gd")
 const CharacterFactoryClass = preload("res://scripts/combat/character_factory.gd")
 const UnitStateClass = preload("res://scripts/runtime/unit_state.gd")
+const WaveStateClass = preload("res://scripts/runtime/wave_state.gd")
 
 var _failures: Array[String] = []
 
@@ -18,6 +19,7 @@ func _ready() -> void:
 	_check_card_data()
 	_check_card_system()
 	_check_roster()
+	_check_waves()
 	_finish()
 
 
@@ -207,6 +209,37 @@ func CombatEnumsForRoster():
 func _read_clans() -> Array:
 	var parsed = JSON.parse_string(FileAccess.get_file_as_string("res://data/units/clans.json"))
 	return parsed if typeof(parsed) == TYPE_ARRAY else []
+
+
+func _check_waves() -> void:
+	var enemies_by_id := _enemies_index()
+	# past the authored catalog (>10) it must generate, not error/empty
+	var w11 = WaveStateClass.for_wave(11, [], enemies_by_id)
+	_expect(w11.enemies.size() > 0, "wave 11 generates enemies, got %d" % w11.enemies.size())
+	# boss cadence: wave 15 (15 %% 5 == 0) includes the boss id
+	var w15 = WaveStateClass.for_wave(15, [], enemies_by_id)
+	var has_boss := false
+	for e in w15.enemies:
+		if str(e.enemy_id).begins_with("hollowmew_captain"):
+			has_boss = true
+	_expect(has_boss, "wave 15 is a boss wave")
+	# non-boss wave has no boss id
+	var w12 = WaveStateClass.for_wave(12, [], enemies_by_id)
+	var boss12 := false
+	for e in w12.enemies:
+		if str(e.enemy_id).begins_with("hollowmew_captain"):
+			boss12 = true
+	_expect(not boss12, "wave 12 is not a boss wave")
+
+
+func _enemies_index() -> Dictionary:
+	var out: Dictionary = {}
+	var parsed = JSON.parse_string(FileAccess.get_file_as_string("res://data/combat/enemies.json"))
+	if typeof(parsed) == TYPE_ARRAY:
+		for r in parsed:
+			if typeof(r) == TYPE_DICTIONARY and r.has("id"):
+				out[str(r["id"])] = r
+	return out
 
 
 func _finish() -> void:
