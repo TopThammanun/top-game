@@ -308,6 +308,11 @@ Prefer unlocks (variety) over stat boosts (power). No consumables, no per-run pu
 5. **Level-up vs wave-clear ordering** (§7) — resolve the draft before the warp.
 6. **`_build_unit` mutates HP in place** (line 519, `×HP_MULT`) — never re-run on a built unit;
    apply draft buffs via `stats.add_modifier`, not by rebuilding.
+6b. **Allies are rebuilt from `CharacterFactory` every wave** (`_spawn_wave` re-reads `GameState.party`
+   and constructs fresh `StatSystem`s), so a permanent modifier added to a *live* StatSystem is lost
+   at the next wave. Therefore run upgrades are the source-of-truth in **`RunState.upgrades`** and are
+   **re-applied to every freshly-built ally in `_spawn_wave`** — this also makes a recruit inherit all
+   party upgrades/passives for free. (Enemy wave-scaling is applied the same way, per-build, by the scene.)
 7. **Endless requires lifting the cap in three places** (§9) + procedural `for_wave`.
 8. **Godot target 4.x**; warnings-as-errors; verify with a real Godot run.
 
