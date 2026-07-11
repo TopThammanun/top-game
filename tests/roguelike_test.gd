@@ -134,6 +134,45 @@ func _check_card_system() -> void:
 	var r2: Dictionary = cs.resolve(rec_card, run2)
 	_expect(str(r2.get("kind", "")) == "recruit" and str(r2.get("clan_id", "")) == "kilo", "recruit resolves clan_id")
 
+	# guarantee branch: a recruit-heavy pool must still yield >=1 upgrade every draw
+	var gpool: Array = [
+		{ "id": "ga", "type": "recruit", "rarity": "rare", "title": "A", "effect": { "clan_id": "ga" } },
+		{ "id": "gb", "type": "recruit", "rarity": "rare", "title": "B", "effect": { "clan_id": "gb" } },
+		{ "id": "gc", "type": "recruit", "rarity": "rare", "title": "C", "effect": { "clan_id": "gc" } },
+		{ "id": "gs", "type": "stat", "rarity": "common", "target": "party",
+		  "effect": { "stat": "atk", "mod": "percent", "value": 0.08 } },
+	]
+	var gcs = CardSystemClass.new()
+	gcs.load_from_array(gpool)
+	var groster: Array = ["ga", "gb", "gc"]
+	for s in 60:
+		var grun = RunStateClass.new({}, "z")
+		var grng := RandomNumberGenerator.new()
+		grng.seed = s
+		var gd: Array = gcs.draw(grun, groster, grng)
+		var gup: bool = false
+		var gids: Dictionary = {}
+		for c in gd:
+			gids[c.id + c.unit_key] = true
+			if c.is_upgrade():
+				gup = true
+		_expect(gup, "guarantee: every draw yields >=1 upgrade (seed %d)" % s)
+		_expect(gids.size() == gd.size(), "draw cards distinct (seed %d)" % s)
+
+	# resolve() skill + passive shapes (keys field/op and passive_id)
+	var skill_card = CardDataClass.from_dict({
+		"id": "sk", "type": "skill", "target": "unit",
+		"effect": { "field": "cooldown", "op": "mul", "value": 0.75 } }).bind_to_unit("alpha")
+	var rs_sk: Dictionary = cs.resolve(skill_card, run2)
+	_expect(str(rs_sk.get("kind", "")) == "skill" and str(rs_sk.get("field", "")) == "cooldown" and str(rs_sk.get("op", "")) == "mul", "skill resolves field/op")
+	_expect(abs(float(rs_sk.get("value", 0.0)) - 0.75) < 0.001 and str(rs_sk.get("unit_key", "")) == "alpha", "skill resolves value/unit_key")
+	var pass_card = CardDataClass.from_dict({
+		"id": "pa", "type": "passive",
+		"effect": { "passive_id": "might", "stat": "atk", "mod": "percent", "value": 0.12 } })
+	var rs_pa: Dictionary = cs.resolve(pass_card, run2)
+	_expect(str(rs_pa.get("kind", "")) == "passive" and str(rs_pa.get("passive_id", "")) == "might", "passive resolves passive_id")
+	_expect(str(rs_pa.get("stat", "")) == "atk" and abs(float(rs_pa.get("value", 0.0)) - 0.12) < 0.001, "passive resolves stat/value")
+
 
 func _finish() -> void:
 	if _failures.is_empty():
