@@ -23,7 +23,12 @@ Base before Task 1: c8a255c
   Deferred Minors (final triage): starter-pick shows "LEVEL UP" title (cosmetic); recruit_arrival_level computed but unused (no per-unit stat leveling in Slice 1 — recruits inherit party upgrades via 5b); _run.passives recorded but re-applied via _run.upgrades only
 - Task 9: complete — all 4 headless suites PASS (roguelike_test, roguelike_gamestate_test, combat_core_test, bootstrap_test); added `tests/roguelike_loop_test.gd/.tscn` (real battle.tscn scene-wiring integration test, 4/4 clean runs, no `--quit-after` needed); windowed screenshot confirms the starter-pick draft overlay renders; COMBAT_SYSTEM.md + anatomy.md updated. **Slice 1 COMPLETE.**
 
-## Minor findings (for final review triage)
+## FINAL WHOLE-SLICE REVIEW (opus): MERGE AFTER FIXES → fixes applied → CLEAN
+- 1 Important fixed (commit 5ff6b0f): base `atk_spd` added to mid_magic/ambush/bomber/support/healer so the +ATK_SPD card isn't a silent no-op (percent × 0 base = 0). Doc wording corrected (_scale_enemy runs every wave).
+- All accumulated Minors triaged ACCEPTABLE (see below). Persistence invariant, clan_id threading, state machine, economy all verified solid end-to-end.
+- SLICE 1 COMPLETE & VERIFIED: 9 tasks + integration test + windowed screenshot of the working starter-pick. All suites green. HEAD = 5ff6b0f.
+
+## Minor findings (all triaged ACCEPTABLE by final review — for Slice 2 polish)
 - T1 tests/roguelike_test.gd:23 — untyped `var rs = RunStateClass.new(...)` (loses static typing; inherited from brief; matches nothing to fix functionally)
 - T1 run_state.gd — DEFAULTS values duplicated in inline `.get(k, default)` fallbacks (unreachable branch; keep in sync if retuned)
 - T3 card_system.gd — `resolve()` skill branch omits `scope` key (stat has it); harmless since skill cards are always unit-targeted in cards.json
