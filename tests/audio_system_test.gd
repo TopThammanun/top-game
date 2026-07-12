@@ -19,6 +19,7 @@ func _ready() -> void:
 	_test_play_zone_builds_stems()
 	_test_music_state_matrix()
 	_test_purr_bed()
+	_test_wave_changed_drives_state()
 	_finish()
 
 
@@ -140,6 +141,16 @@ func _test_purr_bed() -> void:
 		_expect(abs(AudioDirector._purr_player.volume_db - AudioDirector.PURR_DB) < 0.001, "purr(true) sets volume to PURR_DB")
 	AudioDirector.purr(false)
 	_expect(not AudioDirector._purr_player.playing, "purr(false) stops the bed")
+
+
+func _test_wave_changed_drives_state() -> void:
+	AudioDirector.play_zone("emberhearth")
+	AudioDirector._on_wave_changed(3)
+	_expect(AudioDirector._music_state == "wave_pressure", "non-boss wave -> wave_pressure, got '%s'" % AudioDirector._music_state)
+	AudioDirector._on_wave_changed(5)   # BOSS_EVERY = 5
+	_expect(AudioDirector._music_state == "boss", "wave 5 (boss) -> boss, got '%s'" % AudioDirector._music_state)
+	AudioDirector._on_run_ended("won")
+	_expect(AudioDirector._music_state == "region_restored", "run won -> region_restored, got '%s'" % AudioDirector._music_state)
 
 
 func _finish() -> void:

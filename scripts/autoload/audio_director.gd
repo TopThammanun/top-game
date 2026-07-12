@@ -33,6 +33,12 @@ func _ready() -> void:
 	# GameState is an autoload initialized before this one, so connect directly.
 	# (No state_ready race here — run_ended is a runtime event, not a boot event.)
 	GameState.run_ended.connect(_on_run_ended)
+	GameState.wave_changed.connect(_on_wave_changed)
+	# state_ready may fire before this autoload's _ready — guard it (spec §12).
+	if not GameState.is_ready:
+		GameState.state_ready.connect(_boot_audio, CONNECT_ONE_SHOT)
+	else:
+		_boot_audio()
 
 
 func set_bus_volume(bus_name: String, value01: float) -> void:
@@ -195,8 +201,22 @@ func purr(on: bool) -> void:
 
 func _on_run_ended(status: String) -> void:
 	if status == "won":
-		reward(5)   # boss/region-clear celebration chime
-	# 'wiped' → defeat audio is added in Plan 2 (needs a defeat cue).
+		reward(5)                          # boss/region-clear celebration chime
+		set_music_state("region_restored")
+	elif status == "wiped":
+		set_music_state("idle")            # soften on defeat (a defeat cue is a later plan)
+
+
+func _boot_audio() -> void:
+	play_zone(DEFAULT_ZONE)
+	set_music_state("idle")
+	purr(true)
+
+
+func _on_wave_changed(wave: int) -> void:
+	if _current_zone == "":
+		return   # music not booted yet
+	set_music_state("boss" if wave % BOSS_EVERY == 0 else "wave_pressure")
 
 
 func _next_player(bus_name: String) -> AudioStreamPlayer:
