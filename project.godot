@@ -20,6 +20,7 @@ buses/default_bus_layout="res://default_bus_layout.tres"
 AssetRegistry="*res://scripts/autoload/asset_registry.gd"
 GameState="*res://scripts/runtime/game_state.gd"
 AudioRegistry="*res://scripts/autoload/audio_registry.gd"
+AudioDirector="*res://scripts/autoload/audio_director.gd"
 
 [display]
 

@@ -12,6 +12,7 @@ var _failures: Array[String] = []
 func _ready() -> void:
 	_test_buses_exist()
 	_test_registry_resolves_cues()
+	_test_volume_round_trips()
 	_finish()
 
 
@@ -29,6 +30,17 @@ func _test_registry_resolves_cues() -> void:
 	# Missing wav degrades to null, not a crash:
 	_expect(AudioRegistry.load_stream("res://asset/audio/__missing__.wav") == null, "missing wav returns null (no crash)")
 	_expect(AudioRegistry.streams_for("ui_click") is Array, "streams_for always returns an Array")
+
+
+func _test_volume_round_trips() -> void:
+	AudioDirector.set_bus_volume("Music", 0.5)
+	_expect(abs(AudioDirector.get_bus_volume("Music") - 0.5) < 0.001, "Music volume round-trips to 0.5")
+	var idx := AudioServer.get_bus_index("Music")
+	_expect(abs(AudioServer.get_bus_volume_db(idx) - linear_to_db(0.5)) < 0.01, "AudioServer Music bus reflects linear_to_db(0.5)")
+	AudioDirector.set_bus_volume("Music", 0.0)
+	_expect(AudioServer.get_bus_volume_db(idx) <= -79.0, "volume 0.0 floors to ~-80 dB (no -inf)")
+	AudioDirector.set_bus_volume("Music", 1.0)  # restore
+	_expect(AudioDirector.get_bus_volume("Nonexistent") == 1.0, "unknown bus reads default 1.0")
 
 
 func _expect(cond: bool, msg: String) -> void:
