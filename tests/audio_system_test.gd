@@ -14,6 +14,7 @@ func _ready() -> void:
 	_test_registry_resolves_cues()
 	_test_volume_round_trips()
 	_test_sfx_configures_player()
+	_test_reward_ladder()
 	_finish()
 
 
@@ -47,6 +48,24 @@ func _test_volume_round_trips() -> void:
 func _expect(cond: bool, msg: String) -> void:
 	if not cond:
 		_failures.append(msg)
+
+
+func _test_reward_ladder() -> void:
+	_expect(AudioDirector.reward(0) == null, "reward(0) is an invalid layer -> null")
+	_expect(AudioDirector.reward(99) == null, "reward(99) is an invalid layer -> null")
+	var p: AudioStreamPlayer = AudioDirector.reward(3)   # level_up
+	_expect(p != null, "reward(3) returns a player")
+	if p != null:
+		_expect(p.bus == "SFX", "reward chime plays on the SFX bus (so it drives the duck), got '%s'" % p.bus)
+		_expect(p.pitch_scale == 1.0, "reward chime is tuned (pitch 1.0), got %f" % p.pitch_scale)
+	# The Music bus carries a Compressor keyed to SFX (the duck).
+	var mi: int = AudioServer.get_bus_index("Music")
+	_expect(AudioServer.get_bus_effect_count(mi) >= 1, "Music bus has at least one effect (the duck compressor)")
+	var has_comp: bool = false
+	for e in range(AudioServer.get_bus_effect_count(mi)):
+		if AudioServer.get_bus_effect(mi, e) is AudioEffectCompressor:
+			has_comp = true
+	_expect(has_comp, "Music bus duck effect is an AudioEffectCompressor")
 
 
 func _test_sfx_configures_player() -> void:

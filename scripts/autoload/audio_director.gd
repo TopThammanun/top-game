@@ -7,6 +7,7 @@ const BUSES := ["Master", "Music", "SFX", "Ambient", "Voice", "UI"]
 const SETTINGS_PATH := "user://audio_settings.cfg"
 const MIN_DB := -80.0
 const POOL_SIZE := 6   # players per bus; round-robin so overlapping one-shots never allocate
+const REWARD_CUES := { 1: "loot_tiny_drop", 2: "loot_rare_drop", 3: "level_up", 4: "afk_chest_open", 5: "boss_clear" }
 
 var _volumes: Dictionary = {}   # bus_name -> 0..1
 var _pools: Dictionary = {}      # bus_name -> Array[AudioStreamPlayer]
@@ -97,6 +98,15 @@ func sfx(cue_id: String) -> AudioStreamPlayer:
 	if player.stream != null:
 		player.play()
 	return player
+
+
+func reward(layer: int) -> AudioStreamPlayer:
+	if not REWARD_CUES.has(layer):
+		push_warning("No reward cue for layer %d" % layer)
+		return null
+	# Reward cues are tuned + bus=SFX in sound_cues.json, so sfx() plays them
+	# un-jittered on SFX, where the Music/Ambient sidechain compressors duck.
+	return sfx(REWARD_CUES[layer])
 
 
 func _next_player(bus_name: String) -> AudioStreamPlayer:
