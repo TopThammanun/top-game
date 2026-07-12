@@ -13,6 +13,7 @@ func _ready() -> void:
 	_test_buses_exist()
 	_test_registry_resolves_cues()
 	_test_volume_round_trips()
+	_test_sfx_configures_player()
 	_finish()
 
 
@@ -46,6 +47,29 @@ func _test_volume_round_trips() -> void:
 func _expect(cond: bool, msg: String) -> void:
 	if not cond:
 		_failures.append(msg)
+
+
+func _test_sfx_configures_player() -> void:
+	# Unknown cue is a safe no-op.
+	_expect(AudioDirector.sfx("does_not_exist") == null, "sfx on unknown cue returns null")
+
+	# A texture cue is routed to its bus and pitch-jittered within a bounded range.
+	var p: AudioStreamPlayer = AudioDirector.sfx("ui_click")
+	_expect(p != null, "sfx('ui_click') returns a player")
+	if p != null:
+		_expect(p.bus == "UI", "ui_click player is on the UI bus, got '%s'" % p.bus)
+		_expect(abs(p.pitch_scale - 1.0) <= 0.5, "ui_click pitch jitter stays bounded, got %f" % p.pitch_scale)
+
+	# A tuned cue must NOT be pitch/volume jittered.
+	var r: AudioStreamPlayer = AudioDirector.sfx("level_up")
+	_expect(r != null, "sfx('level_up') returns a player")
+	if r != null:
+		_expect(r.pitch_scale == 1.0, "tuned cue has pitch_scale exactly 1.0, got %f" % r.pitch_scale)
+		_expect(r.volume_db == 0.0, "tuned cue has volume_db exactly 0.0, got %f" % r.volume_db)
+
+	# Throttle suppresses an immediate replay (ui_click throttle_ms = 40).
+	AudioDirector.sfx("ui_click")
+	_expect(AudioDirector.sfx("ui_click") == null, "second immediate ui_click is throttled to null")
 
 
 func _finish() -> void:
