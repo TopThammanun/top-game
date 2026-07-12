@@ -159,16 +159,21 @@ func _test_wave_changed_drives_state() -> void:
 
 func _test_placeholder_tones() -> void:
 	AudioRegistry.use_placeholder_tones = true
+	AudioRegistry.use_placeholder_beds = false
 	# A missing one-shot yields an audible short (non-looping) synth tone, not null:
 	var one_shot := AudioRegistry.load_stream("res://asset/audio/sfx/__ph_click__.wav")
 	_expect(one_shot is AudioStreamWAV, "missing one-shot yields a placeholder AudioStreamWAV (audible, not null)")
 	if one_shot is AudioStreamWAV:
 		_expect(one_shot.loop_mode == AudioStreamWAV.LOOP_DISABLED, "one-shot placeholder does not loop")
-	# A missing music/ambient bed yields a looping placeholder:
-	var bed := AudioRegistry.load_stream("res://asset/audio/music/__ph_bed__.ogg")
-	_expect(bed is AudioStreamWAV, "missing music bed yields a placeholder AudioStreamWAV")
+	# Background beds are SILENT by default (use_placeholder_beds off) — no drone:
+	_expect(AudioRegistry.load_stream("res://asset/audio/music/__ph_bed_off__.ogg") == null, "background bed is silent when use_placeholder_beds is off")
+	# ...but can be enabled, and then they loop:
+	AudioRegistry.use_placeholder_beds = true
+	var bed := AudioRegistry.load_stream("res://asset/audio/music/__ph_bed_on__.ogg")
+	_expect(bed is AudioStreamWAV, "enabling beds yields a placeholder AudioStreamWAV")
 	if bed is AudioStreamWAV:
 		_expect(bed.loop_mode == AudioStreamWAV.LOOP_FORWARD, "music-bed placeholder loops")
+	AudioRegistry.use_placeholder_beds = false   # restore default (background silent)
 
 
 func _finish() -> void:

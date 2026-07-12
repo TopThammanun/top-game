@@ -18,6 +18,10 @@ var loaded := false
 # so the fully-wired cue is still audible. Real assets always win (ResourceLoader.exists
 # short-circuits this branch). Set false for true silence.
 var use_placeholder_tones := true
+# Background music/ambient beds are OFF by default — the placeholder drone was unpleasant.
+# One-shot cues (clicks/chimes) still get placeholders; real music assets play regardless.
+# Flip to true to also hear placeholder beds.
+var use_placeholder_beds := false
 
 const PLACEHOLDER_RATE := 22050
 
@@ -83,13 +87,11 @@ func load_stream(path: String) -> AudioStream:
 	if _stream_cache.has(path):
 		return _stream_cache[path]
 	if not ResourceLoader.exists(path):
-		if use_placeholder_tones:
-			var tone := _placeholder_stream(path)
-			_stream_cache[path] = tone
-			return tone
-		push_warning("Audio stream missing: %s" % path)
-		_stream_cache[path] = null
-		return null
+		var tone := _placeholder_for(path)
+		if tone == null and not use_placeholder_tones:
+			push_warning("Audio stream missing: %s" % path)
+		_stream_cache[path] = tone
+		return tone
 	var res = load(path)
 	if res is AudioStream:
 		_stream_cache[path] = res
@@ -114,6 +116,18 @@ func _read_json(path: String):
 	if not FileAccess.file_exists(path):
 		return null
 	return JSON.parse_string(FileAccess.get_file_as_string(path))
+
+
+# Decide whether a missing asset gets a placeholder tone. One-shots always do (when tones
+# are on); music/ambient beds only when use_placeholder_beds is on (off by default so the
+# background stays silent). Returns null for "stay silent".
+func _placeholder_for(path: String) -> AudioStream:
+	if not use_placeholder_tones:
+		return null
+	var is_bed := path.contains("/music/") or path.contains("/ambient/")
+	if is_bed and not use_placeholder_beds:
+		return null
+	return _placeholder_stream(path)
 
 
 # Synthesize a gentle sine-tone AudioStreamWAV as a stand-in for a missing asset, so the
