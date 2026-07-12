@@ -20,6 +20,7 @@ func _ready() -> void:
 	_test_music_state_matrix()
 	_test_purr_bed()
 	_test_wave_changed_drives_state()
+	_test_placeholder_tones()
 	_finish()
 
 
@@ -34,8 +35,11 @@ func _test_registry_resolves_cues() -> void:
 	var cue := AudioRegistry.get_cue("ui_click")
 	_expect(str(cue.get("bus", "")) == "UI", "ui_click routes to the UI bus, got '%s'" % str(cue.get("bus", "")))
 	_expect(AudioRegistry.get_cue("does_not_exist").is_empty(), "unknown cue returns an empty Dictionary")
-	# Missing wav degrades to null, not a crash:
-	_expect(AudioRegistry.load_stream("res://asset/audio/__missing__.wav") == null, "missing wav returns null (no crash)")
+	# Missing wav degrades safely. With placeholder tones OFF it returns null (no crash);
+	# the ON path (audible synth tone) is covered by _test_placeholder_tones().
+	AudioRegistry.use_placeholder_tones = false
+	_expect(AudioRegistry.load_stream("res://asset/audio/__missing_off__.wav") == null, "missing wav returns null when placeholders off")
+	AudioRegistry.use_placeholder_tones = true
 	_expect(AudioRegistry.streams_for("ui_click") is Array, "streams_for always returns an Array")
 
 
@@ -151,6 +155,20 @@ func _test_wave_changed_drives_state() -> void:
 	_expect(AudioDirector._music_state == "boss", "wave 5 (boss) -> boss, got '%s'" % AudioDirector._music_state)
 	AudioDirector._on_run_ended("won")
 	_expect(AudioDirector._music_state == "region_restored", "run won -> region_restored, got '%s'" % AudioDirector._music_state)
+
+
+func _test_placeholder_tones() -> void:
+	AudioRegistry.use_placeholder_tones = true
+	# A missing one-shot yields an audible short (non-looping) synth tone, not null:
+	var one_shot := AudioRegistry.load_stream("res://asset/audio/sfx/__ph_click__.wav")
+	_expect(one_shot is AudioStreamWAV, "missing one-shot yields a placeholder AudioStreamWAV (audible, not null)")
+	if one_shot is AudioStreamWAV:
+		_expect(one_shot.loop_mode == AudioStreamWAV.LOOP_DISABLED, "one-shot placeholder does not loop")
+	# A missing music/ambient bed yields a looping placeholder:
+	var bed := AudioRegistry.load_stream("res://asset/audio/music/__ph_bed__.ogg")
+	_expect(bed is AudioStreamWAV, "missing music bed yields a placeholder AudioStreamWAV")
+	if bed is AudioStreamWAV:
+		_expect(bed.loop_mode == AudioStreamWAV.LOOP_FORWARD, "music-bed placeholder loops")
 
 
 func _finish() -> void:

@@ -14,6 +14,12 @@ var cues: Dictionary = {}        # id -> cue Dictionary
 var shortcuts: Dictionary = {}   # role -> Array of wav paths (or a single path)
 var zones: Dictionary = {}       # zone_id -> zone Dictionary
 var loaded := false
+# Dev fallback: when a real audio file is absent, synthesize a short placeholder tone
+# so the fully-wired cue is still audible. Real assets always win (ResourceLoader.exists
+# short-circuits this branch). Set false for true silence.
+var use_placeholder_tones := true
+
+const PLACEHOLDER_RATE := 22050
 
 var _stream_cache: Dictionary = {}   # path -> AudioStream
 
@@ -77,6 +83,10 @@ func load_stream(path: String) -> AudioStream:
 	if _stream_cache.has(path):
 		return _stream_cache[path]
 	if not ResourceLoader.exists(path):
+		if use_placeholder_tones:
+			var tone := _placeholder_stream(path)
+			_stream_cache[path] = tone
+			return tone
 		push_warning("Audio stream missing: %s" % path)
 		_stream_cache[path] = null
 		return null
@@ -104,3 +114,41 @@ func _read_json(path: String):
 	if not FileAccess.file_exists(path):
 		return null
 	return JSON.parse_string(FileAccess.get_file_as_string(path))
+
+
+# Synthesize a gentle sine-tone AudioStreamWAV as a stand-in for a missing asset, so the
+# fully-wired cue is audible before real content lands. Bed paths (music/ambient) loop and
+# sit an octave lower; one-shots are short blips. Pitch is derived from the path so each cue
+# sounds distinct and the music stems layer into a chord-ish drone.
+func _placeholder_stream(path: String) -> AudioStreamWAV:
+	var is_bed := path.contains("/music/") or path.contains("/ambient/")
+	var dur := 1.0 if is_bed else 0.14
+	var freq := 220.0 * pow(2.0, float(int(abs(path.hash())) % 12) / 12.0)
+	if is_bed:
+		freq *= 0.5
+	var n := int(PLACEHOLDER_RATE * dur)
+	var amp := 0.22 if is_bed else 0.30
+	var rel := 0.05
+	if not is_bed:
+		rel = dur * 0.35
+	var bytes := PackedByteArray()
+	bytes.resize(n * 2)
+	for i in range(n):
+		var t := float(i) / float(PLACEHOLDER_RATE)
+		var env := 1.0
+		if t < 0.01:
+			env = t / 0.01
+		elif t > dur - rel:
+			env = maxf(0.0, (dur - t) / rel)
+		var s := sin(TAU * freq * t) * amp * env
+		bytes.encode_s16(i * 2, int(clampf(s, -1.0, 1.0) * 32767.0))
+	var wav := AudioStreamWAV.new()
+	wav.format = AudioStreamWAV.FORMAT_16_BITS
+	wav.mix_rate = PLACEHOLDER_RATE
+	wav.stereo = false
+	wav.data = bytes
+	if is_bed:
+		wav.loop_mode = AudioStreamWAV.LOOP_FORWARD
+		wav.loop_begin = 0
+		wav.loop_end = n
+	return wav
