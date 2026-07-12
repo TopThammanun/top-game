@@ -165,6 +165,7 @@ var _speed_btn: Button
 var _speed_idx: int = 0
 var _warp_layer: CanvasLayer
 var _warp_rect: ColorRect
+var _warp_tween: Tween = null             # active wave-swap flash tween, if any
 var _hp_frame_tex: Texture2D              # slider-frame art for unit HP bars
 var _book_layer: CanvasLayer              # book-style party menu (Spellbook art)
 var _book: Control
@@ -1834,6 +1835,7 @@ func _advance_wave() -> void:
 		march.tween_property(u["sprite"], "position:x", u["sprite"].position.x + 320.0, 0.6) \
 			.set_trans(Tween.TRANS_SINE)
 	var warp := create_tween()
+	_warp_tween = warp
 	warp.tween_interval(0.5)
 	warp.tween_property(_warp_rect, "modulate:a", 1.0, 0.3)   # flash covers the swap (~0.8s)
 	warp.tween_callback(_do_wave_swap)
@@ -2728,6 +2730,16 @@ func _finish_starter_pick(index: int) -> void:
 
 func _open_draft() -> void:
 	_phase = "levelup"
+	# A level-up can land right as a wave-swap flash is fading out. Setting
+	# time_scale = 0 (below) would freeze that tween, leaving the light-blue
+	# _warp_rect stuck full-screen over the draft. The swap itself (_do_wave_swap)
+	# has already run by the time this gate fires (_phase was "warp" until then),
+	# so the only unfinished step is the cosmetic fade-out — cancel it and clear
+	# the flash so the draft is never covered.
+	if _warp_tween != null and _warp_tween.is_valid():
+		_warp_tween.kill()
+	_warp_tween = null
+	_warp_rect.modulate.a = 0.0
 	Engine.time_scale = 0.0
 	_pending_cards = _card_system.draw(_run, _roster_ids, _rng)
 	if _pending_cards.is_empty():
