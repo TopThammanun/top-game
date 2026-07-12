@@ -11,6 +11,10 @@ run/main_scene="res://scenes/combat/battle.tscn"
 config/features=PackedStringArray("4.2")
 config/icon="res://asset/ui/Individual files/1x/Mini icons/Icon_01.png"
 
+[audio]
+
+buses/default_bus_layout="res://default_bus_layout.tres"
+
 [autoload]
 
 AssetRegistry="*res://scripts/autoload/asset_registry.gd"
