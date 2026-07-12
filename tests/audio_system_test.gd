@@ -16,6 +16,7 @@ func _ready() -> void:
 	_test_sfx_configures_player()
 	_test_reward_ladder()
 	_test_music_zone_loads()
+	_test_play_zone_builds_stems()
 	_finish()
 
 
@@ -98,6 +99,21 @@ func _test_music_zone_loads() -> void:
 	_expect(zone.has("stems") and zone.has("states"), "zone has stems + states")
 	_expect(zone.get("states", {}).has("idle"), "zone has an 'idle' state")
 	_expect(AudioRegistry.get_zone("nope").is_empty(), "unknown zone returns an empty Dictionary")
+
+
+func _test_play_zone_builds_stems() -> void:
+	AudioDirector.play_zone("emberhearth")
+	_expect(AudioDirector._current_zone == "emberhearth", "current zone set to emberhearth")
+	_expect(AudioDirector._music_players.size() == 5, "5 stem players built, got %d" % AudioDirector._music_players.size())
+	for stem_name in AudioDirector._music_players.keys():
+		var p: AudioStreamPlayer = AudioDirector._music_players[stem_name]
+		_expect(p.bus == "Music", "stem '%s' is on the Music bus, got '%s'" % [stem_name, p.bus])
+	# Rebuild is idempotent (no duplicate players):
+	AudioDirector.play_zone("emberhearth")
+	_expect(AudioDirector._music_players.size() == 5, "replaying the zone keeps 5 players, not 10")
+	# Unknown zone is a safe no-op that does not disturb the current zone:
+	AudioDirector.play_zone("does_not_exist")
+	_expect(AudioDirector._current_zone == "emberhearth", "unknown zone is a no-op; current zone unchanged")
 
 
 func _finish() -> void:

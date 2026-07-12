@@ -8,11 +8,19 @@ const SETTINGS_PATH := "user://audio_settings.cfg"
 const MIN_DB := -80.0
 const POOL_SIZE := 6   # players per bus; round-robin so overlapping one-shots never allocate
 const REWARD_CUES := { 1: "loot_tiny_drop", 2: "loot_rare_drop", 3: "level_up", 4: "afk_chest_open", 5: "boss_clear" }
+const DEFAULT_ZONE := "emberhearth"
+const MUSIC_FADE_S := 1.5
+const BOSS_EVERY := 5
 
 var _volumes: Dictionary = {}   # bus_name -> 0..1
 var _pools: Dictionary = {}      # bus_name -> Array[AudioStreamPlayer]
 var _pool_idx: Dictionary = {}   # bus_name -> int
 var _last_played: Dictionary = {} # cue_id -> ticks_msec
+var _music_players: Dictionary = {}   # stem_name -> AudioStreamPlayer (Music bus)
+var _stem_tweens: Dictionary = {}      # stem_name -> Tween
+var _stem_targets: Dictionary = {}     # stem_name -> target linear 0..1 (synchronous test seam)
+var _current_zone: String = ""
+var _music_state: String = ""
 
 
 func _ready() -> void:
@@ -110,6 +118,40 @@ func reward(layer: int) -> AudioStreamPlayer:
 	# Reward cues are tuned + bus=SFX in sound_cues.json, so sfx() plays them
 	# un-jittered on SFX, where the Music/Ambient sidechain compressors duck.
 	return sfx(REWARD_CUES[layer])
+
+
+func play_zone(zone_id: String) -> void:
+	var zone := AudioRegistry.get_zone(zone_id)
+	if zone.is_empty():
+		push_warning("Unknown music zone: %s" % zone_id)
+		return
+	_clear_music()
+	var stems: Dictionary = zone.get("stems", {})
+	for stem_name in stems.keys():
+		var player := AudioStreamPlayer.new()
+		player.bus = "Music"
+		player.volume_db = MIN_DB   # start silent; set_music_state fades stems up
+		var stream := AudioRegistry.load_stream(str(stems[stem_name]))
+		player.stream = stream
+		add_child(player)
+		if stream != null:
+			player.play()
+		_music_players[str(stem_name)] = player
+	_current_zone = zone_id
+	_music_state = ""
+
+
+func _clear_music() -> void:
+	for stem_name in _music_players.keys():
+		var t = _stem_tweens.get(stem_name, null)
+		if t != null and t.is_valid():
+			t.kill()
+		var p: AudioStreamPlayer = _music_players[stem_name]
+		if is_instance_valid(p):
+			p.queue_free()
+	_music_players.clear()
+	_stem_tweens.clear()
+	_stem_targets.clear()
 
 
 func _on_run_ended(status: String) -> void:
