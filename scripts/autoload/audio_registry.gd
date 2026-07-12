@@ -8,9 +8,11 @@ signal audio_ready
 
 const CUES_PATH := "res://data/audio/sound_cues.json"
 const SHORTCUTS_PATH := "res://data/audio/audio_shortcuts.json"
+const ZONES_PATH := "res://data/audio/music_zones.json"
 
 var cues: Dictionary = {}        # id -> cue Dictionary
 var shortcuts: Dictionary = {}   # role -> Array of wav paths (or a single path)
+var zones: Dictionary = {}       # zone_id -> zone Dictionary
 var loaded := false
 
 var _stream_cache: Dictionary = {}   # path -> AudioStream
@@ -23,6 +25,7 @@ func _ready() -> void:
 func load_manifests() -> void:
 	cues.clear()
 	shortcuts.clear()
+	zones.clear()
 	loaded = false
 
 	var parsed_cues = _read_json(CUES_PATH)
@@ -37,12 +40,20 @@ func load_manifests() -> void:
 	if typeof(parsed_shortcuts) == TYPE_DICTIONARY:
 		shortcuts = parsed_shortcuts
 
+	var parsed_zones = _read_json(ZONES_PATH)
+	if typeof(parsed_zones) == TYPE_DICTIONARY:
+		zones = parsed_zones
+
 	loaded = true
 	audio_ready.emit()
 
 
 func get_cue(id: String) -> Dictionary:
 	return cues.get(id, {})
+
+
+func get_zone(zone_id: String) -> Dictionary:
+	return zones.get(zone_id, {})
 
 
 func has_cue(id: String) -> bool:

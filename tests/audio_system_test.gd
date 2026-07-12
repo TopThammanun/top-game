@@ -15,6 +15,7 @@ func _ready() -> void:
 	_test_volume_round_trips()
 	_test_sfx_configures_player()
 	_test_reward_ladder()
+	_test_music_zone_loads()
 	_finish()
 
 
@@ -89,6 +90,14 @@ func _test_sfx_configures_player() -> void:
 	# Throttle suppresses an immediate replay (ui_click throttle_ms = 40).
 	AudioDirector.sfx("ui_click")
 	_expect(AudioDirector.sfx("ui_click") == null, "second immediate ui_click is throttled to null")
+
+
+func _test_music_zone_loads() -> void:
+	var zone: Dictionary = AudioRegistry.get_zone("emberhearth")
+	_expect(not zone.is_empty(), "zone 'emberhearth' is known")
+	_expect(zone.has("stems") and zone.has("states"), "zone has stems + states")
+	_expect(zone.get("states", {}).has("idle"), "zone has an 'idle' state")
+	_expect(AudioRegistry.get_zone("nope").is_empty(), "unknown zone returns an empty Dictionary")
 
 
 func _finish() -> void:

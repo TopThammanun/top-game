@@ -1,0 +1,21 @@
+{
+  "emberhearth": {
+    "bpm": 84,
+    "key": "D_dorian",
+    "loop_len_s": 72,
+    "stems": {
+      "ambient_bed": "res://asset/audio/music/ember_ambient.ogg",
+      "warm_chords": "res://asset/audio/music/ember_chords.ogg",
+      "melody": "res://asset/audio/music/ember_melody.ogg",
+      "soft_percussion": "res://asset/audio/music/ember_perc.ogg",
+      "tension": "res://asset/audio/music/ember_tension.ogg"
+    },
+    "states": {
+      "idle":            {"ambient_bed": 1.0, "warm_chords": 0.7, "melody": 0.5, "soft_percussion": 0.0, "tension": 0.0},
+      "wave_pressure":   {"ambient_bed": 1.0, "warm_chords": 0.9, "melody": 0.7, "soft_percussion": 0.8, "tension": 0.3},
+      "boss":            {"ambient_bed": 0.8, "warm_chords": 1.0, "melody": 0.9, "soft_percussion": 1.0, "tension": 1.0},
+      "reward":          {"ambient_bed": 1.0, "warm_chords": 1.0, "melody": 1.0, "soft_percussion": 0.6, "tension": 0.0},
+      "region_restored": {"ambient_bed": 1.0, "warm_chords": 1.0, "melody": 1.0, "soft_percussion": 0.7, "tension": 0.0}
+    }
+  }
+}
