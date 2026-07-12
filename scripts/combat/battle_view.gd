@@ -1235,6 +1235,7 @@ func _build_subheader(w: float) -> void:
 
 
 func _on_nav(id: String) -> void:
+	AudioDirector.sfx("ui_click")
 	if id == "fight":
 		_close_screen()
 	else:
@@ -2760,6 +2761,7 @@ func _open_draft() -> void:
 
 
 func _on_levelup_chosen(index: int) -> void:
+	AudioDirector.reward(3)   # level-up chime
 	if index < 0 or index >= _pending_cards.size():
 		return
 	_apply_pick(_card_system.resolve(_pending_cards[index], _run))

@@ -20,6 +20,9 @@ func _ready() -> void:
 		_volumes[bus_name] = 1.0
 	_build_pools()
 	load_settings()
+	# GameState is an autoload initialized before this one, so connect directly.
+	# (No state_ready race here — run_ended is a runtime event, not a boot event.)
+	GameState.run_ended.connect(_on_run_ended)
 
 
 func set_bus_volume(bus_name: String, value01: float) -> void:
@@ -107,6 +110,12 @@ func reward(layer: int) -> AudioStreamPlayer:
 	# Reward cues are tuned + bus=SFX in sound_cues.json, so sfx() plays them
 	# un-jittered on SFX, where the Music/Ambient sidechain compressors duck.
 	return sfx(REWARD_CUES[layer])
+
+
+func _on_run_ended(status: String) -> void:
+	if status == "won":
+		reward(5)   # boss/region-clear celebration chime
+	# 'wiped' → defeat audio is added in Plan 2 (needs a defeat cue).
 
 
 func _next_player(bus_name: String) -> AudioStreamPlayer:
