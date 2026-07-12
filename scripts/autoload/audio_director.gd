@@ -154,6 +154,28 @@ func _clear_music() -> void:
 	_stem_targets.clear()
 
 
+func set_music_state(state: String) -> void:
+	if _current_zone == "":
+		return
+	var zone := AudioRegistry.get_zone(_current_zone)
+	var states: Dictionary = zone.get("states", {})
+	if not states.has(state):
+		push_warning("Music zone '%s' has no state '%s'" % [_current_zone, state])
+		return
+	var targets: Dictionary = states[state]
+	for stem_name in _music_players.keys():
+		var target: float = clampf(float(targets.get(stem_name, 0.0)), 0.0, 1.0)
+		_stem_targets[stem_name] = target
+		var player: AudioStreamPlayer = _music_players[stem_name]
+		var old_t = _stem_tweens.get(stem_name, null)
+		if old_t != null and old_t.is_valid():
+			old_t.kill()
+		var tw := create_tween()
+		tw.tween_property(player, "volume_db", (linear_to_db(target) if target > 0.0 else MIN_DB), MUSIC_FADE_S)
+		_stem_tweens[stem_name] = tw
+	_music_state = state
+
+
 func _on_run_ended(status: String) -> void:
 	if status == "won":
 		reward(5)   # boss/region-clear celebration chime

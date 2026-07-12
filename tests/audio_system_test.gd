@@ -17,6 +17,7 @@ func _ready() -> void:
 	_test_reward_ladder()
 	_test_music_zone_loads()
 	_test_play_zone_builds_stems()
+	_test_music_state_matrix()
 	_finish()
 
 
@@ -114,6 +115,20 @@ func _test_play_zone_builds_stems() -> void:
 	# Unknown zone is a safe no-op that does not disturb the current zone:
 	AudioDirector.play_zone("does_not_exist")
 	_expect(AudioDirector._current_zone == "emberhearth", "unknown zone is a no-op; current zone unchanged")
+
+
+func _test_music_state_matrix() -> void:
+	AudioDirector.play_zone("emberhearth")
+	AudioDirector.set_music_state("boss")
+	_expect(AudioDirector._music_state == "boss", "music state set to boss")
+	# boss matrix: ambient_bed 0.8, warm_chords 1.0, melody 0.9, soft_percussion 1.0, tension 1.0
+	_expect(abs(float(AudioDirector._stem_targets.get("tension", -1)) - 1.0) < 0.001, "boss drives tension to 1.0")
+	_expect(abs(float(AudioDirector._stem_targets.get("ambient_bed", -1)) - 0.8) < 0.001, "boss sets ambient_bed to 0.8")
+	AudioDirector.set_music_state("idle")
+	_expect(abs(float(AudioDirector._stem_targets.get("tension", -1)) - 0.0) < 0.001, "idle drives tension to 0.0")
+	# invalid state is a no-op that keeps the last state
+	AudioDirector.set_music_state("bogus")
+	_expect(AudioDirector._music_state == "idle", "invalid state is a no-op; state stays 'idle'")
 
 
 func _finish() -> void:
