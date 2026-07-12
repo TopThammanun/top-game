@@ -1,58 +1,10 @@
 [
-  {
-    "id": "ui_click",
-    "category": "sfx",
-    "priority": "prototype",
-    "variants_min": 4,
-    "mood": "tight_tactile"
-  },
-  {
-    "id": "loot_tiny_drop",
-    "category": "reward",
-    "priority": "prototype",
-    "reward_layer": 1,
-    "mood": "soft_chime"
-  },
-  {
-    "id": "loot_rare_drop",
-    "category": "reward",
-    "priority": "prototype",
-    "reward_layer": 2,
-    "mood": "brighter_chime"
-  },
-  {
-    "id": "level_up",
-    "category": "reward",
-    "priority": "prototype",
-    "reward_layer": 3,
-    "mood": "warm_rise"
-  },
-  {
-    "id": "afk_chest_open",
-    "category": "reward",
-    "priority": "prototype",
-    "reward_layer": 4,
-    "mood": "multi_stage_chest"
-  },
-  {
-    "id": "boss_clear",
-    "category": "reward",
-    "priority": "prototype",
-    "reward_layer": 5,
-    "mood": "celebration_without_noise"
-  },
-  {
-    "id": "cat_voice_mya",
-    "category": "voice",
-    "priority": "prototype",
-    "variants_min": 6,
-    "mood": "cute_short"
-  },
-  {
-    "id": "purr_ambient",
-    "category": "ambient",
-    "priority": "prototype",
-    "toggle": "ambient_volume",
-    "mood": "soft_signature"
-  }
+  { "id": "ui_click",       "category": "sfx",     "bus": "UI",      "variants": ["sfx.ui_click"],      "variants_min": 4, "pitch_jitter": 0.05, "vol_jitter": 1.5, "tuned": false, "duck": false, "throttle_ms": 40, "reward_layer": 0, "mood": "tight_tactile" },
+  { "id": "loot_tiny_drop", "category": "reward",  "bus": "SFX",     "variants": ["reward.loot_tiny"],  "variants_min": 1, "pitch_jitter": 0.0,  "vol_jitter": 0.0, "tuned": true,  "duck": true,  "throttle_ms": 0,  "reward_layer": 1, "mood": "soft_chime" },
+  { "id": "loot_rare_drop", "category": "reward",  "bus": "SFX",     "variants": ["reward.loot_rare"],  "variants_min": 1, "pitch_jitter": 0.0,  "vol_jitter": 0.0, "tuned": true,  "duck": true,  "throttle_ms": 0,  "reward_layer": 2, "mood": "brighter_chime" },
+  { "id": "level_up",       "category": "reward",  "bus": "SFX",     "variants": ["reward.level_up"],   "variants_min": 1, "pitch_jitter": 0.0,  "vol_jitter": 0.0, "tuned": true,  "duck": true,  "throttle_ms": 0,  "reward_layer": 3, "mood": "warm_rise" },
+  { "id": "afk_chest_open", "category": "reward",  "bus": "SFX",     "variants": ["reward.afk_chest"],  "variants_min": 1, "pitch_jitter": 0.0,  "vol_jitter": 0.0, "tuned": true,  "duck": true,  "throttle_ms": 0,  "reward_layer": 4, "mood": "multi_stage_chest" },
+  { "id": "boss_clear",     "category": "reward",  "bus": "SFX",     "variants": ["reward.boss_clear"], "variants_min": 1, "pitch_jitter": 0.0,  "vol_jitter": 0.0, "tuned": true,  "duck": true,  "throttle_ms": 0,  "reward_layer": 5, "mood": "celebration_without_noise" },
+  { "id": "cat_voice_mya",  "category": "voice",   "bus": "Voice",   "variants": ["voice.syl.mya"],     "variants_min": 6, "pitch_jitter": 0.0,  "vol_jitter": 0.0, "tuned": false, "duck": false, "throttle_ms": 0,  "reward_layer": 0, "mood": "cute_short" },
+  { "id": "purr_ambient",   "category": "ambient", "bus": "Ambient", "variants": ["ambient.purr"],      "variants_min": 2, "pitch_jitter": 0.0,  "vol_jitter": 0.0, "tuned": false, "duck": false, "throttle_ms": 0,  "reward_layer": 0, "mood": "soft_signature" }
 ]

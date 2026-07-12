@@ -11,12 +11,24 @@ var _failures: Array[String] = []
 
 func _ready() -> void:
 	_test_buses_exist()
+	_test_registry_resolves_cues()
 	_finish()
 
 
 func _test_buses_exist() -> void:
 	for bus_name in EXPECTED_BUSES:
 		_expect(AudioServer.get_bus_index(bus_name) >= 0, "bus '%s' exists" % bus_name)
+
+
+func _test_registry_resolves_cues() -> void:
+	_expect(AudioRegistry.loaded, "AudioRegistry finished loading manifests")
+	_expect(AudioRegistry.has_cue("ui_click"), "cue 'ui_click' is known")
+	var cue := AudioRegistry.get_cue("ui_click")
+	_expect(str(cue.get("bus", "")) == "UI", "ui_click routes to the UI bus, got '%s'" % str(cue.get("bus", "")))
+	_expect(AudioRegistry.get_cue("does_not_exist").is_empty(), "unknown cue returns an empty Dictionary")
+	# Missing wav degrades to null, not a crash:
+	_expect(AudioRegistry.load_stream("res://asset/audio/__missing__.wav") == null, "missing wav returns null (no crash)")
+	_expect(AudioRegistry.streams_for("ui_click") is Array, "streams_for always returns an Array")
 
 
 func _expect(cond: bool, msg: String) -> void:

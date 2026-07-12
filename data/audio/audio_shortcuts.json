@@ -1,0 +1,10 @@
+{
+  "sfx.ui_click":     ["res://asset/audio/sfx/ui_click_a.wav", "res://asset/audio/sfx/ui_click_b.wav"],
+  "reward.loot_tiny": ["res://asset/audio/reward/loot_tiny.wav"],
+  "reward.loot_rare": ["res://asset/audio/reward/loot_rare.wav"],
+  "reward.level_up":  ["res://asset/audio/reward/level_up.wav"],
+  "reward.afk_chest": ["res://asset/audio/reward/afk_chest.wav"],
+  "reward.boss_clear":["res://asset/audio/reward/boss_clear.wav"],
+  "voice.syl.mya":    ["res://asset/audio/voice/mya_01.wav"],
+  "ambient.purr":     ["res://asset/audio/ambient/purr_a.wav", "res://asset/audio/ambient/purr_b.wav"]
+}
