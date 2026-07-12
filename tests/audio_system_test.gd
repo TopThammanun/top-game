@@ -18,6 +18,7 @@ func _ready() -> void:
 	_test_music_zone_loads()
 	_test_play_zone_builds_stems()
 	_test_music_state_matrix()
+	_test_purr_bed()
 	_finish()
 
 
@@ -129,6 +130,16 @@ func _test_music_state_matrix() -> void:
 	# invalid state is a no-op that keeps the last state
 	AudioDirector.set_music_state("bogus")
 	_expect(AudioDirector._music_state == "idle", "invalid state is a no-op; state stays 'idle'")
+
+
+func _test_purr_bed() -> void:
+	AudioDirector.purr(true)
+	_expect(AudioDirector._purr_player != null, "purr(true) creates the purr player")
+	if AudioDirector._purr_player != null:
+		_expect(AudioDirector._purr_player.bus == "Ambient", "purr bed is on the Ambient bus, got '%s'" % AudioDirector._purr_player.bus)
+		_expect(abs(AudioDirector._purr_player.volume_db - AudioDirector.PURR_DB) < 0.001, "purr(true) sets volume to PURR_DB")
+	AudioDirector.purr(false)
+	_expect(not AudioDirector._purr_player.playing, "purr(false) stops the bed")
 
 
 func _finish() -> void:

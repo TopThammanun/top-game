@@ -11,6 +11,7 @@ const REWARD_CUES := { 1: "loot_tiny_drop", 2: "loot_rare_drop", 3: "level_up", 
 const DEFAULT_ZONE := "emberhearth"
 const MUSIC_FADE_S := 1.5
 const BOSS_EVERY := 5
+const PURR_DB := -27.0   # low-volume signature bed; combat ducking handled by the Ambient sidechain compressor
 
 var _volumes: Dictionary = {}   # bus_name -> 0..1
 var _pools: Dictionary = {}      # bus_name -> Array[AudioStreamPlayer]
@@ -21,6 +22,7 @@ var _stem_tweens: Dictionary = {}      # stem_name -> Tween
 var _stem_targets: Dictionary = {}     # stem_name -> target linear 0..1 (synchronous test seam)
 var _current_zone: String = ""
 var _music_state: String = ""
+var _purr_player: AudioStreamPlayer = null
 
 
 func _ready() -> void:
@@ -174,6 +176,21 @@ func set_music_state(state: String) -> void:
 		tw.tween_property(player, "volume_db", (linear_to_db(target) if target > 0.0 else MIN_DB), MUSIC_FADE_S)
 		_stem_tweens[stem_name] = tw
 	_music_state = state
+
+
+func purr(on: bool) -> void:
+	if _purr_player == null:
+		_purr_player = AudioStreamPlayer.new()
+		_purr_player.bus = "Ambient"
+		add_child(_purr_player)
+	if on:
+		var streams := AudioRegistry.streams_for("purr_ambient")
+		_purr_player.stream = streams[0] if not streams.is_empty() else null
+		_purr_player.volume_db = PURR_DB
+		if _purr_player.stream != null and not _purr_player.playing:
+			_purr_player.play()
+	else:
+		_purr_player.stop()
 
 
 func _on_run_ended(status: String) -> void:
